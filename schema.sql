@@ -43,3 +43,37 @@ CREATE INDEX IF NOT EXISTS idx_reports_iphash ON reports(ip_hash, created_at DES
 -- 지도에서 지역별 건수를 셀 때
 CREATE INDEX IF NOT EXISTS idx_reports_sido    ON reports(sido);
 CREATE INDEX IF NOT EXISTS idx_reports_sigungu ON reports(sigungu);
+
+-- ── 감시 참여 (사업별 서명) ──────────────────────────────
+-- "이 감시에 참여하기"로 받는 정보. 개인정보 처리방침의
+-- '캠페인 참여·서명' 항목에 해당한다.
+--
+-- ⚠️ 전화번호가 들어 있는 표입니다.
+--    - 조회·내보내기는 담당자만
+--    - 보유기간이 지나면 반드시 파기 (방침에 적은 기간)
+--    - 백업 파일에도 같이 담기므로 백업 보관에 주의
+CREATE TABLE IF NOT EXISTS participations (
+  id            INTEGER PRIMARY KEY AUTOINCREMENT,
+  campaign_id   TEXT    NOT NULL,          -- index.html 캠페인 JSON의 id
+  campaign_name TEXT,                      -- 당시 사업명 (나중에 제목이 바뀌어도 남게)
+  round         INTEGER,
+
+  name          TEXT    NOT NULL,
+  email         TEXT    NOT NULL,
+  phone         TEXT    NOT NULL,
+
+  -- 동의 기록. 언제, 어떤 문구에 동의했는지 남겨야 나중에 증명이 된다.
+  consent_privacy INTEGER NOT NULL DEFAULT 0,  -- 개인정보 수집·이용 (필수)
+  consent_news    INTEGER NOT NULL DEFAULT 0,  -- 캠페인 소식·후원 정보 수신
+  consent_version TEXT,                        -- 동의문 판 번호
+  consented_at    TEXT,
+
+  ip_hash       TEXT,
+  user_agent    TEXT,
+  utm           TEXT,
+  created_at    TEXT    NOT NULL DEFAULT (datetime('now'))
+);
+
+-- 같은 사업에 같은 이메일로 두 번 참여하지 않게
+CREATE UNIQUE INDEX IF NOT EXISTS idx_part_unique   ON participations(campaign_id, email);
+CREATE INDEX        IF NOT EXISTS idx_part_campaign ON participations(campaign_id, created_at DESC);

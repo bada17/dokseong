@@ -406,6 +406,7 @@ html { scroll-behavior: smooth; }
 #dok .dok-stat-item { text-align: center; }
 #dok .dok-stat-num {
   font-family: 'GmarketSans', sans-serif;
+  font-variant-numeric: tabular-nums;   /* 올라가는 동안 자릿수가 흔들리지 않게 */
   font-size: 42px; font-weight: 700; line-height: 1.1;
   color: var(--ink); letter-spacing: -0.01em;
 }
@@ -426,6 +427,148 @@ html { scroll-behavior: smooth; }
   #dok .dok-stat-num .dok-stat-unit { font-size: 15px; }
   #dok .dok-stat-label { font-size: 12.5px; margin-top: 7px; }
   #dok .dok-stat-sub { display: none; }
+}
+
+/* ── 감시 참여 ── */
+#dok .dok-camp-actions {
+  display: flex; gap: 8px; margin-top: 18px; flex-wrap: wrap;
+}
+#dok .dok-camp-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 44px; padding: 0 18px; border-radius: 999px;
+  font-family: 'GmarketSans', sans-serif; font-size: 13.5px; font-weight: 700;
+  cursor: pointer; border: 1.5px solid var(--line); background: #fff;
+  color: var(--ink-soft); transition: all .15s;
+}
+#dok .dok-camp-btn:hover { border-color: var(--brand); color: var(--brand-deep); }
+#dok .dok-camp-btn.is-join {
+  background: var(--alert); border-color: var(--alert); color: #fff;
+}
+#dok .dok-camp-btn.is-join:hover { background: #e0392c; border-color: #e0392c; color: #fff; }
+#dok .dok-camp-count {
+  font-size: 12.5px; font-weight: 700; color: var(--alert);
+  margin-top: 12px; display: none;
+}
+#dok .dok-camp-count.is-on { display: block; }
+
+/* 참여 팝업 */
+#dok .dok-join-modal {
+  margin: auto;
+  width: min(520px, calc(100vw - 32px));
+  max-height: min(90vh, 960px);
+  padding: 0; border: 0; border-radius: 18px;
+  background: var(--bg); color: var(--ink); overflow: hidden;
+}
+#dok .dok-join-modal::backdrop { background: rgba(13,28,38,.6); }
+#dok .dok-join-inner { display: flex; flex-direction: column; max-height: inherit; overflow-y: auto; }
+#dok .dok-join-head { padding: 26px 28px 0; position: relative; }
+#dok .dok-join-tag {
+  font-family: 'GmarketSans', sans-serif; font-size: 12px;
+  letter-spacing: .16em; color: var(--alert); margin-bottom: 8px;
+}
+#dok .dok-join-head h3 { font-size: 22px; padding-right: 44px; word-break: keep-all; line-height: 1.4; }
+#dok .dok-join-sub {
+  font-size: 14.5px; color: var(--ink-soft); margin-top: 10px; word-break: keep-all;
+}
+#dok .dok-join-close {
+  position: absolute; top: 20px; right: 20px;
+  width: 40px; height: 40px; border: 0; border-radius: 50%;
+  background: #eef3f6; color: var(--ink); font-size: 17px; cursor: pointer;
+}
+#dok .dok-join-close:hover { background: var(--line); }
+
+#dok .dok-join-form { padding: 22px 28px 28px; }
+#dok .dok-join-form label.dok-join-label {
+  display: block; font-size: 13.5px; font-weight: 700;
+  margin: 16px 0 6px; color: var(--ink);
+}
+#dok .dok-join-form label.dok-join-label:first-child { margin-top: 0; }
+#dok .dok-join-form input[type="text"],
+#dok .dok-join-form input[type="email"],
+#dok .dok-join-form input[type="tel"] {
+  width: 100%; font-family: inherit; font-size: 15.5px;
+  padding: 13px 15px; border-radius: 11px;
+  border: 1.5px solid var(--line); background: #fff; color: var(--ink);
+}
+#dok .dok-join-form input:focus { outline: none; border-color: var(--brand); }
+
+#dok .dok-join-consents {
+  margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--line);
+}
+#dok .dok-join-check {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 0; cursor: pointer;
+}
+#dok .dok-join-check input { margin-top: 3px; width: 18px; height: 18px; flex-shrink: 0; }
+#dok .dok-join-check span { font-size: 14px; line-height: 1.6; word-break: keep-all; }
+#dok .dok-join-check .dok-req { color: var(--alert); font-weight: 700; }
+#dok .dok-join-check a { color: var(--brand-deep); text-decoration: underline; }
+#dok .dok-join-detail {
+  margin: 4px 0 0 28px; font-size: 13px; color: var(--ink-soft);
+  background: #f4f9fc; border-radius: 10px; padding: 12px 14px; word-break: keep-all;
+}
+#dok .dok-join-detail b { color: var(--ink); }
+
+#dok .dok-join-submit {
+  width: 100%; margin-top: 22px; min-height: 52px;
+  font-family: 'GmarketSans', sans-serif; font-size: 16px; font-weight: 700;
+  color: #fff; background: var(--alert); border: 0; border-radius: 12px; cursor: pointer;
+  transition: background .15s;
+}
+#dok .dok-join-submit:hover { background: #e0392c; }
+#dok .dok-join-submit[disabled] { opacity: .55; cursor: progress; }
+#dok .dok-join-error {
+  display: none; margin-top: 14px; font-size: 14.5px; font-weight: 600; color: var(--alert);
+}
+
+/* 참여 완료 화면 */
+#dok .dok-join-done { display: none; padding: 40px 28px 36px; text-align: center; }
+#dok .dok-join-done.is-on { display: block; }
+#dok .dok-join-done .dok-join-done-mark { font-size: 44px; line-height: 1; }
+#dok .dok-join-done h4 { font-size: 21px; margin: 16px 0 10px; word-break: keep-all; }
+#dok .dok-join-done p { font-size: 15px; color: var(--ink-soft); word-break: keep-all; }
+#dok .dok-join-done .dok-join-total {
+  margin-top: 20px; padding: 16px; border-radius: 12px;
+  background: var(--brand-tint); font-size: 15px; font-weight: 700; color: var(--brand-deep);
+}
+#dok .dok-join-done .dok-join-close-btn {
+  margin-top: 22px; min-height: 48px; padding: 0 28px; border: 0; border-radius: 999px;
+  font-family: 'GmarketSans', sans-serif; font-size: 15px; font-weight: 700;
+  background: var(--ink); color: #fff; cursor: pointer;
+}
+
+@media (max-width: 620px) {
+  #dok .dok-join-modal {
+    width: 100vw; max-width: 100vw; height: 100dvh; max-height: 100dvh; border-radius: 0;
+  }
+  #dok .dok-join-inner { height: 100dvh; }
+  #dok .dok-join-head { padding: 20px 20px 0; }
+  #dok .dok-join-form { padding: 18px 20px 24px; }
+  #dok .dok-camp-btn { flex: 1; }
+}
+
+/* ── 접어 둔 섹션 ──
+   투표는 12월 왕중왕전으로 미뤘다. 지우지 않고 접어 둔다. */
+#dok .dok-fold-head {
+  max-width: 1080px; margin: 0 auto; padding: 0 24px;
+}
+#dok .dok-fold-btn {
+  width: 100%; display: flex; align-items: center; gap: 12px;
+  min-height: 64px; padding: 0 4px; cursor: pointer;
+  background: none; border: 0; text-align: left; color: var(--ink-soft);
+  font-family: inherit; font-size: 15px; font-weight: 700;
+}
+#dok .dok-fold-btn:hover { color: var(--brand-deep); }
+#dok .dok-fold-btn .dok-fold-badge {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .02em;
+  background: #eef3f6; color: var(--ink-soft);
+  padding: 4px 10px; border-radius: 999px; flex-shrink: 0;
+}
+#dok .dok-fold-btn .dok-fold-arrow { margin-left: auto; font-size: 13px; }
+#dok .dok-fold-body { display: none; }
+#dok .dok-fold-body.is-open { display: block; }
+@media (max-width: 620px) {
+  #dok .dok-fold-btn { font-size: 14px; gap: 8px; }
 }
 
 /* ── Top bar ── */
@@ -765,7 +908,6 @@ html { scroll-behavior: smooth; }
   </a>
   <nav>
     <a class="dok-nav-link" href="#dok-campaigns">예산감시 사업</a>
-    <a class="dok-nav-link" href="#dok-vote">투표</a>
     <a class="dok-nav-link" href="#dok-map">지도</a>
     <a class="dok-nav-link" href="#dok-history">역대 수상</a>
     <a class="dok-nav-link" href="#dok-report">시민 제보</a>
@@ -788,7 +930,7 @@ html { scroll-behavior: smooth; }
         예산낭비의 기록을 이어오고 있습니다.
       </p>
       <div class="dok-hero-actions">
-        <a class="dok-btn-main" href="#dok-vote">제41회 투표 참여하기</a>
+        <a class="dok-btn-main" href="#dok-campaigns">진행 중인 감시 참여하기</a>
         <a class="dok-btn-line" href="#dok-report">예산낭비 제보하기</a>
       </div>
     </div>
@@ -805,19 +947,19 @@ html { scroll-behavior: smooth; }
   <div class="dok-stats-inner">
 
     <div class="dok-stat-item">
-      <div class="dok-stat-num">40<span class="dok-stat-unit">회</span></div>
+      <div class="dok-stat-num"><span class="dok-count" data-to="40">0</span><span class="dok-stat-unit">회</span></div>
       <div class="dok-stat-label">수여한 밑빠진 독상</div>
       <div class="dok-stat-sub">2000년 8월 제1회부터</div>
     </div>
 
     <div class="dok-stat-item is-lead">
-      <div class="dok-stat-num">1,000<span class="dok-stat-unit">억 원</span></div>
+      <div class="dok-stat-num"><span class="dok-count" data-to="1000">0</span><span class="dok-stat-unit">억 원</span></div>
       <div class="dok-stat-label">밑빠진 독을 감시한 세금</div>
       <div class="dok-stat-sub">역대 수상 사업의 사업비 합계</div>
     </div>
 
     <div class="dok-stat-item">
-      <div class="dok-stat-num">26<span class="dok-stat-unit">년</span></div>
+      <div class="dok-stat-num"><span class="dok-count" data-to="26">0</span><span class="dok-stat-unit">년</span></div>
       <div class="dok-stat-label">이어온 예산감시</div>
       <div class="dok-stat-sub">정부·기업 지원 없이</div>
     </div>
@@ -910,6 +1052,77 @@ html { scroll-behavior: smooth; }
 <!-- 지도에서 "이 지역 제보하기"를 누르면 뜨는 팝업.
      아래 제보 섹션의 폼과 칸 구성이 같고, 제출 처리도 같은 함수를 쓴다.
      (data-f 로 칸을 찾으므로 id가 겹치지 않아도 된다) -->
+<!-- 감시 참여 팝업.
+     개인정보(이름·이메일·전화번호)를 받으므로 동의 없이는 제출되지 않는다.
+     동의 문구는 privacy.html 의 '별첨. 캠페인 소식 및 후원 정보 수신 동의'와 같은 내용이다.
+     문구를 고치면 functions/api/join.js 의 CONSENT_VERSION 도 함께 올릴 것. -->
+<dialog class="dok-join-modal" id="dok-join-modal" aria-labelledby="dok-join-title">
+  <div class="dok-join-inner">
+
+    <div class="dok-join-head" id="dok-join-head">
+      <div class="dok-join-tag">JOIN</div>
+      <h3 id="dok-join-title">이 감시에 참여하기</h3>
+      <p class="dok-join-sub" id="dok-join-sub"></p>
+      <button type="button" class="dok-join-close" id="dok-join-close" aria-label="닫기">✕</button>
+    </div>
+
+    <form class="dok-join-form" id="dok-join-form">
+      <label class="dok-join-label" for="dok-join-name">이름 <span class="dok-req">*</span></label>
+      <input type="text" id="dok-join-name" autocomplete="name" required>
+
+      <label class="dok-join-label" for="dok-join-email">이메일 <span class="dok-req">*</span></label>
+      <input type="email" id="dok-join-email" autocomplete="email" placeholder="hong@example.com" required>
+
+      <label class="dok-join-label" for="dok-join-phone">휴대전화번호 <span class="dok-req">*</span></label>
+      <input type="tel" id="dok-join-phone" autocomplete="tel" placeholder="010-1234-5678" required>
+
+      <div class="dok-hp" aria-hidden="true">
+        <label for="dok-join-website">이 칸은 비워두세요</label>
+        <input type="text" id="dok-join-website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="dok-join-consents">
+        <label class="dok-join-check">
+          <input type="checkbox" id="dok-join-consent-privacy" required>
+          <span>
+            <span class="dok-req">[필수]</span> 개인정보 수집·이용에 동의합니다.
+            <a href="privacy.html" target="_blank" rel="noopener">처리방침 보기</a>
+          </span>
+        </label>
+        <div class="dok-join-detail">
+          <b>수집 항목</b> 이름, 이메일, 휴대전화번호 ·
+          <b>이용 목적</b> 참여 확인, 감시 활동의 진행 상황과 결과 안내 ·
+          <b>보유 기간</b> 동의 철회 시까지
+        </div>
+
+        <label class="dok-join-check">
+          <input type="checkbox" id="dok-join-consent-news" required>
+          <span>
+            <span class="dok-req">[필수]</span> 캠페인 소식 및 후원 정보 수신에 동의합니다.
+          </span>
+        </label>
+        <div class="dok-join-detail">
+          참여한 캠페인의 진행 상황·결과 안내, 후속 활동 및 참여 기회 안내,
+          후원회원 전환 안내, 함께하는 시민행동의 주요 활동·행사 정보를 보내드립니다.
+          <b>동의 철회 시까지</b> 보유합니다.
+        </div>
+      </div>
+
+      <button type="submit" class="dok-join-submit" id="dok-join-submit">참여하기</button>
+      <p class="dok-join-error" id="dok-join-error" role="alert"></p>
+    </form>
+
+    <div class="dok-join-done" id="dok-join-done">
+      <div class="dok-join-done-mark">✊</div>
+      <h4>참여해 주셔서 고맙습니다</h4>
+      <p>이 감시의 진행 상황과 결과를 알려드리겠습니다.</p>
+      <div class="dok-join-total" id="dok-join-total"></div>
+      <button type="button" class="dok-join-close-btn" id="dok-join-done-close">닫기</button>
+    </div>
+
+  </div>
+</dialog>
+
 <dialog class="dok-report-modal" id="dok-report-modal" aria-labelledby="dok-report-modal-title">
   <div class="dok-report-modal-inner">
     <div class="dok-report-modal-head">
@@ -1026,6 +1239,18 @@ html { scroll-behavior: smooth; }
 
 </div>
 
+<!-- 투표는 12월 왕중왕전으로 미뤘다. 지우지 않고 접어 둔다.
+     펼치려면 아래 dok-fold-body 에 is-open 을 붙이거나, 버튼을 누르면 된다. -->
+<div class="dok-fold" id="dok-vote-fold">
+  <div class="dok-fold-head">
+    <button type="button" class="dok-fold-btn" id="dok-vote-fold-btn"
+            aria-expanded="false" aria-controls="dok-vote-fold-body">
+      <span class="dok-fold-badge">추후 공개</span>
+      <span>제41회 밑빠진 독상 투표 — 12월에 한 해를 모아 진행합니다</span>
+      <span class="dok-fold-arrow" aria-hidden="true">▾</span>
+    </button>
+  </div>
+  <div class="dok-fold-body" id="dok-vote-fold-body">
 <div class="dok-vote" id="dok-vote">
   <div class="dok-section">
     <div class="dok-section-tag">VOTE</div>
@@ -1076,6 +1301,8 @@ html { scroll-behavior: smooth; }
       </button>
     </div>
     <p class="dok-vote-done-msg" id="dok-vote-done">투표해 주셔서 감사합니다. 결과는 선정 발표와 함께 공개됩니다.</p>
+  </div>
+</div>
   </div>
 </div>
 
@@ -1405,7 +1632,14 @@ items.forEach(item => {
         '<div class="dok-map-stats">' +
           `<div class="dok-map-stat"><b>${totalAwards}</b><span>지역에 수여된 독상</span></div>` +
           `<div class="dok-map-stat"><b>${Object.values(reportCounts).reduce((x, y) => x + y, 0)}</b><span>시민 제보</span></div>` +
-        '</div>';
+        '</div>' +
+        '<button type="button" class="dok-map-report-cta">예산낭비 제보하기 →</button>';
+
+      const cta0 = side.querySelector('.dok-map-report-cta');
+      if (cta0) cta0.addEventListener('click', () => {
+        track('map_report_cta', { sido: '' });
+        openReportModal('', '');
+      });
       return;
     }
 
@@ -1568,7 +1802,12 @@ items.forEach(item => {
   const LABEL = { ongoing: '진행 중', closed: '종료' };
 
   function card(c, i) {
-    return `<button type="button" class="dok-camp-card" data-i="${i}">
+    // 카드 안에 버튼이 들어가므로 카드 자체는 button이 될 수 없다(중첩 불가).
+    // div에 role=button을 주고, 안쪽 버튼은 클릭이 위로 번지지 않게 막는다.
+    const join = c.status === 'ongoing'
+      ? `<button type="button" class="dok-camp-btn is-join" data-join="${i}">이 감시에 참여하기</button>`
+      : '';
+    return `<div class="dok-camp-card" data-i="${i}" role="button" tabindex="0">
       <div class="dok-camp-top">
         <span class="dok-camp-badge is-${esc(c.status)}">${LABEL[c.status] || ''}</span>
         ${c.period ? `<span class="dok-camp-period">${esc(c.period)}</span>` : ''}
@@ -1576,8 +1815,12 @@ items.forEach(item => {
       <h3>${esc(c.title)}</h3>
       <p>${esc(c.summary)}</p>
       ${c.outcome ? `<div class="dok-camp-outcome">${esc(c.outcome)}</div>` : ''}
-      <div class="dok-camp-more">${c.status === 'closed' ? '결과 보기' : '자세히 보기'} →</div>
-    </button>`;
+      <div class="dok-camp-count" data-count="${esc(c.id || '')}"></div>
+      <div class="dok-camp-actions">
+        <button type="button" class="dok-camp-btn" data-detail="${i}">${c.status === 'closed' ? '결과 보기' : '자세히 보기'} →</button>
+        ${join}
+      </div>
+    </div>`;
   }
 
   // ── 상세 모달 ──
@@ -1609,11 +1852,15 @@ items.forEach(item => {
     body.scrollTop = 0;
 
     const foot = document.getElementById('dok-camp-modal-foot');
-    foot.innerHTML = c.link
-      ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">관련 자료 보기 →</a>`
-      : '';
+    foot.innerHTML =
+      (c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">관련 자료 보기 →</a>` : '') +
+      (c.status === 'ongoing'
+        ? '<button type="button" class="dok-camp-btn is-join" id="dok-camp-foot-join">이 감시에 참여하기</button>'
+        : '');
     // 넣을 게 없으면 아래 테두리만 남아 어색하므로 통째로 숨긴다
     foot.style.display = foot.innerHTML ? 'flex' : 'none';
+    const fj = document.getElementById('dok-camp-foot-join');
+    if (fj) fj.addEventListener('click', () => { modal.close(); openJoin(c); });
 
     modal.showModal();
     document.body.style.overflow = 'hidden';
@@ -1641,8 +1888,26 @@ items.forEach(item => {
           : '아직 종료된 사업이 없습니다.'}</p>`;
 
     grid.querySelectorAll('.dok-camp-card').forEach((el) => {
-      el.addEventListener('click', () => openDetail(list[Number(el.dataset.i)]));
+      const c = list[Number(el.dataset.i)];
+      const open = () => openDetail(c);
+      el.addEventListener('click', open);
+      el.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); }
+      });
     });
+    grid.querySelectorAll('[data-detail]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openDetail(list[Number(el.dataset.detail)]);
+      });
+    });
+    grid.querySelectorAll('[data-join]').forEach((el) => {
+      el.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openJoin(list[Number(el.dataset.join)]);
+      });
+    });
+    paintCounts();
   }
 
   tabs.forEach((tab) => {
@@ -1656,6 +1921,119 @@ items.forEach(item => {
       track('view_campaigns', { status });
     });
   });
+
+
+  // ── 감시 참여 ──
+  const joinModal  = document.getElementById('dok-join-modal');
+  const joinForm   = document.getElementById('dok-join-form');
+  const joinDone   = document.getElementById('dok-join-done');
+  const joinError  = document.getElementById('dok-join-error');
+  const joinSubmit = document.getElementById('dok-join-submit');
+  let joinTarget = null;
+  let joinLastFocus = null;
+  let joinCounts = {};
+
+  function paintCounts() {
+    document.querySelectorAll('.dok-camp-count').forEach((el) => {
+      const n = joinCounts[el.dataset.count];
+      if (n) {
+        el.textContent = `✊ ${n.toLocaleString()}명이 함께하고 있습니다`;
+        el.classList.add('is-on');
+      } else {
+        el.textContent = '';
+        el.classList.remove('is-on');
+      }
+    });
+  }
+
+  function openJoin(c) {
+    if (!joinModal || !joinModal.showModal) return;
+    joinTarget = c;
+    joinLastFocus = document.activeElement;
+
+    document.getElementById('dok-join-title').textContent = c.title;
+    document.getElementById('dok-join-sub').textContent =
+      '이 감시에 이름을 더하면, 진행 상황과 결과를 알려드립니다.';
+
+    joinForm.reset();
+    joinForm.style.display = '';
+    document.getElementById('dok-join-head').style.display = '';
+    joinDone.classList.remove('is-on');
+    joinError.style.display = 'none';
+
+    joinModal.showModal();
+    document.body.style.overflow = 'hidden';
+    document.getElementById('dok-join-name').focus();
+    track('join_open', { id: c.id || '' });
+  }
+
+  function closeJoin() { if (joinModal) joinModal.close(); }
+
+  if (joinModal) {
+    document.getElementById('dok-join-close').addEventListener('click', closeJoin);
+    document.getElementById('dok-join-done-close').addEventListener('click', closeJoin);
+    joinModal.addEventListener('click', (e) => { if (e.target === joinModal) closeJoin(); });
+    joinModal.addEventListener('close', () => {
+      document.body.style.overflow = '';
+      if (joinLastFocus) joinLastFocus.focus();
+    });
+
+    joinForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!joinTarget) return;
+      joinError.style.display = 'none';
+
+      const payload = {
+        campaign_id:   joinTarget.id || '',
+        campaign_name: joinTarget.title || '',
+        name:  document.getElementById('dok-join-name').value.trim(),
+        email: document.getElementById('dok-join-email').value.trim(),
+        phone: document.getElementById('dok-join-phone').value.trim(),
+        consent_privacy: document.getElementById('dok-join-consent-privacy').checked,
+        consent_news:    document.getElementById('dok-join-consent-news').checked,
+        website: document.getElementById('dok-join-website').value,
+        utm: utmParams
+      };
+
+      joinSubmit.disabled = true;
+      joinSubmit.textContent = '보내는 중…';
+
+      try {
+        const res = await fetch('/api/join', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const out = await res.json().catch(() => ({}));
+
+        if (res.ok && out.ok) {
+          track('join_submit', { id: joinTarget.id || '' });
+          joinCounts[joinTarget.id] = out.total || 0;
+          paintCounts();
+          document.getElementById('dok-join-total').textContent =
+            out.total ? `지금까지 ${out.total.toLocaleString()}명이 함께하고 있습니다` : '';
+          joinForm.style.display = 'none';
+          document.getElementById('dok-join-head').style.display = 'none';
+          joinDone.classList.add('is-on');
+        } else {
+          joinError.textContent = out.error || '참여하지 못했습니다. 잠시 후 다시 시도해주세요.';
+          joinError.style.display = 'block';
+        }
+      } catch {
+        joinError.textContent = '연결에 실패했습니다. 인터넷 상태를 확인하고 다시 시도해주세요.';
+        joinError.style.display = 'block';
+      } finally {
+        joinSubmit.disabled = false;
+        joinSubmit.textContent = '참여하기';
+      }
+    });
+  }
+
+  // 참여자 수 불러오기 (없어도 화면은 그대로 뜬다)
+  fetch('/api/join')
+    .then((r) => r.json())
+    .then((d) => { joinCounts = d.counts || {}; paintCounts(); })
+    .catch(() => {});
 
   render('ongoing');
 })();
@@ -1757,6 +2135,57 @@ if (reportModal) {
     if (reportModalLastFocus) reportModalLastFocus.focus();
   });
 }
+
+// ── 지표 숫자 올리기 ──
+// 화면에 들어왔을 때 한 번만 0에서 목표까지 올린다.
+(function () {
+  const nums = [...document.querySelectorAll('.dok-count')];
+  if (!nums.length) return;
+
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const fmt = (n) => n.toLocaleString('ko-KR');
+
+  function run(el) {
+    const to = Number(el.dataset.to || 0);
+    if (reduced) { el.textContent = fmt(to); return; }
+
+    const dur = 1400;
+    const t0 = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - t0) / dur);
+      // 처음엔 빠르게, 끝에서 부드럽게 멈춘다
+      const eased = 1 - Math.pow(1 - t, 3);
+      el.textContent = fmt(Math.round(to * eased));
+      if (t < 1) requestAnimationFrame(step);
+      else el.textContent = fmt(to);
+    }
+    requestAnimationFrame(step);
+  }
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);
+      run(e.target);
+    });
+  }, { threshold: 0.6 });
+
+  nums.forEach((el) => io.observe(el));
+})();
+
+// ── 투표 섹션 접기 ──
+// 12월 왕중왕전으로 미뤘다. 기능은 그대로 두고 접어만 둔다.
+(function () {
+  const btn = document.getElementById('dok-vote-fold-btn');
+  const body = document.getElementById('dok-vote-fold-body');
+  if (!btn || !body) return;
+  btn.addEventListener('click', () => {
+    const open = body.classList.toggle('is-open');
+    btn.setAttribute('aria-expanded', String(open));
+    btn.querySelector('.dok-fold-arrow').textContent = open ? '▴' : '▾';
+    if (open) track('open_vote_fold', {});
+  });
+})();
 
 // ── 전체 수상 내역 토글 ──
 const toggleBtn = document.getElementById('dok-all-toggle');
