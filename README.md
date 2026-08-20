@@ -105,12 +105,45 @@ npx wrangler pages secret put IP_SALT
 ## 로컬에서 보기
 
 ```bash
-npx wrangler pages dev public --d1 DB=dokseong
-npx wrangler d1 execute dokseong --local --file=schema.sql   # 최초 1회
+python tools/preview.py
 ```
 
-DB 없이 화면만 볼 거면 `python -m http.server 8000 -d public` 으로도 충분합니다
-(제보 폼만 동작하지 않습니다).
+→ http://localhost:8321/
+
+파일을 고치면 **브라우저가 알아서 새로고침**합니다. 캐시도 꺼져 있어서
+"고쳤는데 화면이 그대로"인 일이 없습니다.
+(자동 새로고침 스크립트는 서버가 내려줄 때 끼워 넣는 것이라 배포본에는 안 들어갑니다.)
+
+DB가 붙은 화면까지 보려면:
+
+```bash
+npx wrangler d1 execute dokseong --local --file=schema.sql   # 최초 1회
+npx wrangler pages dev public --d1 DB=dokseong
+```
+
+`tools/preview.py` 로 볼 때는 DB가 없으므로 제보·참여를 제출하면
+"접수 중 문제가 생겼습니다"가 뜹니다. **정상입니다.**
+
+## 이어서 할 일
+
+작업을 멈췄다가 다시 시작할 때 볼 곳입니다.
+
+**바로 할 수 있는 것**
+- 예산감시 사업 4건을 실제 사업으로 교체 (목록 JSON + 상세 `<article>`)
+- 사업 이미지 넣기 → [public/img/README.md](public/img/README.md)
+- 첫 화면 지표의 **1,000억 원** 을 실제 합계로 (지금은 확인 안 된 값)
+- 제보 예시 2건을 실제로 들어온 제보 중 확인 끝난 것으로 교체
+
+**남이 해줘야 하는 것**
+- `dok.action.or.kr` DNS 레코드 → [DEPLOY.md](DEPLOY.md) 4번
+- R2 버킷 생성 후 사진 기능 켜기 → DEPLOY.md 위쪽
+- 개인정보 처리방침 16곳 채우기 (공개 전환 전 필수)
+
+**아직 손 안 댄 것**
+- 시군구 드릴다운 (데이터는 `public/data/map-sigungu/` 에 준비돼 있음)
+- 투표 (12월 왕중왕전 예정, 지금은 접혀 있음)
+- 회차별 결과 아카이브
+- 관리자 화면 — 지금은 제보·참여를 볼 방법이 `wrangler d1 execute` 뿐입니다
 
 ## 지금 상태
 
