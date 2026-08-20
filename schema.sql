@@ -12,7 +12,9 @@
 CREATE TABLE IF NOT EXISTS reports (
   id            INTEGER PRIMARY KEY AUTOINCREMENT,
   round         INTEGER NOT NULL,
-  project_name  TEXT    NOT NULL,          -- 사업명
+  -- 사업명은 선택입니다. 일반 시민은 「○○천 수변경관 개선사업」 같은
+  -- 정식 명칭을 모릅니다. 필수로 두면 이미 답을 아는 사람만 제보하게 됩니다.
+  project_name  TEXT,                      -- 사업명 (알면 적는 정도)
   region        TEXT,                      -- 지역·기관
   detail        TEXT    NOT NULL,          -- 제보 내용
   email         TEXT,                      -- 회신용 (선택 입력)
@@ -24,6 +26,10 @@ CREATE TABLE IF NOT EXISTS reports (
   -- 중앙부처 제보처럼 지역이 없으면 둘 다 비운다.
   sido          TEXT,
   sigungu       TEXT,
+
+  -- 제보 사진. R2에 올리고 키 목록만 JSON 배열로 둔다.
+  -- 예: ["reports/41/9f2c….jpg"]
+  photos        TEXT,
 
   -- new: 접수됨 / reviewing: 검토 중 / candidate: 후보로 채택
   -- dropped: 후보 탈락 / spam: 스팸

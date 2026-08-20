@@ -657,6 +657,97 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-map-panel-close:hover { background: var(--line); color: var(--ink); }
 
+/* ── 제보 사진 ── */
+#dok .dok-or {
+  font-size: 12px; font-weight: 600; color: rgba(255,255,255,.55);
+  margin-left: 6px; word-break: keep-all;
+}
+#dok .dok-photo-label {
+  display: block; font-size: 13.5px; font-weight: 700;
+  margin: 18px 0 8px; color: rgba(255,255,255,.9);
+}
+#dok .dok-photo-box { }
+#dok .dok-photo-pick {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 4px; padding: 22px 16px; cursor: pointer;
+  border: 1.5px dashed rgba(255,255,255,.28); border-radius: 12px;
+  background: rgba(255,255,255,.04); transition: all .15s;
+  text-align: center;
+}
+#dok .dok-photo-pick:hover { border-color: var(--brand); background: rgba(0,175,236,.08); }
+#dok .dok-photo-icon { font-size: 22px; color: var(--brand); line-height: 1; }
+#dok .dok-photo-pick > span:nth-child(2) { font-size: 14.5px; font-weight: 700; color: #fff; }
+#dok .dok-photo-hint { font-size: 12.5px; color: rgba(255,255,255,.5); word-break: keep-all; }
+#dok .dok-photo-list {
+  display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;
+}
+#dok .dok-photo-thumb {
+  position: relative; width: 84px; height: 84px; border-radius: 10px;
+  overflow: hidden; background: rgba(255,255,255,.08);
+}
+#dok .dok-photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+#dok .dok-photo-del {
+  position: absolute; top: 3px; right: 3px;
+  width: 24px; height: 24px; border: 0; border-radius: 50%;
+  background: rgba(13,28,38,.78); color: #fff; font-size: 12px; cursor: pointer;
+  line-height: 1;
+}
+#dok .dok-photo-warn {
+  font-size: 12.5px; color: rgba(255,255,255,.5);
+  margin-top: 10px; word-break: keep-all; line-height: 1.6;
+}
+
+/* ── 마감 안내 ── */
+#dok .dok-deadline {
+  display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 18px; padding: 12px 18px; border-radius: 999px;
+  background: rgba(255,74,61,.14); border: 1px solid rgba(255,74,61,.35);
+  font-size: 14.5px; color: #fff; word-break: keep-all;
+}
+#dok .dok-deadline b { color: var(--alert); }
+#dok .dok-deadline .dok-dday {
+  font-family: 'GmarketSans', sans-serif; font-weight: 700; font-size: 15px;
+  background: var(--alert); color: #fff; padding: 3px 12px; border-radius: 999px;
+}
+#dok .dok-deadline-modal {
+  font-size: 13.5px; color: var(--brand); font-weight: 700; margin-top: 6px;
+}
+@media (max-width: 620px) {
+  #dok .dok-deadline { font-size: 13.5px; padding: 11px 14px; }
+}
+
+#dok .dok-join-why {
+  font-size: 12.5px; color: var(--ink-soft); line-height: 1.6;
+  margin-top: 7px; word-break: keep-all;
+}
+
+/* ── 이렇게 제보가 쓰입니다 ── */
+#dok .dok-samples { margin-top: 44px; }
+#dok .dok-samples-title {
+  font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px;
+}
+#dok .dok-samples-sub {
+  font-size: 13.5px; color: rgba(255,255,255,.6); margin-bottom: 18px; word-break: keep-all;
+}
+#dok .dok-samples-list { display: grid; gap: 12px; }
+#dok .dok-sample {
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12);
+  border-radius: 13px; padding: 18px 20px;
+}
+#dok .dok-sample-quote {
+  font-size: 15px; color: #fff; line-height: 1.65; word-break: keep-all;
+}
+#dok .dok-sample-meta {
+  font-size: 12.5px; color: rgba(255,255,255,.5); margin-top: 10px;
+}
+#dok .dok-sample-result {
+  margin-top: 12px; padding-top: 12px; border-top: 1px dashed rgba(255,255,255,.16);
+  font-size: 13.5px; color: var(--brand); font-weight: 700; word-break: keep-all;
+}
+@media (min-width: 780px) {
+  #dok .dok-samples-list { grid-template-columns: repeat(2, 1fr); }
+}
+
 /* ── Top bar ── */
 #dok .dok-topbar {
   display: flex;
@@ -1169,6 +1260,10 @@ html { scroll-behavior: smooth; }
 
       <label class="dok-join-label" for="dok-join-phone">휴대전화번호 <span class="dok-req">*</span></label>
       <input type="tel" id="dok-join-phone" autocomplete="tel" placeholder="010-1234-5678" required>
+      <p class="dok-join-why">
+        급하게 움직여야 할 때(공청회·기자회견·서명 마감) 문자로 알려드리고,
+        후원 안내를 드릴 때 씁니다. 광고 전화는 하지 않습니다.
+      </p>
 
       <div class="dok-hp" aria-hidden="true">
         <label for="dok-join-website">이 칸은 비워두세요</label>
@@ -1223,20 +1318,37 @@ html { scroll-behavior: smooth; }
       <div class="dok-report-modal-tag">REPORT</div>
       <h3 id="dok-report-modal-title">예산낭비 제보하기</h3>
       <p class="dok-report-modal-sub" id="dok-report-modal-sub"></p>
+      <p class="dok-deadline-modal" id="dok-deadline-modal"></p>
       <button type="button" class="dok-report-modal-close" id="dok-report-modal-close" aria-label="닫기">✕</button>
     </div>
 
     <form class="dok-report-form dok-report-form-modal" id="dok-report-form-modal">
-      <label for="dok-mrp-name">사업명 <span style="color:var(--alert)">*</span></label>
-      <input type="text" id="dok-mrp-name" data-f="project_name" placeholder="예: ○○시 △△ 건설 사업" required>
+      <label for="dok-mrp-detail">무엇을 보셨나요? <span class="dok-or">내용이나 사진 중 하나는 꼭 필요합니다</span></label>
+      <textarea id="dok-mrp-detail" data-f="detail" placeholder="사업 이름은 몰라도 됩니다. 어디에 무엇이 있고 왜 이상한지, 보신 대로 적어주세요. 예: 우리 동네 하천에 다리를 새로 놨는데 건너편에 아무것도 없어서 아무도 안 다닙니다."></textarea>
+
       <label for="dok-mrp-sido">지역</label>
       <select id="dok-mrp-sido" data-f="sido">
         <option value="">지역을 고르세요 (중앙부처면 비워두세요)</option>
       </select>
       <label for="dok-mrp-region">기관·세부 지역</label>
       <input type="text" id="dok-mrp-region" data-f="region" placeholder="예: ○○구청, 행정안전부 등">
-      <label for="dok-mrp-detail">제보 내용 <span style="color:var(--alert)">*</span></label>
-      <textarea id="dok-mrp-detail" data-f="detail" placeholder="어떤 점이 문제라고 생각하시는지 알려주세요. 관련 기사나 자료 링크가 있다면 함께 적어주세요." required></textarea>
+      
+
+      <label class="dok-photo-label">사진 (선택 — 3장까지)</label>
+      <div class="dok-photo-box">
+        <label class="dok-photo-pick" for="dok-mrp-photos">
+          <span class="dok-photo-icon" aria-hidden="true">＋</span>
+          <span>사진 고르기</span>
+          <span class="dok-photo-hint">찍어둔 사진이 있으면 글보다 확실합니다</span>
+        </label>
+        <input type="file" id="dok-mrp-photos" data-f="photos" accept="image/*" multiple hidden>
+        <div class="dok-photo-list" data-f="photolist"></div>
+        <p class="dok-photo-warn">
+          사람 얼굴이나 차량 번호가 찍힌 사진은 피해주세요. 사진은 공개되지 않고
+          예산감시 활동 확인용으로만 씁니다.
+        </p>
+      </div>
+
       <label for="dok-mrp-email">회신 받을 이메일 (선택 — 추첨 당첨 안내도 이 주소로 갑니다)</label>
       <input type="email" id="dok-mrp-email" data-f="email" placeholder="확인 후 진행 상황을 알려드립니다">
 
@@ -1523,22 +1635,44 @@ html { scroll-behavior: smooth; }
       우리 동네에서 새고 있는 세금, 알려주세요.
     </p>
 
+
+    <!-- 마감. wrangler.toml 의 REPORT_DEADLINE 과 같은 날짜로 맞춰 주세요.
+         화면에 박혀 있는 값이라 차수가 바뀌면 여기도 고쳐야 합니다. -->
+    <p class="dok-deadline" id="dok-deadline"
+       data-date="2026-09-15" data-label="하반기 1차 제보 마감"></p>
+
     <p class="dok-report-gift">
       🎟️ 제보하신 분들 중 추첨을 통해서 <b>5분</b>에게
       함께하는 시민행동 <b>후원의 밤 초대권</b>을 드립니다.
     </p>
 
     <form class="dok-report-form" id="dok-report-form">
-      <label for="dok-rp-name">사업명 <span style="color:var(--alert)">*</span></label>
-      <input type="text" id="dok-rp-name" data-f="project_name" placeholder="예: ○○시 △△ 건설 사업" required>
+      <label for="dok-rp-detail">무엇을 보셨나요? <span class="dok-or">내용이나 사진 중 하나는 꼭 필요합니다</span></label>
+      <textarea id="dok-rp-detail" data-f="detail" placeholder="사업 이름은 몰라도 됩니다. 어디에 무엇이 있고 왜 이상한지, 보신 대로 적어주세요. 예: 우리 동네 하천에 다리를 새로 놨는데 건너편에 아무것도 없어서 아무도 안 다닙니다."></textarea>
+
       <label for="dok-rp-sido">지역</label>
       <select id="dok-rp-sido" data-f="sido">
         <option value="">지역을 고르세요 (중앙부처면 비워두세요)</option>
       </select>
       <label for="dok-rp-region">기관·세부 지역</label>
       <input type="text" id="dok-rp-region" data-f="region" placeholder="예: ○○구청, 행정안전부 등">
-      <label for="dok-rp-detail">제보 내용 <span style="color:var(--alert)">*</span></label>
-      <textarea id="dok-rp-detail" data-f="detail" placeholder="어떤 점이 문제라고 생각하시는지 알려주세요. 관련 기사나 자료 링크가 있다면 함께 적어주세요." required></textarea>
+      
+
+      <label class="dok-photo-label">사진 (선택 — 3장까지)</label>
+      <div class="dok-photo-box">
+        <label class="dok-photo-pick" for="dok-rp-photos">
+          <span class="dok-photo-icon" aria-hidden="true">＋</span>
+          <span>사진 고르기</span>
+          <span class="dok-photo-hint">찍어둔 사진이 있으면 글보다 확실합니다</span>
+        </label>
+        <input type="file" id="dok-rp-photos" data-f="photos" accept="image/*" multiple hidden>
+        <div class="dok-photo-list" data-f="photolist"></div>
+        <p class="dok-photo-warn">
+          사람 얼굴이나 차량 번호가 찍힌 사진은 피해주세요. 사진은 공개되지 않고
+          예산감시 활동 확인용으로만 씁니다.
+        </p>
+      </div>
+
       <label for="dok-rp-email">회신 받을 이메일 (선택 — 추첨 당첨 안내도 이 주소로 갑니다)</label>
       <input type="email" id="dok-rp-email" data-f="email" placeholder="확인 후 진행 상황을 알려드립니다">
 
@@ -1553,6 +1687,34 @@ html { scroll-behavior: smooth; }
       <p class="dok-report-error" id="dok-report-error" data-f="error" role="alert"></p>
       <p class="dok-report-note">제보 내용은 예산감시 활동 목적으로만 사용되며, 제보자 정보는 공개되지 않습니다. 자세한 내용은 <a href="privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a>을 확인해 주세요.</p>
     </form>
+
+    <!-- ── 이렇게 제보가 쓰입니다 ──
+         ⚠️ 실제 제보를 자동으로 끌어오지 않습니다. 확인이 끝나고 공개해도 되는
+         것만 사람이 골라 아래에 옮겨 적습니다. 제보자 정보는 절대 넣지 마세요.
+         (지금 들어 있는 것은 예시입니다) -->
+    <div class="dok-samples">
+      <div class="dok-samples-title">이렇게 제보가 쓰입니다</div>
+      <p class="dok-samples-sub">
+        확인이 끝난 제보만 골라서 싣습니다. 사업 이름을 모른 채 들어온 제보도
+        많습니다 — 본 것만 적어주시면 저희가 찾아봅니다.
+      </p>
+      <div class="dok-samples-list" id="dok-samples-list"></div>
+    </div>
+
+<script type="application/json" id="dok-sample-data">
+[
+  {
+    "quote": "(예시) 우리 동네 하천에 다리를 새로 놨는데 건너편이 논밭이라 아무도 안 다닙니다. 밤에는 조명만 켜져 있어요.",
+    "meta": "2025년 · 경기",
+    "result": "확인 결과 유사 시설이 인근 3곳에 이미 있었습니다 — 제40회 후보로 검토"
+  },
+  {
+    "quote": "(예시) 시청 앞에 큰 조형물이 생겼는데 주민 설명회를 본 적이 없습니다. 얼마 들었는지 물어봐도 답을 안 줍니다.",
+    "meta": "2025년 · 강원",
+    "result": "정보공개청구로 사업비를 확인해 공개했습니다"
+  }
+]
+</script>
   </div>
 </div>
 
@@ -2178,39 +2340,103 @@ function setupReportForm(form) {
   const f = (name) => form.querySelector(`[data-f="${name}"]`);
   const btn = f('submit'), done = f('done'), error = f('error');
 
+  // ── 사진 고르기 ──
+  // 요즘 폰 사진은 한 장에 5MB가 넘는다. 그대로 올리면 모바일에서 실패하므로
+  // 브라우저에서 먼저 줄여서 보낸다.
+  const MAX_PHOTOS = 3;
+  const MAX_SIDE = 1600;
+  let photos = [];   // { file, url }
+
+  const input = f('photos');
+  const listEl = f('photolist');
+
+  function shrink(file) {
+    return new Promise((resolve) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        const scale = Math.min(1, MAX_SIDE / Math.max(img.width, img.height));
+        if (scale === 1 && file.size < 1200000) { URL.revokeObjectURL(url); resolve(file); return; }
+        const cv = document.createElement('canvas');
+        cv.width = Math.round(img.width * scale);
+        cv.height = Math.round(img.height * scale);
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        cv.toBlob((blob) => {
+          URL.revokeObjectURL(url);
+          resolve(blob ? new File([blob], 'photo.jpg', { type: 'image/jpeg' }) : file);
+        }, 'image/jpeg', 0.82);
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
+      img.src = url;
+    });
+  }
+
+  function drawPhotos() {
+    if (!listEl) return;
+    listEl.innerHTML = photos.map((ph, i) =>
+      `<div class="dok-photo-thumb"><img src="${ph.url}" alt="">` +
+      `<button type="button" class="dok-photo-del" data-i="${i}" aria-label="사진 빼기">✕</button></div>`
+    ).join('');
+    listEl.querySelectorAll('.dok-photo-del').forEach((el) => {
+      el.addEventListener('click', () => {
+        const i = Number(el.dataset.i);
+        URL.revokeObjectURL(photos[i].url);
+        photos.splice(i, 1);
+        drawPhotos();
+      });
+    });
+  }
+
+  if (input) {
+    input.addEventListener('change', async () => {
+      const picked = [...input.files].filter((x) => x.type.startsWith('image/'));
+      for (const file of picked) {
+        if (photos.length >= MAX_PHOTOS) break;
+        const small = await shrink(file);
+        photos.push({ file: small, url: URL.createObjectURL(small) });
+      }
+      input.value = '';
+      drawPhotos();
+    });
+  }
+
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     error.style.display = 'none';
     done.style.display = 'none';
 
     const val = (n) => (f(n) ? f(n).value.trim() : '');
-    const payload = {
-      project_name: val('project_name'),
-      region:       val('region'),
-      sido:         f('sido') ? f('sido').value : '',
-      detail:       val('detail'),
-      email:        val('email'),
-      website:      f('website') ? f('website').value : '',
-      utm:          utmParams
-    };
-    if (!payload.project_name || !payload.detail) return;
+    const detail = val('detail');
+    if (!detail && photos.length === 0) {
+      error.textContent = '내용을 적거나 사진을 올려주세요.';
+      error.style.display = 'block';
+      return;
+    }
+
+    const fd = new FormData();
+    fd.append('detail', detail);
+    fd.append('region', val('region'));
+    fd.append('sido', f('sido') ? f('sido').value : '');
+    fd.append('email', val('email'));
+    fd.append('website', f('website') ? f('website').value : '');
+    fd.append('utm', JSON.stringify(utmParams));
+    photos.forEach((ph) => fd.append('photos', ph.file));
 
     btn.disabled = true;
     btn.textContent = '보내는 중…';
 
     try {
-      const res = await fetch('/api/report', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
+      const res = await fetch('/api/report', { method: 'POST', body: fd });
       const out = await res.json().catch(() => ({}));
 
       if (res.ok && out.ok) {
-        track('submit_report', { from: form.id });
-        const keepSido = payload.sido;
+        track('submit_report', { from: form.id, photos: photos.length });
+        const keepSido = f('sido') ? f('sido').value : '';
         form.reset();
         if (f('sido')) f('sido').value = keepSido;   // 고른 지역은 남겨 둔다
+        photos.forEach((ph) => URL.revokeObjectURL(ph.url));
+        photos = [];
+        drawPhotos();
         done.style.display = 'block';
       } else {
         error.textContent = out.error || '접수하지 못했습니다. 잠시 후 다시 시도해주세요.';
@@ -2252,7 +2478,8 @@ function openReportModal(sidoCode, sidoName) {
 
   reportModal.showModal();
   document.body.style.overflow = 'hidden';
-  form.querySelector('[data-f="project_name"]').focus();
+  const first = form.querySelector('[data-f="detail"]');
+  if (first) first.focus();
   track('report_modal_open', { sido: sidoCode || '' });
 }
 
@@ -2267,6 +2494,63 @@ if (reportModal) {
     if (reportModalLastFocus) reportModalLastFocus.focus();
   });
 }
+
+// ── 이렇게 제보가 쓰입니다 ──
+// 사람이 골라 적은 것만 보여준다. 실제 제보를 자동으로 끌어오지 않는다.
+(function () {
+  const box = document.getElementById('dok-samples-list');
+  if (!box) return;
+  let items = [];
+  try {
+    items = JSON.parse(document.getElementById('dok-sample-data').textContent);
+  } catch (err) {
+    console.error('제보 예시를 읽지 못했습니다', err);
+  }
+  if (!items.length) {
+    box.closest('.dok-samples').style.display = 'none';
+    return;
+  }
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  box.innerHTML = items.map((it) =>
+    `<div class="dok-sample">` +
+    `<div class="dok-sample-quote">“${esc(it.quote)}”</div>` +
+    (it.meta ? `<div class="dok-sample-meta">${esc(it.meta)}</div>` : '') +
+    (it.result ? `<div class="dok-sample-result">→ ${esc(it.result)}</div>` : '') +
+    '</div>'
+  ).join('');
+})();
+
+// ── 제보 마감 안내 ──
+// 제보는 상시로 받습니다. 이 날짜는 "이번 차수로 묶이는 마지막 날"입니다.
+(function () {
+  const el = document.getElementById('dok-deadline');
+  if (!el) return;
+
+  const label = el.dataset.label || '제보 마감';
+  const end = new Date(el.dataset.date + 'T23:59:59+09:00');
+  const now = new Date();
+  const days = Math.ceil((end - now) / 86400000);
+
+  const fmt = `${end.getMonth() + 1}월 ${end.getDate()}일`;
+
+  if (days > 0) {
+    el.innerHTML =
+      `<span class="dok-dday">D-${days}</span>` +
+      `<span><b>${label}</b>까지 ${fmt}. 이후에 주신 제보는 다음 차수로 넘어갑니다.</span>`;
+  } else {
+    el.innerHTML =
+      `<span><b>${label}</b>은 지났습니다. 제보는 계속 받고 있고, 지금 주시는 제보는 다음 차수에 반영됩니다.</span>`;
+  }
+
+  const m = document.getElementById('dok-deadline-modal');
+  if (m) {
+    m.textContent = days > 0
+      ? `${label}까지 D-${days} (${fmt})`
+      : `${label}은 지났습니다 — 다음 차수로 반영됩니다`;
+  }
+})();
 
 // ── 지표 숫자 올리기 ──
 // 화면에 들어왔을 때 한 번만 0에서 목표까지 올린다.
