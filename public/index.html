@@ -392,6 +392,42 @@ html { scroll-behavior: smooth; }
   #dok .dok-report-form-modal { padding: 14px 20px 24px; }
 }
 
+/* ── 히어로 아래 지표 띠 ──
+   크림 히어로의 아랫단. 문구를 읽고 버튼을 누르기 직전에 숫자가 한 번 받쳐 준다. */
+#dok .dok-stats {
+  background: var(--cream);
+  padding: 0 24px 64px;
+}
+#dok .dok-stats-inner {
+  max-width: 860px; margin: 0 auto;
+  padding-top: 34px; border-top: 1px solid var(--cream-line);
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+}
+#dok .dok-stat-item { text-align: center; }
+#dok .dok-stat-num {
+  font-family: 'GmarketSans', sans-serif;
+  font-size: 42px; font-weight: 700; line-height: 1.1;
+  color: var(--ink); letter-spacing: -0.01em;
+}
+#dok .dok-stat-item.is-lead .dok-stat-num { color: #e0392c; }
+#dok .dok-stat-num .dok-stat-unit { font-size: 22px; margin-left: 2px; }
+#dok .dok-stat-label {
+  font-size: 14px; font-weight: 700; color: var(--ink); margin-top: 10px;
+  word-break: keep-all;
+}
+#dok .dok-stat-sub {
+  font-size: 12.5px; color: var(--cream-ink); margin-top: 4px; word-break: keep-all;
+}
+
+@media (max-width: 700px) {
+  #dok .dok-stats { padding-bottom: 44px; }
+  #dok .dok-stats-inner { gap: 12px; padding-top: 26px; }
+  #dok .dok-stat-num { font-size: 27px; }
+  #dok .dok-stat-num .dok-stat-unit { font-size: 15px; }
+  #dok .dok-stat-label { font-size: 12.5px; margin-top: 7px; }
+  #dok .dok-stat-sub { display: none; }
+}
+
 /* ── Top bar ── */
 #dok .dok-topbar {
   display: flex;
@@ -427,10 +463,11 @@ html { scroll-behavior: smooth; }
 
 /* ── Hero ── */
 #dok .dok-hero {
-  /* 크림 바탕. 나머지 화면이 흰색·하늘색이라 첫 화면만 따뜻한 색으로 구분한다. */
+  /* 크림 바탕. 나머지 화면이 흰색·하늘색이라 첫 화면만 따뜻한 색으로 구분한다.
+     아래 지표 띠(.dok-stats)가 같은 크림으로 이어지므로 아래 여백은 그쪽에서 준다. */
   background: var(--cream);
   color: var(--ink);
-  padding: 72px 24px 80px;
+  padding: 72px 24px 56px;
 }
 #dok .dok-hero-inner {
   max-width: 1080px; margin: 0 auto;
@@ -755,6 +792,36 @@ html { scroll-behavior: smooth; }
         <a class="dok-btn-line" href="#dok-report">예산낭비 제보하기</a>
       </div>
     </div>
+  </div>
+</section>
+
+<!-- ── 히어로 아래 지표 ──
+     ⚠️ 가운데 '감시한 세금' 금액은 아직 확인되지 않은 값입니다.
+     40회까지 수상한 사업들의 사업비를 합쳐 실제 값으로 바꿔야 합니다.
+     근거 없이 큰 숫자를 걸면 이 상의 신뢰가 깎이는 자리라, 뜻을 좁혀
+     "수상 사업 사업비 합계"로 정의해 두었습니다.
+     양옆 두 숫자(40회·26년)는 사이트의 기존 내용과 맞는 실제 값입니다. -->
+<section class="dok-stats">
+  <div class="dok-stats-inner">
+
+    <div class="dok-stat-item">
+      <div class="dok-stat-num">40<span class="dok-stat-unit">회</span></div>
+      <div class="dok-stat-label">수여한 밑빠진 독상</div>
+      <div class="dok-stat-sub">2000년 8월 제1회부터</div>
+    </div>
+
+    <div class="dok-stat-item is-lead">
+      <div class="dok-stat-num">1,000<span class="dok-stat-unit">억 원</span></div>
+      <div class="dok-stat-label">밑빠진 독을 감시한 세금</div>
+      <div class="dok-stat-sub">역대 수상 사업의 사업비 합계</div>
+    </div>
+
+    <div class="dok-stat-item">
+      <div class="dok-stat-num">26<span class="dok-stat-unit">년</span></div>
+      <div class="dok-stat-label">이어온 예산감시</div>
+      <div class="dok-stat-sub">정부·기업 지원 없이</div>
+    </div>
+
   </div>
 </section>
 
