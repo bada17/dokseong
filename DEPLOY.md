@@ -7,6 +7,60 @@ Claude는 코드만 고치고 배포는 하지 않습니다. 이 문서는 배�
 
 ---
 
+---
+
+## ⚠️ 2026-08-20 추가 — 배포 중이라면 이것부터 보세요
+
+제보에 **사진 첨부**가 들어가면서 배포에 필요한 것이 늘었습니다.
+
+### R2 버킷이 하나 더 필요합니다
+
+사진은 D1에 넣을 수 없어 R2에 올립니다.
+
+```bash
+npx wrangler r2 bucket create dokseong-photos
+```
+
+`wrangler.toml` 에 바인딩은 이미 적어 두었습니다 (`binding = "PHOTOS"`).
+
+> **공개 버킷으로 열지 마세요.** 제보 사진은 내부 확인용이고, 사람 얼굴이나
+> 차량 번호가 찍혀 들어올 수 있습니다. 공개 접근용 엔드포인트는 만들지
+> 않았습니다.
+
+### schema.sql 이 바뀌었습니다
+
+아직 `schema.sql` 을 적용하지 않았다면 **최신 파일로 그냥 실행**하시면 됩니다.
+이미 적용한 뒤라면 아래 두 줄을 더 돌려 주세요.
+
+```sql
+ALTER TABLE reports ADD COLUMN photos TEXT;
+-- project_name 이 NOT NULL 이었다면 선택으로 바꿔야 합니다.
+-- SQLite는 컬럼 제약을 직접 못 바꾸므로, 데이터가 없다면 표를 다시 만드는 편이 빠릅니다.
+DROP TABLE IF EXISTS reports;   -- ⚠️ 데이터가 있으면 절대 실행하지 마세요
+```
+
+배포 전이라 `reports` 에 실제 데이터가 없다면 `DROP` 후 `schema.sql` 재실행이
+가장 깔끔합니다. 데이터가 있다면 알려 주세요.
+
+### 새로 생긴 환경변수 두 개
+
+```toml
+REPORT_DEADLINE = "2026-09-15"
+REPORT_DEADLINE_LABEL = "하반기 1차 제보 마감"
+```
+
+제보는 상시로 받고, 이 날짜까지 들어온 것을 한 묶음으로 봅니다.
+지나도 접수는 계속되고 화면 문구만 바뀝니다.
+
+### 확인 부탁드릴 것 (기존 8번에 추가)
+
+3. **사진 제보** — 제보 폼에서 사진 1~2장을 올려 제출 →
+   R2 `dokseong-photos` 에 `reports/41/….jpg` 로 들어갔는지,
+   D1 `reports.photos` 에 그 키가 JSON 배열로 들어갔는지
+4. **글 없이 사진만** 제출해도 접수되는지 (일부러 허용했습니다)
+
+---
+
 ## 1. 무엇을 배포하는가
 
 밑빠진 독상 사이트. **Cloudflare Pages + Functions**입니다. 빌드 단계가 없습니다.
@@ -36,6 +90,9 @@ npx wrangler d1 execute dokseong --remote --file=schema.sql
 
 # 제보자 IP 를 원본 저장하지 않기 위한 소금값
 npx wrangler pages secret put IP_SALT
+
+# 제보 사진을 담을 R2 버킷 (공개로 열지 마세요)
+npx wrangler r2 bucket create dokseong-photos
 ```
 
 `wrangler.toml` 의 `database_id` 가 지금 `REPLACE_WITH_D1_DATABASE_ID` 입니다.
