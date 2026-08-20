@@ -1,0 +1,21 @@
+# Cloudflare Pages 설정
+# 배포는 GPT/Codex 담당. Claude는 이 파일을 수정만 하고 배포하지 않음.
+
+name = "dokseong"
+pages_build_output_dir = "public"
+
+# workerd 호환 날짜. 예산게임에서 이 날짜를 미래로 잡았다가 런타임이
+# 안 뜬 적이 있으므로 함부로 올리지 말 것.
+compatibility_date = "2026-05-15"
+
+[vars]
+# 지금 진행 중인 회차. 분기마다 여기 숫자만 올리면 된다.
+CURRENT_ROUND = "41"
+# 제보 접수 여부. "0"으로 두면 폼이 닫힌다.
+REPORT_OPEN = "1"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "dokseong"
+# ⚠️ `wrangler d1 create dokseong` 실행 후 나오는 값으로 교체
+database_id = "REPLACE_WITH_D1_DATABASE_ID"
