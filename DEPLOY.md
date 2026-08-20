@@ -72,35 +72,40 @@ Pages 프로젝트에 Access 정책을 걸어 지정한 이메일만 들어오�
 ### 확인한 DNS 상태 (2026-08-20, 공개 조회)
 
 ```
-action.or.kr  NS  cns1~cns4.hostcocoa.com      ← Cloudflare 가 아닙니다
-dok.action.or.kr        → 3.168.167.10/28/41/70
-zzz-test-random.action.or.kr → 같은 주소        ← 와일드카드가 걸려 있습니다
+action.or.kr          NS  cns1~cns4.hostcocoa.com
+cns1.hostcocoa.com    →   205.251.196.138
+205.251.196.138       역조회 →  ns-1162.awsdns-17.org     ← AWS Route 53
+zzz-test-random.action.or.kr → action.or.kr 과 같은 주소  ← 와일드카드
+dok.action.or.kr      →   CloudFront 403 (설정된 배포가 없음)
 ```
 
-두 가지가 확인됐습니다.
+**`cns1~4.hostcocoa.com` 은 AWS Route 53 네임서버입니다.**
+이름만 호스트코코아로 바꿔 단 것(화이트라벨)이고, 실제 DNS 는 **AWS Route 53**
+에서 돌아갑니다. `hostcocoa.com` 자체는 웹사이트가 응답하지 않습니다.
 
-1. **네임서버가 호스트코코아**입니다. Cloudflare 에 도메인이 올라가 있지 않으므로
-   Pages 에서 커스텀 도메인을 누른다고 자동으로 붙지 않습니다.
-   **호스트코코아 DNS 관리에서 레코드를 직접 넣어야 합니다.**
-2. **`*.action.or.kr` 와일드카드가 있습니다.** 그래서 `dok.action.or.kr` 이
-   지금도 응답합니다 — 지금은 본 사이트 쪽(3.168.167.x, CloudFront)으로 갑니다.
-   *"이미 되는데?" 로 착각하기 쉬운 자리입니다.* `dok` 를 명시적으로 넣으면
-   와일드카드보다 우선합니다.
+그래서 레코드를 넣을 곳은 호스트코코아 관리자 페이지가 아니라
+**action.or.kr 이 들어 있는 AWS 계정의 Route 53 호스팅 영역**입니다.
+호스트코코아가 그 계정을 대행 관리하고 있을 가능성이 큽니다.
+
+`*.action.or.kr` 와일드카드가 걸려 있어 `dok.action.or.kr` 도 CloudFront 로
+가는데, CloudFront 에 그 호스트 이름으로 설정된 배포가 없어서 **403** 이 납니다.
+지금 브라우저로 열면 이 403 이 보입니다 — 정상입니다. CNAME 을 넣으면 사라집니다.
 
 ### 그래서 필요한 순서
 
 1. Pages 프로젝트를 먼저 만들어 `<프로젝트>.pages.dev` 주소를 확보
 2. Pages → Custom domains 에 `dok.action.or.kr` 추가
-3. **호스트코코아 DNS 관리에서** CNAME 추가
+3. **Route 53 의 action.or.kr 호스팅 영역에** CNAME 추가
    ```
-   이름(호스트)  dok
-   종류          CNAME
+   레코드 이름   dok.action.or.kr
+   유형          CNAME
    값            <프로젝트>.pages.dev
    ```
+   와일드카드(`*.action.or.kr`)보다 이 레코드가 우선합니다.
 4. Pages 에서 검증이 끝나면 인증서는 Cloudflare 가 발급합니다
 
-**3번은 Claude 도 GPT 도 할 수 없습니다.** 호스트코코아 계정에 들어갈 수 있는
-사람(시민행동 웹 담당)이 넣어야 합니다. 누가 넣을지 정해 주세요.
+**3번은 Claude 도 GPT 도 할 수 없습니다.** 그 AWS 계정에 들어갈 수 있는 사람
+(시민행동 웹 담당 또는 호스트코코아)이 넣어야 합니다. 누가 넣을지 정해 주세요.
 
 ## 5. 나중에 플랫폼을 바꿀 때 무엇이 걸리는가
 
