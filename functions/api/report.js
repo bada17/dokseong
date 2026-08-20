@@ -56,7 +56,12 @@ export async function onRequestPost({ request, env }) {
     region: clean(body.region, LIMITS.region),
     detail: clean(body.detail, LIMITS.detail),
     email: clean(body.email, LIMITS.email),
+    // 지도용 지역 코드. 형식이 안 맞으면 그냥 비운다 (제보 자체는 살린다).
+    sido: /^\d{2}$/.test(body.sido || '') ? body.sido : null,
+    sigungu: /^\d{5}$/.test(body.sigungu || '') ? body.sigungu : null,
   };
+  // 시군구가 있으면 시도는 그 앞 두 자리로 맞춘다.
+  if (data.sigungu) data.sido = data.sigungu.slice(0, 2);
 
   if (!data.project_name || !data.detail) {
     return json({ ok: false, error: '사업명과 제보 내용을 적어주세요.' }, 400);
@@ -89,8 +94,9 @@ export async function onRequestPost({ request, env }) {
 
     await env.DB.prepare(
       `INSERT INTO reports
-         (round, project_name, region, detail, email, ip_hash, user_agent, utm)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+         (round, project_name, region, detail, email, sido, sigungu,
+          ip_hash, user_agent, utm)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
         round,
@@ -98,6 +104,8 @@ export async function onRequestPost({ request, env }) {
         data.region || null,
         data.detail,
         data.email || null,
+        data.sido,
+        data.sigungu,
         ipHash,
         (request.headers.get('user-agent') || '').slice(0, 300),
         body.utm ? JSON.stringify(body.utm).slice(0, 500) : null

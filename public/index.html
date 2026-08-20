@@ -116,6 +116,112 @@ html { scroll-behavior: smooth; }
   #dok .dok-camp-grid { grid-template-columns: 1fr; }
 }
 
+/* ── 지역 지도 ── */
+#dok .dok-map-wrap {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  align-items: start; margin-top: 36px;
+}
+#dok .dok-map-figure { position: relative; }
+#dok .dok-map-svg { width: 100%; height: auto; display: block; }
+#dok .dok-map-area {
+  fill: #eaf1f5; stroke: #fff; stroke-width: 2;
+  cursor: pointer; transition: fill .15s;
+}
+#dok .dok-map-area:hover { fill: var(--brand); }
+#dok .dok-map-area.is-on { fill: var(--brand-deep); }
+#dok .dok-map-label {
+  font-size: 21px; font-weight: 700; fill: var(--ink);
+  text-anchor: middle; pointer-events: none; paint-order: stroke;
+  stroke: #fff; stroke-width: 4px; stroke-linejoin: round;
+}
+#dok .dok-map-label.is-light { fill: #fff; stroke: none; }
+#dok .dok-map-dot {
+  font-size: 16px; font-weight: 700; fill: var(--alert);
+  text-anchor: middle; pointer-events: none;
+}
+
+#dok .dok-map-modes { display: flex; gap: 8px; margin-bottom: 18px; }
+#dok .dok-map-mode {
+  font-size: 13.5px; font-weight: 700; padding: 8px 16px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: #fff; color: var(--ink-soft); cursor: pointer;
+}
+#dok .dok-map-mode[aria-pressed="true"] {
+  background: var(--ink); border-color: var(--ink); color: #fff;
+}
+
+#dok .dok-map-side {
+  border: 1px solid var(--line); border-radius: 16px; padding: 28px 26px;
+  position: sticky; top: 84px;
+}
+#dok .dok-map-side h3 { font-size: 22px; margin-bottom: 4px; }
+#dok .dok-map-side .dok-map-sub { font-size: 14px; color: var(--ink-soft); margin-bottom: 20px; }
+#dok .dok-map-stats { display: flex; gap: 10px; margin-bottom: 22px; }
+#dok .dok-map-stat {
+  flex: 1; background: var(--brand-tint); border-radius: 10px;
+  padding: 14px 12px; text-align: center;
+}
+#dok .dok-map-stat b { display: block; font-size: 26px; line-height: 1.2; color: var(--brand-deep); }
+#dok .dok-map-stat span { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+#dok .dok-map-list { list-style: none; }
+#dok .dok-map-list li { padding: 13px 0; border-top: 1px solid var(--line); }
+#dok .dok-map-list li:first-child { border-top: 0; }
+#dok .dok-map-round { font-size: 12.5px; font-weight: 700; color: var(--alert); }
+#dok .dok-map-proj { font-size: 15px; font-weight: 700; word-break: keep-all; margin-top: 2px; }
+#dok .dok-map-who { font-size: 13px; color: var(--ink-soft); margin-top: 2px; }
+#dok .dok-map-none { font-size: 14.5px; color: var(--ink-soft); padding: 18px 0; word-break: keep-all; }
+#dok .dok-map-report-cta {
+  display: inline-block; margin-top: 20px; font-size: 14px; font-weight: 700;
+  color: var(--brand-deep); text-decoration: none; border-bottom: 2px solid var(--brand);
+  padding-bottom: 2px;
+}
+#dok .dok-map-offmap {
+  margin-top: 26px; padding: 18px 20px; border: 1px dashed var(--line);
+  border-radius: 12px; font-size: 14px; color: var(--ink-soft); word-break: keep-all;
+}
+#dok .dok-map-offmap b { color: var(--ink); }
+#dok .dok-map-offmap button {
+  margin-top: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+  background: none; border: 0; color: var(--brand-deep); text-decoration: underline; padding: 0;
+}
+@media (max-width: 860px) {
+  #dok .dok-map-wrap { grid-template-columns: 1fr; gap: 28px; }
+  #dok .dok-map-side { position: static; }
+  #dok .dok-map-label { font-size: 26px; }
+}
+
+/* ── 따라다니는 후원 바 ──
+   히어로를 지나면 올라오고, 닫으면 그 방문 동안 다시 뜨지 않는다. */
+#dok .dok-donate-bar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 60;
+  display: flex; align-items: center; justify-content: center; gap: 18px;
+  padding: 16px 60px 16px 24px;
+  background: var(--ink); color: #fff;
+  transform: translateY(110%); transition: transform .32s ease;
+  box-shadow: 0 -6px 24px rgba(13,28,38,.18);
+}
+#dok .dok-donate-bar.is-up { transform: translateY(0); }
+#dok .dok-donate-text { font-size: 15px; font-weight: 600; word-break: keep-all; }
+#dok .dok-donate-text b { color: #fff; }
+#dok .dok-donate-btn {
+  font-family: 'GmarketSans', sans-serif;
+  font-size: 17px; font-weight: 700; white-space: nowrap;
+  background: var(--alert); color: #fff; text-decoration: none;
+  padding: 15px 34px; border-radius: 999px; transition: transform .15s, background .15s;
+}
+#dok .dok-donate-btn:hover { background: #ff2d1e; transform: scale(1.04); }
+#dok .dok-donate-close {
+  position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; border: 0; border-radius: 50%;
+  background: rgba(255,255,255,.12); color: #fff;
+  font-size: 17px; line-height: 1; cursor: pointer;
+}
+#dok .dok-donate-close:hover { background: rgba(255,255,255,.24); }
+@media (max-width: 700px) {
+  #dok .dok-donate-bar { flex-direction: column; gap: 10px; padding: 14px 52px 16px 18px; text-align: center; }
+  #dok .dok-donate-text { font-size: 13.5px; }
+  #dok .dok-donate-btn { font-size: 16px; padding: 13px 30px; width: 100%; }
+}
+
 /* ── Top bar ── */
 #dok .dok-topbar {
   display: flex;
@@ -233,7 +339,8 @@ html { scroll-behavior: smooth; }
 #dok .dok-vote-list { display: grid; gap: 12px; margin-top: 32px; max-width: 760px; }
 #dok .dok-vote-item {
   display: grid;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr auto auto;
+  text-align: left;
   gap: 16px;
   align-items: center;
   background: #fff;
@@ -254,8 +361,8 @@ html { scroll-behavior: smooth; }
   transition: width 0.5s ease;
 }
 #dok .dok-vote-item .dok-vi-text { position: relative; z-index: 1; }
-#dok .dok-vote-item .dok-vi-name { font-weight: 700; font-size: 16px; word-break: keep-all; }
-#dok .dok-vote-item .dok-vi-desc { font-size: 13.5px; color: var(--ink-soft); margin-top: 3px; word-break: keep-all; }
+#dok .dok-vote-item .dok-vi-name { display: block; font-weight: 700; font-size: 16px; word-break: keep-all; }
+#dok .dok-vote-item .dok-vi-desc { display: block; font-size: 13.5px; color: var(--ink-soft); margin-top: 3px; word-break: keep-all; }
 #dok .dok-vote-item .dok-vi-pct {
   position: relative; z-index: 1;
   font-family: 'GmarketSans', sans-serif;
@@ -347,7 +454,8 @@ html { scroll-behavior: smooth; }
   font-size: 13.5px; font-weight: 700;
   margin-bottom: -6px;
 }
-#dok .dok-report-form input, .dok-report-form textarea {
+#dok .dok-report-form select { appearance: none; }
+#dok .dok-report-form input, #dok .dok-report-form select, #dok .dok-report-form textarea {
   width: 100%;
   padding: 15px 16px;
   border: 1.5px solid rgba(255,255,255,0.25);
@@ -432,15 +540,16 @@ html { scroll-behavior: smooth; }
 <div id="dok">
 
 <header class="dok-topbar">
-  <a class="dok-org" href="index.html">
+  <a class="dok-org" href="https://action.or.kr" target="_blank" rel="noopener">
     함께하는 시민행동
   </a>
   <nav>
-    <a class="dok-nav-link" href="#dok-vote">투표</a>
     <a class="dok-nav-link" href="#dok-campaigns">예산감시 사업</a>
+    <a class="dok-nav-link" href="#dok-vote">투표</a>
+    <a class="dok-nav-link" href="#dok-map">지도</a>
     <a class="dok-nav-link" href="#dok-history">역대 수상</a>
     <a class="dok-nav-link" href="#dok-report">시민 제보</a>
-    <a class="dok-top-cta" href="index.html#donate">후원하기</a>
+    <a class="dok-top-cta" href="https://action.or.kr" target="_blank" rel="noopener">후원하기</a>
   </nav>
 </header>
 
@@ -465,59 +574,6 @@ html { scroll-behavior: smooth; }
     </div>
   </div>
 </section>
-
-<div class="dok-vote" id="dok-vote">
-  <div class="dok-section">
-    <div class="dok-section-tag">VOTE</div>
-    <h2>제41회 밑빠진 독상,<br>어떤 사업이 받아야 할까요?</h2>
-    <!-- ⚠️ 아래 후보는 전부 예시(더미) 데이터입니다. 실제 후보 확정 시 교체 -->
-    <span class="dok-vote-notice">아래 후보는 예시 데이터입니다 — 실제 후보 확정 후 교체 예정</span>
-    <p class="dok-lead">한 사업을 선택하면 투표가 완료되고 현재 결과를 볼 수 있습니다.</p>
-    <div class="dok-vote-list" id="dok-vote-list">
-      <button type="button" class="dok-vote-item" data-id="c1" data-votes="42">
-        <span class="dok-vi-text">
-          <span class="dok-vi-name">(예시) A시 출렁다리 중복 건설 사업</span>
-          <span class="dok-vi-desc">인접 지역 3곳에 이미 유사 시설 — 수요 검증 없이 200억 투입</span>
-        </span>
-        <span class="dok-vi-pct"></span>
-        <span class="dok-vote-check" aria-hidden="true"></span>
-      </button>
-      <button type="button" class="dok-vote-item" data-id="c2" data-votes="35">
-        <span class="dok-vi-text">
-          <span class="dok-vi-name">(예시) B군 케이블카 조성 사업</span>
-          <span class="dok-vi-desc">타당성 조사 결과를 뒤집는 낙관적 수요 예측 논란</span>
-        </span>
-        <span class="dok-vi-pct"></span>
-        <span class="dok-vote-check" aria-hidden="true"></span>
-      </button>
-      <button type="button" class="dok-vote-item" data-id="c3" data-votes="28">
-        <span class="dok-vi-text">
-          <span class="dok-vi-name">(예시) C부처 홍보 예산 집행</span>
-          <span class="dok-vi-desc">성과 측정 없는 홍보비 집행 — 3년간 반복 지적</span>
-        </span>
-        <span class="dok-vi-pct"></span>
-        <span class="dok-vote-check" aria-hidden="true"></span>
-      </button>
-      <button type="button" class="dok-vote-item" data-id="c4" data-votes="21">
-        <span class="dok-vi-text">
-          <span class="dok-vi-name">(예시) D시 국제행사 유치 사업</span>
-          <span class="dok-vi-desc">행사 종료 후 방치되는 시설 — 사후 활용 계획 부재</span>
-        </span>
-        <span class="dok-vi-pct"></span>
-        <span class="dok-vote-check" aria-hidden="true"></span>
-      </button>
-      <button type="button" class="dok-vote-item" data-id="c5" data-votes="17">
-        <span class="dok-vi-text">
-          <span class="dok-vi-name">(예시) E군 공공 조형물 설치 사업</span>
-          <span class="dok-vi-desc">주민 의견 수렴 없이 수십억 규모 조형물 연속 설치</span>
-        </span>
-        <span class="dok-vi-pct"></span>
-        <span class="dok-vote-check" aria-hidden="true"></span>
-      </button>
-    </div>
-    <p class="dok-vote-done-msg" id="dok-vote-done">투표해 주셔서 감사합니다. 결과는 선정 발표와 함께 공개됩니다.</p>
-  </div>
-</div>
 
 <section class="dok-section" id="dok-campaigns">
   <div class="dok-section-tag">WATCH</div>
@@ -585,6 +641,85 @@ html { scroll-behavior: smooth; }
   }
 ]
 </script>
+
+<div class="dok-vote" id="dok-vote">
+  <div class="dok-section">
+    <div class="dok-section-tag">VOTE</div>
+    <h2>제41회 밑빠진 독상,<br>어떤 사업이 받아야 할까요?</h2>
+    <!-- ⚠️ 아래 후보는 전부 예시(더미) 데이터입니다. 실제 후보 확정 시 교체 -->
+    <span class="dok-vote-notice">아래 후보는 예시 데이터입니다 — 실제 후보 확정 후 교체 예정</span>
+    <p class="dok-lead">한 사업을 선택하면 투표가 완료되고 현재 결과를 볼 수 있습니다.</p>
+    <div class="dok-vote-list" id="dok-vote-list">
+      <button type="button" class="dok-vote-item" data-id="c1" data-votes="42">
+        <span class="dok-vi-text">
+          <span class="dok-vi-name">(예시) A시 출렁다리 중복 건설 사업</span>
+          <span class="dok-vi-desc">인접 지역 3곳에 이미 유사 시설 — 수요 검증 없이 200억 투입</span>
+        </span>
+        <span class="dok-vi-pct"></span>
+        <span class="dok-vote-check" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="dok-vote-item" data-id="c2" data-votes="35">
+        <span class="dok-vi-text">
+          <span class="dok-vi-name">(예시) B군 케이블카 조성 사업</span>
+          <span class="dok-vi-desc">타당성 조사 결과를 뒤집는 낙관적 수요 예측 논란</span>
+        </span>
+        <span class="dok-vi-pct"></span>
+        <span class="dok-vote-check" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="dok-vote-item" data-id="c3" data-votes="28">
+        <span class="dok-vi-text">
+          <span class="dok-vi-name">(예시) C부처 홍보 예산 집행</span>
+          <span class="dok-vi-desc">성과 측정 없는 홍보비 집행 — 3년간 반복 지적</span>
+        </span>
+        <span class="dok-vi-pct"></span>
+        <span class="dok-vote-check" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="dok-vote-item" data-id="c4" data-votes="21">
+        <span class="dok-vi-text">
+          <span class="dok-vi-name">(예시) D시 국제행사 유치 사업</span>
+          <span class="dok-vi-desc">행사 종료 후 방치되는 시설 — 사후 활용 계획 부재</span>
+        </span>
+        <span class="dok-vi-pct"></span>
+        <span class="dok-vote-check" aria-hidden="true"></span>
+      </button>
+      <button type="button" class="dok-vote-item" data-id="c5" data-votes="17">
+        <span class="dok-vi-text">
+          <span class="dok-vi-name">(예시) E군 공공 조형물 설치 사업</span>
+          <span class="dok-vi-desc">주민 의견 수렴 없이 수십억 규모 조형물 연속 설치</span>
+        </span>
+        <span class="dok-vi-pct"></span>
+        <span class="dok-vote-check" aria-hidden="true"></span>
+      </button>
+    </div>
+    <p class="dok-vote-done-msg" id="dok-vote-done">투표해 주셔서 감사합니다. 결과는 선정 발표와 함께 공개됩니다.</p>
+  </div>
+</div>
+
+<section class="dok-section" id="dok-map">
+  <div class="dok-section-tag">MAP</div>
+  <h2>우리 동네 밑빠진 독</h2>
+  <p class="dok-lead">
+    밑빠진 독상이 어디에 수여됐는지, 지금 어느 지역에서 제보가 들어오고 있는지
+    지도에서 확인하세요. 지역을 누르면 그곳의 기록이 보입니다.
+  </p>
+
+  <div class="dok-map-modes">
+    <button type="button" class="dok-map-mode" data-mode="awards" aria-pressed="true">밑빠진 독상</button>
+    <button type="button" class="dok-map-mode" data-mode="reports" aria-pressed="false">시민 제보</button>
+  </div>
+
+  <div class="dok-map-wrap">
+    <div class="dok-map-figure">
+      <svg class="dok-map-svg" id="dok-map-svg" role="img" aria-label="대한민국 시도별 밑빠진 독상 지도"></svg>
+    </div>
+
+    <aside class="dok-map-side" id="dok-map-side"></aside>
+  </div>
+
+  <div class="dok-map-offmap" id="dok-map-offmap"></div>
+</section>
+
+
 
 <section class="dok-section" id="dok-history">
   <div class="dok-section-tag">HISTORY</div>
@@ -681,8 +816,12 @@ html { scroll-behavior: smooth; }
     <form class="dok-report-form" id="dok-report-form">
       <label for="dok-rp-name">사업명 <span style="color:var(--alert)">*</span></label>
       <input type="text" id="dok-rp-name" placeholder="예: ○○시 △△ 건설 사업" required>
-      <label for="dok-rp-region">지역·기관</label>
-      <input type="text" id="dok-rp-region" placeholder="예: 서울시, 행정안전부 등">
+      <label for="dok-rp-sido">지역</label>
+      <select id="dok-rp-sido">
+        <option value="">지역을 고르세요 (중앙부처면 비워두세요)</option>
+      </select>
+      <label for="dok-rp-region">기관·세부 지역</label>
+      <input type="text" id="dok-rp-region" placeholder="예: ○○구청, 행정안전부 등">
       <label for="dok-rp-detail">제보 내용 <span style="color:var(--alert)">*</span></label>
       <textarea id="dok-rp-detail" placeholder="어떤 점이 문제라고 생각하시는지 알려주세요. 관련 기사나 자료 링크가 있다면 함께 적어주세요." required></textarea>
       <label for="dok-rp-email">회신 받을 이메일 (선택)</label>
@@ -705,7 +844,7 @@ html { scroll-behavior: smooth; }
 <section class="dok-bottom-cta">
   <h2>이 감시가 계속되도록</h2>
   <p>밑빠진 독상은 정부·기업 지원 없이 시민의 후원으로 26년째 이어지고 있습니다.</p>
-  <a class="dok-btn-donate" href="index.html#donate">후원으로 함께하기 →</a>
+  <a class="dok-btn-donate" href="https://action.or.kr" target="_blank" rel="noopener">후원으로 함께하기 →</a>
 </section>
 
 <footer>
@@ -717,6 +856,18 @@ html { scroll-behavior: smooth; }
     <div>© 2026</div>
   </div>
 </footer>
+
+
+<!-- 따라다니는 후원 바. 히어로를 지나야 올라오고, 닫으면 이 방문 동안은 안 뜬다. -->
+<div class="dok-donate-bar" id="dok-donate-bar">
+  <span class="dok-donate-text">
+    밑빠진 독상은 <b>정부·기업 지원 없이</b> 시민 후원으로 26년째 이어집니다
+  </span>
+  <a class="dok-donate-btn" href="https://action.or.kr" target="_blank" rel="noopener" id="dok-donate-btn">
+    후원으로 함께하기
+  </a>
+  <button type="button" class="dok-donate-close" id="dok-donate-close" aria-label="후원 안내 닫기">✕</button>
+</div>
 
 </div>
 <!-- /캠페이너스 이식 단위 -->
@@ -757,6 +908,221 @@ items.forEach(item => {
     track('vote_candidate', { candidate_id: item.dataset.id });
   });
 });
+
+// ── 따라다니는 후원 바 ──
+// 귀찮지 않게: 히어로를 다 지나야 올라오고, 한 번 닫으면 이 방문 동안 다시 안 뜬다.
+(function () {
+  const bar = document.getElementById('dok-donate-bar');
+  const hero = document.querySelector('.dok-hero');
+  if (!bar || !hero) return;
+
+  let closed = false;
+  try { closed = sessionStorage.getItem('dok-donate-closed') === '1'; } catch (e) {}
+  if (closed) return;
+
+  const io = new IntersectionObserver(([entry]) => {
+    bar.classList.toggle('is-up', !entry.isIntersecting);
+  }, { threshold: 0 });
+  io.observe(hero);
+
+  document.getElementById('dok-donate-close').addEventListener('click', () => {
+    bar.classList.remove('is-up');
+    io.disconnect();
+    try { sessionStorage.setItem('dok-donate-closed', '1'); } catch (e) {}
+    track('donate_bar_close', {});
+  });
+
+  document.getElementById('dok-donate-btn').addEventListener('click', () => {
+    track('donate_bar_click', {});
+  });
+})();
+
+// ── 지역 지도 ──
+// 지금은 17개 시도까지만 그린다. 시군구 데이터(public/data/map-sigungu/)는
+// 이미 만들어져 있고, 행정구역 변경분을 반영한 뒤에 드릴다운을 붙일 예정이다.
+(function () {
+  const svg  = document.getElementById('dok-map-svg');
+  const side = document.getElementById('dok-map-side');
+  const off  = document.getElementById('dok-map-offmap');
+  if (!svg || !side) return;
+
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  // 수도권은 시도가 몰려 있어 라벨이 겹친다. 코드별로 조금씩 밀어 준다.
+  // (값은 viewBox 1000x1200 기준)
+  const NUDGE = {
+    '11': [14, -20],   // 서울
+    '23': [-46, 4],    // 인천
+    '31': [46, 34],    // 경기
+    '29': [-30, -10],  // 세종
+    '25': [16, 14],    // 대전
+    '24': [-18, 4],    // 광주
+    '22': [10, -6],    // 대구
+  };
+
+  let areas = [];          // 시도 도형
+  let awards = [];         // 역대 수상
+  let reportCounts = {};   // 시도코드 → 제보 건수
+  let mode = 'awards';
+  let selected = null;
+
+  const awardsOf = (code) => awards.filter((a) => a.sido === code);
+  const countOf  = (code) => mode === 'awards' ? awardsOf(code).length : (reportCounts[code] || 0);
+
+  function paint() {
+    const max = Math.max(1, ...areas.map((a) => countOf(a.code)));
+    areas.forEach((a) => {
+      const el = svg.querySelector(`[data-code="${a.code}"]`);
+      if (!el) return;
+      const n = countOf(a.code);
+      const t = n / max;
+      el.style.fill = n === 0 ? '#eaf1f5'
+        : mode === 'awards'
+          ? `rgba(0, 135, 184, ${0.18 + t * 0.72})`
+          : `rgba(255, 74, 61, ${0.18 + t * 0.72})`;
+      el.classList.toggle('is-on', selected === a.code);
+
+      const label = svg.querySelector(`.dok-map-label[data-code="${a.code}"]`);
+      if (label) label.classList.toggle('is-light', t > 0.55);
+      const dot = svg.querySelector(`.dok-map-dot[data-code="${a.code}"]`);
+      if (dot) dot.textContent = n ? n : '';
+    });
+  }
+
+  function renderSide() {
+    if (!selected) {
+      const totalAwards = awards.filter((a) => a.scope === 'local').length;
+      side.innerHTML =
+        '<h3>전국</h3>' +
+        '<p class="dok-map-sub">지도에서 지역을 눌러보세요.</p>' +
+        '<div class="dok-map-stats">' +
+          `<div class="dok-map-stat"><b>${totalAwards}</b><span>지역에 수여된 독상</span></div>` +
+          `<div class="dok-map-stat"><b>${Object.values(reportCounts).reduce((x, y) => x + y, 0)}</b><span>시민 제보</span></div>` +
+        '</div>';
+      return;
+    }
+
+    const area = areas.find((a) => a.code === selected);
+    const list = awardsOf(selected).sort((a, b) => b.round - a.round);
+    const reports = reportCounts[selected] || 0;
+
+    side.innerHTML =
+      `<h3>${esc(area.name)}</h3>` +
+      '<p class="dok-map-sub">밑빠진 독상 수여 기록과 시민 제보</p>' +
+      '<div class="dok-map-stats">' +
+        `<div class="dok-map-stat"><b>${list.length}</b><span>수여된 독상</span></div>` +
+        `<div class="dok-map-stat"><b>${reports}</b><span>시민 제보</span></div>` +
+      '</div>' +
+      (list.length
+        ? '<ul class="dok-map-list">' + list.map((a) =>
+            `<li>
+              <div class="dok-map-round">제${a.round}회 · ${esc(a.date)}</div>
+              <div class="dok-map-proj">${esc(a.project)}</div>
+              <div class="dok-map-who">${esc(a.awardee)}</div>
+            </li>`).join('') + '</ul>'
+        : '<p class="dok-map-none">아직 이 지역에 수여된 밑빠진 독상은 없습니다. 새고 있는 예산을 알고 계신가요?</p>') +
+      `<a class="dok-map-report-cta" href="#dok-report" data-sido="${area.code}">이 지역 예산낭비 제보하기 →</a>`;
+
+    const cta = side.querySelector('.dok-map-report-cta');
+    if (cta) cta.addEventListener('click', () => {
+      const sel = document.getElementById('dok-rp-sido');
+      if (sel) sel.value = area.code;
+      track('map_report_cta', { sido: area.code });
+    });
+  }
+
+  function renderOffmap() {
+    const central = awards.filter((a) => a.scope === 'central');
+    const multi   = awards.filter((a) => a.scope === 'multi');
+    const unknown = awards.filter((a) => a.scope === 'unknown');
+    off.innerHTML =
+      `<b>지도에 찍히지 않는 ${central.length + multi.length + unknown.length}건</b><br>` +
+      `중앙정부·공공기관 ${central.length}건, 여러 지자체에 걸친 사업 ${multi.length}건` +
+      (unknown.length ? `, 지역 확인이 필요한 ${unknown.length}건` : '') +
+      '. 밑빠진 독상의 절반 이상은 특정 지역이 아니라 중앙정부를 향했습니다.' +
+      '<br><button type="button" id="dok-map-central">중앙정부 수상 내역 보기</button>';
+
+    document.getElementById('dok-map-central').addEventListener('click', () => {
+      selected = null;
+      paint();
+      const list = central.sort((a, b) => b.round - a.round);
+      side.innerHTML =
+        '<h3>중앙정부·공공기관</h3>' +
+        '<p class="dok-map-sub">특정 지역에 속하지 않는 수상 내역</p>' +
+        '<ul class="dok-map-list">' + list.map((a) =>
+          `<li>
+            <div class="dok-map-round">제${a.round}회 · ${esc(a.date)}</div>
+            <div class="dok-map-proj">${esc(a.project)}</div>
+            <div class="dok-map-who">${esc(a.awardee)}</div>
+          </li>`).join('') + '</ul>';
+      track('map_view_central', {});
+    });
+  }
+
+  function drawMap(data) {
+    areas = data.areas;
+    svg.setAttribute('viewBox', data.viewBox);
+    svg.innerHTML =
+      areas.map((a) =>
+        `<path class="dok-map-area" data-code="${a.code}" d="${a.d}"><title>${esc(a.name)}</title></path>`).join('') +
+      areas.map((a) => {
+        const [ox, oy] = NUDGE[a.code] || [0, 0];
+        const x = a.cx + ox, y = a.cy + oy;
+        return `<text class="dok-map-label" data-code="${a.code}" x="${x}" y="${y}">${esc(a.short || a.name)}</text>` +
+               `<text class="dok-map-dot" data-code="${a.code}" x="${x}" y="${y + 22}"></text>`;
+      }).join('');
+
+    svg.querySelectorAll('.dok-map-area').forEach((el) => {
+      el.addEventListener('click', () => {
+        const code = el.dataset.code;
+        selected = selected === code ? null : code;
+        paint();
+        renderSide();
+        track('map_select_sido', { sido: code });
+      });
+    });
+  }
+
+  Promise.all([
+    fetch('data/map-sido.json').then((r) => r.json()),
+    fetch('data/awards.json').then((r) => r.json()),
+    fetch('/api/regions').then((r) => r.json()).catch(() => ({ sido: {} })),
+  ]).then(([map, aw, reg]) => {
+    awards = aw.awards || [];
+    reportCounts = reg.sido || {};
+    drawMap(map);
+    paint();
+    renderSide();
+    renderOffmap();
+    fillSidoSelect(map.areas);
+  }).catch((err) => {
+    console.error('지도를 불러오지 못했습니다', err);
+    side.innerHTML = '<p class="dok-map-none">지도를 불러오지 못했습니다.</p>';
+  });
+
+  // 제보 폼의 지역 선택도 같은 데이터로 채운다
+  function fillSidoSelect(list) {
+    const sel = document.getElementById('dok-rp-sido');
+    if (!sel) return;
+    list.forEach((a) => {
+      const o = document.createElement('option');
+      o.value = a.code;
+      o.textContent = a.name;
+      sel.appendChild(o);
+    });
+  }
+
+  document.querySelectorAll('.dok-map-mode').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      mode = btn.dataset.mode;
+      document.querySelectorAll('.dok-map-mode').forEach((b) =>
+        b.setAttribute('aria-pressed', String(b === btn)));
+      paint();
+      track('map_mode', { mode });
+    });
+  });
+})();
 
 // ── 예산감시 사업 목록 (진행 중 / 종료) ──
 (function () {
@@ -834,6 +1200,7 @@ reportForm.addEventListener('submit', async (e) => {
   const payload = {
     project_name: document.getElementById('dok-rp-name').value.trim(),
     region:       document.getElementById('dok-rp-region').value.trim(),
+    sido:         document.getElementById('dok-rp-sido').value,
     detail:       document.getElementById('dok-rp-detail').value.trim(),
     email:        document.getElementById('dok-rp-email').value.trim(),
     website:      document.getElementById('dok-rp-website').value,
