@@ -1,0 +1,12 @@
+name = "dokseong-sites"
+main = "./worker/index.ts"
+compatibility_date = "2026-05-15"
+
+[assets]
+binding = "ASSETS"
+not_found_handling = "404-page"
+run_worker_first = ["/api/*"]
+
+[vars]
+CURRENT_ROUND = "41"
+REPORT_OPEN = "1"

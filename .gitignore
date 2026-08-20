@@ -2,3 +2,7 @@ Thumbs.db
 .DS_Store
 desktop.ini
 .vscode/
+node_modules/
+dist/
+.wrangler/
+.dev.vars*
