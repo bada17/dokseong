@@ -566,6 +566,16 @@ html { scroll-behavior: smooth; }
 #dok .dok-report { background: var(--ink); color: #fff; }
 #dok .dok-report .dok-section-tag { color: var(--brand); }
 #dok .dok-report .dok-lead { color: rgba(255,255,255,0.8); }
+#dok .dok-report-gift {
+  display: inline-block;
+  margin-top: 20px; padding: 14px 20px; border-radius: 12px;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16);
+  font-size: 15px; color: #fff; word-break: keep-all; line-height: 1.6;
+}
+#dok .dok-report-gift b { color: var(--brand); }
+@media (max-width: 620px) {
+  #dok .dok-report-gift { display: block; font-size: 14.5px; padding: 14px 16px; }
+}
 #dok .dok-report-form {
   margin-top: 40px;
   display: grid; gap: 14px;
@@ -1030,6 +1040,12 @@ html { scroll-behavior: smooth; }
       제40회 밑빠진 독상 후보였던 영월 봉래산 명소화 사업도 회원의 제보에서 시작되었습니다.
       우리 동네에서 새고 있는 세금, 알려주세요.
     </p>
+
+    <p class="dok-report-gift">
+      🎟️ 제보하신 분들 중 추첨을 통해서 <b>5분</b>에게
+      함께하는 시민행동 <b>후원의 밤 초대권</b>을 드립니다.
+    </p>
+
     <form class="dok-report-form" id="dok-report-form">
       <label for="dok-rp-name">사업명 <span style="color:var(--alert)">*</span></label>
       <input type="text" id="dok-rp-name" placeholder="예: ○○시 △△ 건설 사업" required>
@@ -1041,7 +1057,7 @@ html { scroll-behavior: smooth; }
       <input type="text" id="dok-rp-region" placeholder="예: ○○구청, 행정안전부 등">
       <label for="dok-rp-detail">제보 내용 <span style="color:var(--alert)">*</span></label>
       <textarea id="dok-rp-detail" placeholder="어떤 점이 문제라고 생각하시는지 알려주세요. 관련 기사나 자료 링크가 있다면 함께 적어주세요." required></textarea>
-      <label for="dok-rp-email">회신 받을 이메일 (선택)</label>
+      <label for="dok-rp-email">회신 받을 이메일 (선택 — 추첨 당첨 안내도 이 주소로 갑니다)</label>
       <input type="email" id="dok-rp-email" placeholder="확인 후 진행 상황을 알려드립니다">
 
       <!-- 봇 잡이. 사람에게는 보이지 않는 칸이라 채워져 오면 봇으로 본다. -->
