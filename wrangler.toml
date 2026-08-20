@@ -13,9 +13,32 @@ compatibility_date = "2026-05-15"
 CURRENT_ROUND = "41"
 # 제보 접수 여부. "0"으로 두면 폼이 닫힌다.
 REPORT_OPEN = "1"
+# 이번 차수 마감. 제보는 상시로 받되, 이 날짜까지 들어온 것을 한 묶음으로 본다.
+# 지나도 접수는 계속되고 다음 차수로 넘어간다.
+REPORT_DEADLINE = "2026-09-15"
+REPORT_DEADLINE_LABEL = "하반기 1차 제보 마감"
 
 [[d1_databases]]
 binding = "DB"
 database_name = "dokseong"
 # ⚠️ `wrangler d1 create dokseong` 실행 후 나오는 값으로 교체
 database_id = "REPLACE_WITH_D1_DATABASE_ID"
+
+# 제보 사진. D1에는 파일을 넣을 수 없어 R2를 쓴다.
+#
+# ⚠️ 지금은 꺼 두었습니다. 버킷이 없는 상태로 이 설정이 들어가면 배포가
+#    막힐 수 있어, 첫 배포를 방해하지 않도록 주석으로 두었습니다.
+#
+# 사진 기능을 켜는 순서:
+#   1) npx wrangler r2 bucket create dokseong-photos
+#   2) 아래 세 줄의 주석을 풀고 다시 배포
+#
+# 켜기 전까지는 사진을 올려도 저장되지 않고 글만 접수됩니다
+# (functions/api/report.js 가 PHOTOS 바인딩이 없으면 사진을 건너뜁니다).
+#
+# ⚠️ 버킷을 만들 때 공개로 열지 마세요. 제보 사진은 내부 확인용이고
+#    사람 얼굴·차량번호가 찍혀 들어올 수 있습니다.
+#
+# [[r2_buckets]]
+# binding = "PHOTOS"
+# bucket_name = "dokseong-photos"
