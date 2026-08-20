@@ -167,7 +167,15 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-map-stat b { display: block; font-size: 26px; line-height: 1.2; color: var(--brand-deep); }
 #dok .dok-map-stat span { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
-#dok .dok-map-list { list-style: none; }
+#dok .dok-map-list {
+  list-style: none;
+  /* 중앙정부 목록은 21건이라 패널이 화면보다 길어진다.
+     목록만 따로 스크롤시켜 위쪽 닫기 줄이 늘 보이게 한다. */
+  max-height: 46vh; overflow-y: auto;
+  margin-right: -8px; padding-right: 8px;
+}
+#dok .dok-map-list::-webkit-scrollbar { width: 6px; }
+#dok .dok-map-list::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
 #dok .dok-map-list li { padding: 13px 0; border-top: 1px solid var(--line); }
 #dok .dok-map-list li:first-child { border-top: 0; }
 #dok .dok-map-round { font-size: 12.5px; font-weight: 700; color: var(--alert); }
@@ -200,6 +208,7 @@ html { scroll-behavior: smooth; }
   #dok .dok-map-mode { min-height: 44px; padding: 0 18px; }
   #dok .dok-map-offmap button { min-height: 44px; }
   #dok .dok-map-stat b { font-size: 30px; }
+  #dok .dok-map-list { max-height: 60vh; }
 }
 
 /* ── 따라다니는 후원 바 ──
@@ -626,6 +635,27 @@ html { scroll-behavior: smooth; }
   #dok .dok-camp-thumb { margin: -26px -24px 16px; }
   #dok .dok-camp-modal-thumb { aspect-ratio: 16 / 8; }
 }
+
+/* ── 지도 패널 닫기 ──
+   지역이나 중앙정부 목록을 열면 돌아갈 방법이 지도 클릭뿐이라 안 보였다.
+   패널 위에 명시적인 닫기 줄을 둔다. */
+#dok .dok-map-panelbar {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  margin: -6px -6px 14px;
+}
+#dok .dok-map-back {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 40px; padding: 0 12px; border-radius: 999px;
+  border: 0; background: none; cursor: pointer;
+  font-family: inherit; font-size: 13.5px; font-weight: 700; color: var(--ink-soft);
+}
+#dok .dok-map-back:hover { background: #eef3f6; color: var(--brand-deep); }
+#dok .dok-map-panel-close {
+  width: 40px; height: 40px; flex-shrink: 0;
+  border: 0; border-radius: 50%; background: #eef3f6; color: var(--ink-soft);
+  font-size: 15px; cursor: pointer;
+}
+#dok .dok-map-panel-close:hover { background: var(--line); color: var(--ink); }
 
 /* ── Top bar ── */
 #dok .dok-topbar {
@@ -1688,6 +1718,24 @@ items.forEach(item => {
     });
   }
 
+  // 패널 맨 위 닫기 줄. 지역·중앙정부 목록에서 전국으로 돌아간다.
+  const PANEL_BAR =
+    '<div class="dok-map-panelbar">' +
+      '<button type="button" class="dok-map-back">← 전국 보기</button>' +
+      '<button type="button" class="dok-map-panel-close" aria-label="닫고 전국으로">✕</button>' +
+    '</div>';
+
+  function wirePanelBar() {
+    side.querySelectorAll('.dok-map-back, .dok-map-panel-close').forEach((el) => {
+      el.addEventListener('click', () => {
+        selected = null;
+        paint();
+        renderSide();
+        track('map_panel_close', {});
+      });
+    });
+  }
+
   function renderSide() {
     if (!selected) {
       const totalAwards = awards.filter((a) => a.scope === 'local').length;
@@ -1713,6 +1761,7 @@ items.forEach(item => {
     const reports = reportCounts[selected] || 0;
 
     side.innerHTML =
+      PANEL_BAR +
       `<h3>${esc(area.name)}</h3>` +
       '<p class="dok-map-sub">밑빠진 독상 수여 기록과 시민 제보</p>' +
       '<div class="dok-map-stats">' +
@@ -1728,6 +1777,8 @@ items.forEach(item => {
             </li>`).join('') + '</ul>'
         : '<p class="dok-map-none">아직 이 지역에 수여된 밑빠진 독상은 없습니다. 새고 있는 예산을 알고 계신가요?</p>') +
       `<button type="button" class="dok-map-report-cta">이 지역 예산낭비 제보하기 →</button>`;
+
+    wirePanelBar();
 
     const cta = side.querySelector('.dok-map-report-cta');
     if (cta) cta.addEventListener('click', () => {
@@ -1752,14 +1803,20 @@ items.forEach(item => {
       paint();
       const list = central.sort((a, b) => b.round - a.round);
       side.innerHTML =
+        PANEL_BAR +
         '<h3>중앙정부·공공기관</h3>' +
-        '<p class="dok-map-sub">특정 지역에 속하지 않는 수상 내역</p>' +
+        `<p class="dok-map-sub">특정 지역에 속하지 않는 수상 내역 ${list.length}건</p>` +
         '<ul class="dok-map-list">' + list.map((a) =>
           `<li>
             <div class="dok-map-round">제${a.round}회 · ${esc(a.date)}</div>
             <div class="dok-map-proj">${esc(a.project)}</div>
             <div class="dok-map-who">${esc(a.awardee)}</div>
           </li>`).join('') + '</ul>';
+      wirePanelBar();
+      // 모바일에서는 목록이 지도 아래에 있어 열린 것을 모른다
+      if (window.matchMedia('(max-width: 860px)').matches) {
+        side.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
       track('map_view_central', {});
     });
   }
