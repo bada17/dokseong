@@ -38,6 +38,9 @@
   --alert-tint: #ffedeb;
   --bg: #ffffff;
   --line: #d8e6ed;
+  --cream: #fbf4e9;      /* 첫 화면 바탕 */
+  --cream-line: #d9c3a2; /* 크림 위 테두리 */
+  --cream-ink: #6b5a4a;  /* 크림 위 보조 글씨 */
 
   font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
   background: var(--bg);
@@ -378,8 +381,9 @@ html { scroll-behavior: smooth; }
 
 /* ── Hero ── */
 #dok .dok-hero {
-  background: var(--ink);
-  color: #fff;
+  /* 크림 바탕. 나머지 화면이 흰색·하늘색이라 첫 화면만 따뜻한 색으로 구분한다. */
+  background: var(--cream);
+  color: var(--ink);
   padding: 72px 24px 80px;
 }
 #dok .dok-hero-inner {
@@ -391,8 +395,8 @@ html { scroll-behavior: smooth; }
   display: inline-block;
   font-family: 'GmarketSans', sans-serif;
   font-weight: 700; font-size: 13px; letter-spacing: 0.16em;
-  color: var(--brand);
-  border: 1.5px solid var(--brand);
+  color: #8a6a3a; background: #fff;
+  border: 1.5px solid var(--cream-line);
   padding: 7px 16px; border-radius: 999px;
   margin-bottom: 26px;
 }
@@ -404,29 +408,29 @@ html { scroll-behavior: smooth; }
   margin-bottom: 22px;
   word-break: keep-all;
 }
-#dok .dok-hero h1 .dok-red { color: var(--alert); }
+#dok .dok-hero h1 .dok-red { color: #e0392c; }
 #dok .dok-hero p {
-  font-size: 17px; color: rgba(255,255,255,0.82);
+  font-size: 17px; color: var(--cream-ink);
   max-width: 520px; word-break: keep-all;
-  margin-bottom: 34px;
+  margin: 0 auto 34px;
 }
 #dok .dok-hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 #dok .dok-btn-main {
   font-family: 'GmarketSans', sans-serif;
-  font-weight: 700; font-size: 15px; color: var(--ink);
-  background: #fff; border: none; text-decoration: none;
+  font-weight: 700; font-size: 15px; color: #fff;
+  background: var(--ink); border: none; text-decoration: none;
   padding: 16px 30px; border-radius: 13px; cursor: pointer;
   transition: transform 0.15s, background 0.15s;
 }
-#dok .dok-btn-main:hover { transform: translateY(-2px); background: var(--brand-tint); }
+#dok .dok-btn-main:hover { transform: translateY(-2px); background: #1d3446; }
 #dok .dok-btn-line {
   font-family: 'GmarketSans', sans-serif;
-  font-weight: 700; font-size: 15px; color: #fff;
-  background: transparent; border: 1.5px solid rgba(255,255,255,0.5);
+  font-weight: 700; font-size: 15px; color: var(--ink);
+  background: #fff; border: 1.5px solid rgba(13,28,38,0.28);
   text-decoration: none; padding: 16px 30px; border-radius: 13px;
   cursor: pointer; transition: border-color 0.15s;
 }
-#dok .dok-btn-line:hover { border-color: #fff; }
+#dok .dok-btn-line:hover { border-color: var(--ink); }
 
 /* ── Section shared ── */
 #dok .dok-section { max-width: 1080px; margin: 0 auto; padding: 88px 24px; }
