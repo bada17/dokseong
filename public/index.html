@@ -56,6 +56,66 @@ html { scroll-behavior: smooth; }
   #dok *, #dok *::before, #dok *::after { animation: none !important; transition: none !important; }
 }
 
+/* ── 예산감시 사업 (진행 중 / 종료) ── */
+#dok .dok-camp-tabs {
+  display: flex; gap: 10px; justify-content: center;
+  margin: 34px 0 40px; flex-wrap: wrap;
+}
+#dok .dok-camp-tab {
+  font-family: 'GmarketSans', sans-serif;
+  font-weight: 700; font-size: 15px;
+  padding: 12px 26px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: #fff; color: var(--ink-soft);
+  cursor: pointer; transition: all .18s;
+}
+#dok .dok-camp-tab:hover { border-color: var(--brand); color: var(--brand-deep); }
+#dok .dok-camp-tab[aria-selected="true"] {
+  background: var(--brand); border-color: var(--brand); color: #fff;
+}
+#dok .dok-camp-tab .dok-camp-count { font-size: 13px; opacity: .75; }
+
+#dok .dok-camp-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+}
+#dok .dok-camp-card {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--line); border-radius: 14px;
+  padding: 26px 24px 24px; background: #fff;
+  text-decoration: none; transition: border-color .18s, transform .18s;
+}
+#dok a.dok-camp-card:hover { border-color: var(--brand); transform: translateY(-2px); }
+#dok .dok-camp-top {
+  display: flex; align-items: center; gap: 8px;
+  margin-bottom: 14px; flex-wrap: wrap;
+}
+#dok .dok-camp-badge {
+  font-size: 12px; font-weight: 700; letter-spacing: .02em;
+  padding: 4px 10px; border-radius: 999px;
+}
+#dok .dok-camp-badge.is-ongoing { background: var(--alert-tint); color: var(--alert); }
+#dok .dok-camp-badge.is-closed  { background: #eef3f6; color: var(--ink-soft); }
+#dok .dok-camp-period { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+#dok .dok-camp-card h3 {
+  font-size: 18px; line-height: 1.45; word-break: keep-all; margin-bottom: 10px;
+}
+#dok .dok-camp-card p {
+  font-size: 14.5px; color: var(--ink-soft); word-break: keep-all; flex-grow: 1;
+}
+#dok .dok-camp-outcome {
+  margin-top: 16px; padding-top: 14px; border-top: 1px dashed var(--line);
+  font-size: 13.5px; color: var(--brand-deep); font-weight: 600; word-break: keep-all;
+}
+#dok .dok-camp-empty {
+  grid-column: 1 / -1; text-align: center; padding: 60px 20px;
+  color: var(--ink-soft); font-size: 15px;
+}
+@media (max-width: 900px) {
+  #dok .dok-camp-grid { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 620px) {
+  #dok .dok-camp-grid { grid-template-columns: 1fr; }
+}
+
 /* ── Top bar ── */
 #dok .dok-topbar {
   display: flex;
@@ -97,8 +157,8 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-hero-inner {
   max-width: 1080px; margin: 0 auto;
-  display: grid; grid-template-columns: 1.1fr 0.9fr;
-  gap: 48px; align-items: center;
+  max-width: 760px;
+  text-align: center;
 }
 #dok .dok-hero .dok-eyebrow {
   display: inline-block;
@@ -123,7 +183,7 @@ html { scroll-behavior: smooth; }
   max-width: 520px; word-break: keep-all;
   margin-bottom: 34px;
 }
-#dok .dok-hero-actions { display: flex; gap: 14px; flex-wrap: wrap; }
+#dok .dok-hero-actions { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
 #dok .dok-btn-main {
   font-family: 'GmarketSans', sans-serif;
   font-weight: 700; font-size: 15px; color: var(--ink);
@@ -140,11 +200,6 @@ html { scroll-behavior: smooth; }
   cursor: pointer; transition: border-color 0.15s;
 }
 #dok .dok-btn-line:hover { border-color: #fff; }
-#dok .dok-hero-photo {
-  border-radius: 20px; overflow: hidden;
-  box-shadow: 0 24px 60px rgba(0,0,0,0.4);
-}
-#dok .dok-hero-photo img { display: block; width: 100%; aspect-ratio: 4/3.6; object-fit: cover; }
 
 /* ── Section shared ── */
 #dok .dok-section { max-width: 1080px; margin: 0 auto; padding: 88px 24px; }
@@ -356,10 +411,7 @@ html { scroll-behavior: smooth; }
 #dok .dok-footer-inner a { color: var(--brand-deep); text-decoration: none; }
 
 @media (max-width: 820px) {
-  #dok .dok-hero-inner { grid-template-columns: 1fr; gap: 32px; }
-  #dok .dok-hero-photo { order: -1; }
-  #dok .dok-hero-photo img { aspect-ratio: 16/10; }
-  #dok .dok-section { padding: 60px 20px; }
+      #dok .dok-section { padding: 60px 20px; }
   #dok .dok-topbar nav .dok-nav-link { display: none; }
 }
 #dok :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
@@ -381,11 +433,11 @@ html { scroll-behavior: smooth; }
 
 <header class="dok-topbar">
   <a class="dok-org" href="index.html">
-    <img src="img/logo.png" alt="함께하는 시민행동 로고">
     함께하는 시민행동
   </a>
   <nav>
     <a class="dok-nav-link" href="#dok-vote">투표</a>
+    <a class="dok-nav-link" href="#dok-campaigns">예산감시 사업</a>
     <a class="dok-nav-link" href="#dok-history">역대 수상</a>
     <a class="dok-nav-link" href="#dok-report">시민 제보</a>
     <a class="dok-top-cta" href="index.html#donate">후원하기</a>
@@ -410,9 +462,6 @@ html { scroll-behavior: smooth; }
         <a class="dok-btn-main" href="#dok-vote">제41회 투표 참여하기</a>
         <a class="dok-btn-line" href="#dok-report">예산낭비 제보하기</a>
       </div>
-    </div>
-    <div class="dok-hero-photo">
-      <img src="img/dok-hero.jpg" alt="검찰 특수활동비 규탄 — 모형 지폐가 꽂힌 밑빠진 독">
     </div>
   </div>
 </section>
@@ -469,6 +518,73 @@ html { scroll-behavior: smooth; }
     <p class="dok-vote-done-msg" id="dok-vote-done">투표해 주셔서 감사합니다. 결과는 선정 발표와 함께 공개됩니다.</p>
   </div>
 </div>
+
+<section class="dok-section" id="dok-campaigns">
+  <div class="dok-section-tag">WATCH</div>
+  <h2>지금 지켜보고 있는 예산</h2>
+  <p class="dok-lead">
+    밑빠진 독상은 상을 주고 끝나지 않습니다. 수상 이후에도 사업 중단, 주민소송,
+    법령·조례 개정으로 이어지는 감시 활동을 계속합니다.
+  </p>
+
+  <!-- 아래 사업 목록은 전부 예시(더미) 데이터입니다. 실제 사업으로 교체할 것 -->
+  <span class="dok-vote-notice">아래 사업은 예시 데이터입니다 — 실제 내용으로 교체 예정</span>
+
+  <div class="dok-camp-tabs" role="tablist">
+    <button type="button" class="dok-camp-tab" role="tab" data-status="ongoing" aria-selected="true">
+      진행 중인 예산감시 사업<span class="dok-camp-count" data-count="ongoing"></span>
+    </button>
+    <button type="button" class="dok-camp-tab" role="tab" data-status="closed" aria-selected="false">
+      종료된 예산감시 사업<span class="dok-camp-count" data-count="closed"></span>
+    </button>
+  </div>
+
+  <div class="dok-camp-grid" id="dok-camp-grid"></div>
+</section>
+
+<!-- ── 예산감시 사업 데이터 ──
+     분기마다 여기만 고치면 위 목록이 바뀝니다. 코드는 건드릴 필요 없습니다.
+       status : "ongoing"(진행 중) 또는 "closed"(종료)
+       outcome: 종료된 사업의 결과 한 줄. 진행 중이면 비워두세요.
+       link   : 관련 글 주소. 비워두면 클릭되지 않는 카드가 됩니다.
+     별도 파일로 빼지 않은 이유 — 나중에 캠페이너스 홈페이지에 통째로
+     붙여넣어야 해서, 바깥 파일을 불러오면 거기서 동작하지 않습니다. -->
+<script type="application/json" id="dok-campaign-data">
+[
+  {
+    "title": "(예시) 검찰 특수활동비 감시",
+    "summary": "영수증 없이 쓰이는 특수활동비의 집행 내역을 추적하고 공개를 요구합니다.",
+    "status": "ongoing",
+    "period": "2023.6 ~",
+    "outcome": "",
+    "link": ""
+  },
+  {
+    "title": "(예시) 지방자치단체 전시성 조형물 사업",
+    "summary": "주민 의견 수렴 없이 추진되는 지역 조형물·상징물 사업을 모니터링합니다.",
+    "status": "ongoing",
+    "period": "2026.1 ~",
+    "outcome": "",
+    "link": ""
+  },
+  {
+    "title": "(예시) 서울시 한강 리버버스",
+    "summary": "수요 예측과 운영 적자 구조를 검증했습니다.",
+    "status": "closed",
+    "period": "2024.5 ~ 2025.3",
+    "outcome": "제40회 밑빠진 독상 수여",
+    "link": ""
+  },
+  {
+    "title": "(예시) 경인운하 사업",
+    "summary": "타당성 재조사를 요구하며 사업의 경제성 근거를 반박했습니다.",
+    "status": "closed",
+    "period": "2002 ~ 2003",
+    "outcome": "제24회 밑빠진 독상 수여",
+    "link": ""
+  }
+]
+</script>
 
 <section class="dok-section" id="dok-history">
   <div class="dok-section-tag">HISTORY</div>
@@ -641,6 +757,62 @@ items.forEach(item => {
     track('vote_candidate', { candidate_id: item.dataset.id });
   });
 });
+
+// ── 예산감시 사업 목록 (진행 중 / 종료) ──
+(function () {
+  const grid = document.getElementById('dok-camp-grid');
+  const tabs = [...document.querySelectorAll('.dok-camp-tab')];
+  if (!grid || !tabs.length) return;
+
+  let campaigns = [];
+  try {
+    campaigns = JSON.parse(document.getElementById('dok-campaign-data').textContent);
+  } catch (err) {
+    console.error('사업 데이터를 읽지 못했습니다', err);
+  }
+
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  const LABEL = { ongoing: '진행 중', closed: '종료' };
+
+  function card(c) {
+    const tag  = c.link ? 'a' : 'div';
+    const href = c.link ? ` href="${esc(c.link)}" target="_blank" rel="noopener"` : '';
+    return `<${tag} class="dok-camp-card"${href}>
+      <div class="dok-camp-top">
+        <span class="dok-camp-badge is-${esc(c.status)}">${LABEL[c.status] || ''}</span>
+        ${c.period ? `<span class="dok-camp-period">${esc(c.period)}</span>` : ''}
+      </div>
+      <h3>${esc(c.title)}</h3>
+      <p>${esc(c.summary)}</p>
+      ${c.outcome ? `<div class="dok-camp-outcome">${esc(c.outcome)}</div>` : ''}
+    </${tag}>`;
+  }
+
+  function render(status) {
+    const list = campaigns.filter((c) => c.status === status);
+    grid.innerHTML = list.length
+      ? list.map(card).join('')
+      : `<p class="dok-camp-empty">${status === 'ongoing'
+          ? '지금 진행 중인 사업이 없습니다.'
+          : '아직 종료된 사업이 없습니다.'}</p>`;
+  }
+
+  tabs.forEach((tab) => {
+    const status = tab.dataset.status;
+    const n = campaigns.filter((c) => c.status === status).length;
+    tab.querySelector('.dok-camp-count').textContent = n ? ` (${n})` : '';
+
+    tab.addEventListener('click', () => {
+      tabs.forEach((t) => t.setAttribute('aria-selected', String(t === tab)));
+      render(status);
+      track('view_campaigns', { status });
+    });
+  });
+
+  render('ongoing');
+})();
 
 // ── 시민 제보 ──
 // Cloudflare Pages Functions(functions/api/report.js)로 보낸다.
