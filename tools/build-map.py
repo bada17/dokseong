@@ -230,6 +230,21 @@ def centroid(rings_list, proj):
     return best or (W / 2, H / 2)
 
 
+def content_box(items_paths, pad=12):
+    """그려진 경로들의 실제 범위. 안 그러면 위아래로 빈 여백이 크게 남는다."""
+    xs, ys = [], []
+    for d in items_paths:
+        nums = re.findall(r'-?\d+(?:\.\d+)?', d)
+        for i in range(0, len(nums) - 1, 2):
+            xs.append(float(nums[i]))
+            ys.append(float(nums[i + 1]))
+    if not xs:
+        return f'0 0 {W} {H}'
+    x0, x1 = min(xs) - pad, max(xs) + pad
+    y0, y1 = min(ys) - pad, max(ys) + pad
+    return f'{round(x0)} {round(y0)} {round(x1 - x0)} {round(y1 - y0)}'
+
+
 def build(topo, features_filter=None):
     arcs = decode_arcs(topo)
     okey = list(topo['objects'].keys())[0]
@@ -283,16 +298,16 @@ def build(topo, features_filter=None):
             'cx': cx,
             'cy': cy,
         })
-    return out
+    return out, content_box([o['d'] for o in out])
 
 
 os.makedirs(OUT + '/map-sigungu', exist_ok=True)
 
 # ── 시도 ──
 prov = load_topo(SRC + '/skorea-provinces-2018-topo-simple.json')
-sido = build(prov)
+sido, sido_box = build(prov)
 sido.sort(key=lambda x: x['code'])
-json.dump({'viewBox': f'0 0 {W} {H}', 'areas': sido},
+json.dump({'viewBox': sido_box, 'areas': sido},
           open(OUT + '/map-sido.json', 'w', encoding='utf-8'),
           ensure_ascii=False, separators=(',', ':'))
 print('시도', len(sido), '개 ->', os.path.getsize(OUT + '/map-sido.json') // 1024, 'KB')
@@ -303,12 +318,12 @@ total = 0
 index = {}
 for s in sido:
     pref = s['code']
-    subs = build(muni, lambda p, pref=pref: p['code'].startswith(pref))
+    subs, subs_box = build(muni, lambda p, pref=pref: p['code'].startswith(pref))
     if not subs:
         continue
     subs.sort(key=lambda x: x['code'])
     path = f'{OUT}/map-sigungu/{pref}.json'
-    json.dump({'viewBox': f'0 0 {W} {H}', 'sido': s['name'], 'areas': subs},
+    json.dump({'viewBox': subs_box, 'sido': s['name'], 'areas': subs},
               open(path, 'w', encoding='utf-8'), ensure_ascii=False, separators=(',', ':'))
     total += len(subs)
     index[pref] = len(subs)

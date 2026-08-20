@@ -142,7 +142,8 @@ html { scroll-behavior: smooth; }
 
 #dok .dok-map-modes { display: flex; gap: 8px; margin-bottom: 18px; }
 #dok .dok-map-mode {
-  font-size: 13.5px; font-weight: 700; padding: 8px 16px; border-radius: 999px;
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-size: 13.5px; font-weight: 700; padding: 0 18px; border-radius: 999px;
   border: 1.5px solid var(--line); background: #fff; color: var(--ink-soft); cursor: pointer;
 }
 #dok .dok-map-mode[aria-pressed="true"] {
@@ -180,13 +181,18 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-map-offmap b { color: var(--ink); }
 #dok .dok-map-offmap button {
-  margin-top: 10px; font-size: 13px; font-weight: 700; cursor: pointer;
+  margin-top: 6px; min-height: 44px; font-size: 14px; font-weight: 700; cursor: pointer;
   background: none; border: 0; color: var(--brand-deep); text-decoration: underline; padding: 0;
 }
 @media (max-width: 860px) {
-  #dok .dok-map-wrap { grid-template-columns: 1fr; gap: 28px; }
-  #dok .dok-map-side { position: static; }
-  #dok .dok-map-label { font-size: 26px; }
+  #dok .dok-map-wrap { grid-template-columns: 1fr; gap: 24px; }
+  #dok .dok-map-side { position: static; padding: 22px 20px; }
+  /* 지도가 작아지므로 라벨은 상대적으로 키운다 */
+  #dok .dok-map-label { font-size: 30px; }
+  #dok .dok-map-dot { font-size: 24px; }
+  #dok .dok-map-mode { min-height: 44px; padding: 0 18px; }
+  #dok .dok-map-offmap button { min-height: 44px; }
+  #dok .dok-map-stat b { font-size: 30px; }
 }
 
 /* ── 따라다니는 후원 바 ──
@@ -211,16 +217,51 @@ html { scroll-behavior: smooth; }
 #dok .dok-donate-btn:hover { background: #ff2d1e; transform: scale(1.04); }
 #dok .dok-donate-close {
   position: absolute; right: 16px; top: 50%; transform: translateY(-50%);
-  width: 32px; height: 32px; border: 0; border-radius: 50%;
+  width: 40px; height: 40px; border: 0; border-radius: 50%;
   background: rgba(255,255,255,.12); color: #fff;
   font-size: 17px; line-height: 1; cursor: pointer;
 }
 #dok .dok-donate-close:hover { background: rgba(255,255,255,.24); }
 @media (max-width: 700px) {
-  #dok .dok-donate-bar { flex-direction: column; gap: 10px; padding: 14px 52px 16px 18px; text-align: center; }
-  #dok .dok-donate-text { font-size: 13.5px; }
-  #dok .dok-donate-btn { font-size: 16px; padding: 13px 30px; width: 100%; }
+  /* 한 줄로 눕혀서 바가 화면을 덜 먹게 한다 */
+  #dok .dok-donate-bar { gap: 12px; padding: 12px 52px 12px 18px; }
+  #dok .dok-donate-text .dok-donate-long { display: none; }
+  #dok .dok-donate-text .dok-donate-short { display: inline; }
+  #dok .dok-donate-text { font-size: 13.5px; line-height: 1.35; }
+  #dok .dok-donate-btn { font-size: 15px; padding: 13px 22px; }
+  #dok.dok-has-bar { padding-bottom: 84px; }
 }
+
+/* ── 시도 칩 ──
+   작은 시도(인천·대전·세종…)는 지도에서 손가락으로 누르기 어렵다.
+   지도는 '보는 것', 칩은 '누르는 것'으로 역할을 나눈다. */
+#dok .dok-map-chips {
+  display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px;
+}
+#dok .dok-map-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  min-height: 44px; padding: 0 16px; border-radius: 999px;
+  border: 1.5px solid var(--line); background: #fff;
+  font-size: 14.5px; font-weight: 700; color: var(--ink-soft);
+  cursor: pointer; transition: all .15s;
+}
+#dok .dok-map-chip:hover { border-color: var(--brand); color: var(--brand-deep); }
+#dok .dok-map-chip[aria-pressed="true"] {
+  background: var(--brand-deep); border-color: var(--brand-deep); color: #fff;
+}
+#dok .dok-map-chip .dok-chip-n:empty { display: none; }
+#dok .dok-map-chip .dok-chip-n {
+  font-size: 12.5px; font-weight: 700; color: var(--alert);
+  background: var(--alert-tint); border-radius: 999px; padding: 1px 7px;
+}
+#dok .dok-map-chip[aria-pressed="true"] .dok-chip-n { background: rgba(255,255,255,.2); color: #fff; }
+#dok .dok-map-chip.is-empty { opacity: .55; }
+
+/* 후원 바에 가리지 않도록 아래를 비워 둔다 */
+#dok.dok-has-bar { padding-bottom: 96px; }
+
+/* 모바일에서 후원 바를 한 줄로 눕힌다 */
+#dok .dok-donate-short { display: none; }
 
 /* ── Top bar ── */
 #dok .dok-topbar {
@@ -700,7 +741,7 @@ html { scroll-behavior: smooth; }
   <h2>우리 동네 밑빠진 독</h2>
   <p class="dok-lead">
     밑빠진 독상이 어디에 수여됐는지, 지금 어느 지역에서 제보가 들어오고 있는지
-    지도에서 확인하세요. 지역을 누르면 그곳의 기록이 보입니다.
+    지도에서 확인하세요. 지도나 아래 목록에서 지역을 누르면 그곳의 기록이 보입니다.
   </p>
 
   <div class="dok-map-modes">
@@ -711,6 +752,9 @@ html { scroll-behavior: smooth; }
   <div class="dok-map-wrap">
     <div class="dok-map-figure">
       <svg class="dok-map-svg" id="dok-map-svg" role="img" aria-label="대한민국 시도별 밑빠진 독상 지도"></svg>
+
+      <!-- 지도는 눈으로 보는 것, 아래 칩은 손가락으로 누르는 것 -->
+      <div class="dok-map-chips" id="dok-map-chips" role="group" aria-label="지역 고르기"></div>
     </div>
 
     <aside class="dok-map-side" id="dok-map-side"></aside>
@@ -861,7 +905,8 @@ html { scroll-behavior: smooth; }
 <!-- 따라다니는 후원 바. 히어로를 지나야 올라오고, 닫으면 이 방문 동안은 안 뜬다. -->
 <div class="dok-donate-bar" id="dok-donate-bar">
   <span class="dok-donate-text">
-    밑빠진 독상은 <b>정부·기업 지원 없이</b> 시민 후원으로 26년째 이어집니다
+    <span class="dok-donate-long">밑빠진 독상은 <b>정부·기업 지원 없이</b> 시민 후원으로 26년째 이어집니다</span>
+    <span class="dok-donate-short">시민 후원으로 <b>26년째</b></span>
   </span>
   <a class="dok-donate-btn" href="https://action.or.kr" target="_blank" rel="noopener" id="dok-donate-btn">
     후원으로 함께하기
@@ -920,13 +965,18 @@ items.forEach(item => {
   try { closed = sessionStorage.getItem('dok-donate-closed') === '1'; } catch (e) {}
   if (closed) return;
 
+  const root = document.getElementById('dok');
   const io = new IntersectionObserver(([entry]) => {
-    bar.classList.toggle('is-up', !entry.isIntersecting);
+    const up = !entry.isIntersecting;
+    bar.classList.toggle('is-up', up);
+    // 바에 가려 마지막 내용이 안 보이는 일이 없도록
+    if (root) root.classList.toggle('dok-has-bar', up);
   }, { threshold: 0 });
   io.observe(hero);
 
   document.getElementById('dok-donate-close').addEventListener('click', () => {
     bar.classList.remove('is-up');
+    if (root) root.classList.remove('dok-has-bar');
     io.disconnect();
     try { sessionStorage.setItem('dok-donate-closed', '1'); } catch (e) {}
     track('donate_bar_close', {});
@@ -987,6 +1037,13 @@ items.forEach(item => {
       if (label) label.classList.toggle('is-light', t > 0.55);
       const dot = svg.querySelector(`.dok-map-dot[data-code="${a.code}"]`);
       if (dot) dot.textContent = n ? n : '';
+
+      const chip = document.querySelector(`.dok-map-chip[data-code="${a.code}"]`);
+      if (chip) {
+        chip.setAttribute('aria-pressed', String(selected === a.code));
+        chip.classList.toggle('is-empty', n === 0);
+        chip.querySelector('.dok-chip-n').textContent = n ? n : '';
+      }
     });
   }
 
@@ -995,7 +1052,7 @@ items.forEach(item => {
       const totalAwards = awards.filter((a) => a.scope === 'local').length;
       side.innerHTML =
         '<h3>전국</h3>' +
-        '<p class="dok-map-sub">지도에서 지역을 눌러보세요.</p>' +
+        '<p class="dok-map-sub">지도나 아래 지역 목록을 눌러보세요.</p>' +
         '<div class="dok-map-stats">' +
           `<div class="dok-map-stat"><b>${totalAwards}</b><span>지역에 수여된 독상</span></div>` +
           `<div class="dok-map-stat"><b>${Object.values(reportCounts).reduce((x, y) => x + y, 0)}</b><span>시민 제보</span></div>` +
@@ -1074,13 +1131,32 @@ items.forEach(item => {
       }).join('');
 
     svg.querySelectorAll('.dok-map-area').forEach((el) => {
-      el.addEventListener('click', () => {
-        const code = el.dataset.code;
-        selected = selected === code ? null : code;
-        paint();
-        renderSide();
-        track('map_select_sido', { sido: code });
-      });
+      el.addEventListener('click', () => select(el.dataset.code));
+    });
+  }
+
+  function select(code) {
+    selected = selected === code ? null : code;
+    paint();
+    renderSide();
+    if (selected) {
+      const side = document.getElementById('dok-map-side');
+      // 모바일에서는 지도 아래에 결과가 있으므로 눈에 들어오게 옮겨 준다
+      if (window.matchMedia('(max-width: 860px)').matches && side) {
+        side.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+    track('map_select_sido', { sido: code });
+  }
+
+  function drawChips() {
+    const box = document.getElementById('dok-map-chips');
+    if (!box) return;
+    box.innerHTML = areas.map((a) =>
+      `<button type="button" class="dok-map-chip" data-code="${a.code}" aria-pressed="false">` +
+      `<span>${esc(a.short || a.name)}</span><span class="dok-chip-n"></span></button>`).join('');
+    box.querySelectorAll('.dok-map-chip').forEach((el) => {
+      el.addEventListener('click', () => select(el.dataset.code));
     });
   }
 
@@ -1092,6 +1168,7 @@ items.forEach(item => {
     awards = aw.awards || [];
     reportCounts = reg.sido || {};
     drawMap(map);
+    drawChips();
     paint();
     renderSide();
     renderOffmap();
