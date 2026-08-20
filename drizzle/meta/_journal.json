@@ -8,6 +8,13 @@
       "when": 1787211994497,
       "tag": "0000_serious_marvel_zombies",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1787212768677,
+      "tag": "0001_slimy_mentallo",
+      "breakpoints": true
     }
   ]
 }

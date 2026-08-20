@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS reports (
   -- 정식 명칭을 모릅니다. 필수로 두면 이미 답을 아는 사람만 제보하게 됩니다.
   project_name  TEXT,                      -- 사업명 (알면 적는 정도)
   region        TEXT,                      -- 지역·기관
-  detail        TEXT    NOT NULL,          -- 제보 내용
+  detail        TEXT,                      -- 제보 내용 (사진만 제보할 수도 있음)
   email         TEXT,                      -- 회신용 (선택 입력)
 
   -- 지역. 지도에 찍기 위해 코드로 받는다.

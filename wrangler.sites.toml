@@ -10,3 +10,5 @@ run_worker_first = ["/api/*"]
 [vars]
 CURRENT_ROUND = "41"
 REPORT_OPEN = "1"
+REPORT_DEADLINE = "2026-09-15"
+REPORT_DEADLINE_LABEL = "하반기 1차 제보 마감"

@@ -9,7 +9,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node tools/stage-sites.mjs",
-    "db:generate": "drizzle-kit generate"
+    "db:generate": "drizzle-kit generate",
+    "test:migration": "node tools/test-migration.mjs"
   },
   "dependencies": {
     "drizzle-orm": "0.45.2"
