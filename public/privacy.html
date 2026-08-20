@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개인정보 처리방침 — 함께하는 시민행동</title>
+<meta name="description" content="함께하는 시민행동 개인정보 처리방침">
+<meta name="robots" content="noindex">
+
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+<style>
+/* ── 범위 격리 ──────────────────────────────────────────────
+   index.html과 같은 규칙. 모든 스타일을 #dok 안에 가둔다.
+   나중에 캠페이너스 홈페이지에 붙여넣어도 바깥을 건드리지 않게 하기 위함.
+   ──────────────────────────────────────────────────────── */
+#dok {
+  --brand: #00afec;
+  --brand-deep: #0087b8;
+  --brand-tint: #e5f7fe;
+  --ink: #0d1c26;
+  --ink-soft: #47606f;
+  --alert: #ff4a3d;
+  --alert-tint: #ffedeb;
+  --bg: #ffffff;
+  --line: #d8e6ed;
+
+  font-family: 'Pretendard Variable', Pretendard, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+#dok *, #dok *::before, #dok *::after { box-sizing: border-box; margin: 0; padding: 0; }
+#dok a { color: inherit; }
+
+#dok .dok-topbar {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 24px; border-bottom: 1px solid var(--line);
+  position: sticky; top: 0; background: rgba(255,255,255,.94);
+  backdrop-filter: blur(8px); z-index: 50;
+}
+#dok .dok-topbar a { font-weight: 700; font-size: 15px; text-decoration: none; }
+#dok .dok-topbar .dok-back { font-size: 13.5px; font-weight: 600; color: var(--ink-soft); }
+#dok .dok-topbar .dok-back:hover { color: var(--brand-deep); }
+
+#dok .dok-doc { max-width: 820px; margin: 0 auto; padding: 56px 24px 100px; }
+#dok .dok-doc h1 { font-size: 30px; line-height: 1.35; word-break: keep-all; }
+#dok .dok-doc .dok-meta { font-size: 13.5px; color: var(--ink-soft); margin-top: 12px; }
+#dok .dok-doc h2 {
+  font-size: 20px; margin: 46px 0 14px; padding-top: 26px;
+  border-top: 1px solid var(--line); word-break: keep-all;
+}
+#dok .dok-doc h3 { font-size: 16px; margin: 24px 0 8px; color: var(--brand-deep); word-break: keep-all; }
+#dok .dok-doc p { font-size: 15.5px; margin-bottom: 12px; word-break: keep-all; }
+#dok .dok-doc ul, #dok .dok-doc ol { margin: 0 0 14px 20px; }
+#dok .dok-doc li { font-size: 15.5px; margin-bottom: 6px; word-break: keep-all; }
+#dok .dok-doc strong { font-weight: 700; }
+
+#dok .dok-doc table {
+  width: 100%; border-collapse: collapse; margin: 14px 0 18px; font-size: 14.5px;
+}
+#dok .dok-doc th, #dok .dok-doc td {
+  border: 1px solid var(--line); padding: 10px 12px; text-align: left;
+  vertical-align: top; word-break: keep-all;
+}
+#dok .dok-doc th { background: #f4f9fc; font-weight: 700; }
+#dok .dok-table-scroll { overflow-x: auto; }
+
+/* 동의문 — 폼 옆에 그대로 붙여 쓸 수 있게 따로 묶어 둔다 */
+#dok .dok-consent {
+  border: 1px solid var(--line); border-radius: 14px;
+  padding: 24px 26px; margin: 18px 0 8px; background: #fbfdfe;
+}
+#dok .dok-consent h3 { margin-top: 20px; }
+#dok .dok-consent h3:first-child { margin-top: 0; }
+#dok .dok-consent .dok-consent-title {
+  font-size: 17px; font-weight: 700; margin-bottom: 10px; word-break: keep-all;
+}
+#dok .dok-consent .dok-consent-foot {
+  margin-top: 18px; padding-top: 14px; border-top: 1px dashed var(--line);
+  font-size: 14px; color: var(--ink-soft);
+}
+#dok .dok-consent .dok-consent-foot p { font-size: 14px; margin-bottom: 6px; }
+@media (max-width: 620px) {
+  #dok .dok-consent { padding: 20px; }
+}
+
+/* 아직 채워지지 않은 자리. 눈에 띄어야 그냥 공개되는 일이 없다. */
+#dok .dok-todo {
+  background: #fff3c4; color: #7a5b00; font-weight: 700;
+  padding: 1px 6px; border-radius: 4px; font-size: .95em;
+}
+#dok .dok-notice {
+  background: var(--alert-tint); border: 1px solid #ffc9c3; border-radius: 12px;
+  padding: 18px 20px; margin: 28px 0 8px; font-size: 14.5px; word-break: keep-all;
+}
+#dok .dok-notice b { color: var(--alert); }
+#dok .dok-notice ul { margin: 10px 0 0 20px; }
+#dok .dok-notice li { font-size: 14.5px; }
+
+#dok .dok-toc {
+  background: #f4f9fc; border-radius: 12px; padding: 20px 24px; margin: 32px 0 0;
+}
+#dok .dok-toc ol { margin: 0 0 0 20px; }
+#dok .dok-toc li { font-size: 14.5px; margin-bottom: 4px; }
+#dok .dok-toc a { color: var(--brand-deep); text-decoration: none; }
+#dok .dok-toc a:hover { text-decoration: underline; }
+
+#dok footer { border-top: 1px solid var(--line); padding: 32px 24px; }
+#dok footer div {
+  max-width: 820px; margin: 0 auto; font-size: 13.5px; color: var(--ink-soft);
+  display: flex; justify-content: space-between; gap: 14px; flex-wrap: wrap;
+}
+#dok footer a { color: var(--brand-deep); text-decoration: none; }
+
+@media (max-width: 620px) {
+  #dok .dok-doc { padding: 36px 18px 72px; }
+  #dok .dok-doc h1 { font-size: 24px; }
+  #dok .dok-doc h2 { font-size: 18px; margin-top: 36px; }
+  #dok .dok-doc p, #dok .dok-doc li { font-size: 15px; }
+}
+</style>
+</head>
+<body>
+
+<!-- 캠페이너스 이식 단위: 이 div 통째로 복사 -->
+<div id="dok">
+
+<header class="dok-topbar">
+  <a href="https://action.or.kr" target="_blank" rel="noopener">함께하는 시민행동</a>
+  <a class="dok-back" href="index.html">← 밑빠진 독상으로 돌아가기</a>
+</header>
+
+<main class="dok-doc">
+
+<h1>개인정보 처리방침</h1>
+<p class="dok-meta">
+  시행일자 <span class="dok-todo">확인 필요: 시행일</span>
+</p>
+
+<div class="dok-notice">
+  <b>⚠️ 이 문서는 아직 초안입니다.</b>
+  기후솔루션의 개인정보 처리방침을 뼈대로 삼아 함께하는 시민행동에 맞게 옮긴
+  것입니다. <b>노란색으로 표시된 곳은 기후솔루션의 사실관계를 그대로 옮기면
+  거짓이 되는 자리</b>라서 비워 두었습니다. 공개하기 전에 반드시 채우고,
+  아래 항목은 실제 운영과 맞는지 확인해 주세요.
+  <ul>
+    <li>법인 정식 명칭·주소·대표자, 개인정보보호 책임자와 연락처</li>
+    <li>개인정보를 맡기고 있는 업체 목록(위탁) — 결제대행, 문자·이메일 발송, CRM 등</li>
+    <li>국외로 개인정보가 나가는지 (해외 서비스를 쓰고 있다면)</li>
+    <li>수집 항목과 보유기간이 실제와 맞는지</li>
+  </ul>
+</div>
+
+<p style="margin-top:28px">
+  <span class="dok-todo">확인 필요: 법인 정식 명칭</span>(이하 “함께하는 시민행동”)은
+  이용자에게 개인정보보호법 제30조에 따라 정보주체의 개인정보를 보호하고 이와 관련된
+  고충을 신속하고 원활하게 처리할 수 있도록 다음과 같이 개인정보 처리방침을 만들어
+  알려드립니다.
+</p>
+<p>
+  함께하는 시민행동은 홈페이지에 공개된 개인정보 처리방침을 통하여 이용자가 제공하는
+  개인정보가 어떠한 용도와 방식으로 이용되고 있으며, 개인정보보호를 위해 어떠한 조치가
+  취해지고 있는지 알려드립니다.
+</p>
+<p>
+  본 개인정보 처리방침은 <span class="dok-todo">확인 필요: 시행일</span>부터 시행되었으며,
+  정부의 법령 및 고시 등의 변경 또는 내부 정책에 따라 변경될 수 있습니다. 이를 개정하는
+  경우 변경사항에 대하여 웹사이트 공지사항(또는 개별공지)을 통하여 공지하겠습니다.
+</p>
+
+<nav class="dok-toc">
+  <ol>
+    <li><a href="#p1">수집하는 개인정보의 처리 목적</a></li>
+    <li><a href="#p2">수집하는 개인정보 항목 및 수집 방법</a></li>
+    <li><a href="#p3">수집하는 개인정보의 보유 및 이용기간</a></li>
+    <li><a href="#p4">개인정보의 파기절차 및 방법</a></li>
+    <li><a href="#p5">만 14세 미만 아동의 개인정보 처리에 관한 사항</a></li>
+    <li><a href="#p6">개인정보의 제3자 제공</a></li>
+    <li><a href="#p7">개인정보의 위탁</a></li>
+    <li><a href="#p8">개인정보의 국외 이전</a></li>
+    <li><a href="#p9">이용자의 권리 및 행사방법</a></li>
+    <li><a href="#p10">개인정보의 안전성 확보조치에 관한 사항</a></li>
+    <li><a href="#p11">개인정보 책임자 및 연락처</a></li>
+    <li><a href="#p12">권익침해 구제 방법</a></li>
+    <li><a href="#p13">부칙</a></li>
+    <li><a href="#consent-campaign">별첨 — 캠페인 소식 및 후원 정보 수신 동의</a></li>
+  </ol>
+</nav>
+
+<h2 id="p1">1. 수집하는 개인정보의 처리 목적</h2>
+<p>
+  함께하는 시민행동은 다음의 목적을 위하여 개인정보를 처리합니다. 처리한 개인정보는
+  다음의 목적 이외의 용도로는 사용되지 않으며, 이용목적이 변경될 시에는 개인정보 보호법
+  제15조에 따라 별도의 사전동의를 받는 등 필요한 조치를 이행할 예정입니다.
+</p>
+<ol>
+  <li><strong>후원회원 가입 및 관리</strong><br>
+    본인확인 식별, 회원정보 관리, 후원회원 가입 및 탈퇴 의사 확인, 후원 계약 협상 및 체결</li>
+  <li><strong>기부금 관리</strong><br>
+    기부금 출금, 기부금 영수증 발행, 기부내역 관리, 기부금 사용보고</li>
+  <li><strong>입사지원</strong><br>
+    채용원서 접수, 면접 등 채용절차 진행</li>
+  <li><strong>활동 안내</strong><br>
+    단체활동 내용 업데이트, 파트너 단체와 협업 및 활동 공유, 세미나 주최, 관련 기관 자문,
+    뉴스레터·보고서 발송, 행사안내 및 기타 관련 정보 제공, 후원 안내</li>
+  <li><strong>세미나 등 행사 참석, 강의, 인터뷰</strong><br>
+    세미나 등 행사 준비, 참석자 등록, 인터뷰 진행, 발표자 등 모집·선정, 활동 홍보, 설명,
+    행정, 교육 또는 연구 목적 활용, 인건비 지급</li>
+  <li><strong>예산낭비 제보 접수 및 확인</strong><br>
+    제보 내용 확인, 사실관계 조사, 제보자에 대한 진행 상황 회신,
+    밑빠진 독상 후보 선정 및 관련 예산감시 활동</li>
+  <li><strong>캠페인 참여 및 서명</strong><br>
+    캠페인 참여자 확인, 서명 집계, 캠페인 결과 전달 및 후속 활동 안내</li>
+  <li><strong>시민 투표 참여</strong><br>
+    중복 투표 방지, 투표 결과 집계</li>
+  <li><strong>소송 등 법률상 청구절차 참여</strong><br>
+    주민소송 등 사건 제출 및 안내 연락</li>
+  <li><strong>고충처리</strong><br>
+    민원인의 신원확인, 민원사항 확인, 사실조사를 위한 연락 및 통지, 처리결과 통보</li>
+</ol>
+
+<h2 id="p2">2. 수집하는 개인정보 항목 및 수집 방법</h2>
+<p>
+  함께하는 시민행동은 정기 및 일시 후원신청, 원활한 후원회원 상담, 예산감시 활동 참여
+  등의 서비스 제공을 위한 개인정보 항목을 아래와 같이 수집하고 있습니다.
+</p>
+
+<h3>(1) 수집하는 개인정보 항목</h3>
+<ol>
+  <li><strong>후원회원 가입 및 관리</strong>
+    <ul>
+      <li>법인회원 — 필수: 담당자 성명, 소속, 직책, 이메일 주소</li>
+      <li>개인회원 — 필수: 이름, 생년월일, 휴대전화번호, 주소, 이메일 주소,
+        소식 수신 여부(SMS·전화·이메일·우편물)</li>
+      <li>만 14세 미만 아동의 경우 — 법정대리인의 성명, 관계, 연락처</li>
+    </ul>
+  </li>
+  <li><strong>기부금 관리</strong><br>
+    필수: (자동이체 시) 은행명, 계좌번호, 예금주명, 예금주 생년월일 /
+    (신용카드 결제 시) 카드명, 카드번호, 유효기간, 카드주 명, 카드주 생년월일 /
+    (기부금 영수증 발행 시) 주민등록번호</li>
+  <li><strong>입사지원</strong><br>
+    필수: 성명, 전화번호, 주소, 학력, 경력사항, 이메일 주소<br>
+    선택: 사진, 성별, 제3자 레퍼런스 정보, 기타 지원자가 제출하는 정보(고유식별정보 제외)</li>
+  <li><strong>활동 안내</strong><br>
+    필수: 성명, 전화번호, 이메일 주소 &nbsp;/&nbsp; 선택: 소속, 직책</li>
+  <li><strong>세미나 등 행사 개최, 강의, 인터뷰</strong>
+    <ul>
+      <li>참석자 — 필수: 성명, 전화번호, 이메일 주소, 소속 법인 또는 단체명, 사진, 영상 정보</li>
+      <li>발표자·인터뷰 대상자 — 필수: 성명, 소속, 직위, 휴대폰번호, 이메일, 사진, 영상 정보,
+        (인건비 지급 시) 주소, 주민등록번호, 계좌번호 / 선택: 차량번호</li>
+    </ul>
+  </li>
+  <li><strong>예산낭비 제보</strong><br>
+    필수: 사업명, 제보 내용<br>
+    선택: 회신 받을 이메일 주소, 지역(시·도), 기관·세부 지역<br>
+    자동 수집: 접속 기록(브라우저 정보), 유입 경로,
+    <strong>접속 IP 주소를 되돌릴 수 없게 변환한 값</strong><br>
+    <span style="color:var(--ink-soft);font-size:14.5px">
+      ※ 제보 접수 시 접속 IP 주소는 원본 그대로 저장하지 않습니다. 같은 사람이 짧은 시간에
+      과도하게 반복 제출하는 것을 막기 위해, 복원할 수 없는 형태로 변환한 값만 저장합니다.
+    </span></li>
+  <li><strong>캠페인 참여·서명 시</strong><br>
+    필수: 성명, 이메일, 전화번호, 소식 수신 여부(SMS·전화·이메일)</li>
+  <li><strong>뉴스레터 구독 신청 시</strong><br>
+    필수: 성명, 이메일</li>
+  <li><strong>소송 등 법률상 청구절차 참여</strong><br>
+    필수: 성명, 주소, 생년월일</li>
+  <li><strong>고충처리</strong><br>
+    필수: 성명, 이메일, 전화번호</li>
+</ol>
+
+<h3>(2) 개인정보 수집 방법</h3>
+<p>홈페이지, 후원신청, 전화상담, 이메일·팩스, 캠페인 참여 사이트, 제보 접수 양식</p>
+
+<h2 id="p3">3. 수집하는 개인정보의 보유 및 이용기간</h2>
+<p>
+  함께하는 시민행동은 원칙적으로 개인정보 수집 및 이용목적이 달성된 후에는 해당 정보를
+  즉시 파기합니다.
+</p>
+<ol>
+  <li>후원회원 가입 및 관리: 회원 탈퇴 시 및 개인정보 수집·이용목적 달성 시까지</li>
+  <li>기부금 관리: 회원 탈퇴 시 및 개인정보 수집·이용목적 달성 시까지</li>
+  <li>입사지원: 채용원서 접수일로부터 3개월 또는 채용절차 종료 시 중 늦은 날까지</li>
+  <li>활동 안내: 동의 철회 시 및 개인정보 수집·이용목적 달성 시까지</li>
+  <li>세미나 등 행사 개최, 강의, 인터뷰: 개인정보 수집·이용목적 달성 시까지</li>
+  <li>예산낭비 제보: <span class="dok-todo">확인 필요: 보유기간</span>
+    (예 — 해당 회차 심사 종료 후 ○년, 또는 제보 확인 및 회신 완료 시까지)</li>
+  <li>캠페인 참여·서명: <span class="dok-todo">확인 필요: 보유기간</span>
+    (예 — 해당 캠페인 종료 후 ○년)</li>
+  <li>뉴스레터 구독: 구독 해지 시까지</li>
+  <li>소송 등 법률상 청구절차 참여: 당해 청구 종료 시까지</li>
+  <li>고충처리: 개인정보 수집·이용목적 달성 시까지</li>
+</ol>
+<p>
+  단, 관계법령에 따라 보존할 필요가 있는 경우 관계법령에서 정한 기간 동안 개인정보를
+  보유하며, 아래 열거된 법령 외에도 다른 법령상 보존 의무를 부담하는 경우에도 그 의무
+  이행을 위한 범위 내에서 개인정보를 보유합니다.
+</p>
+<ol>
+  <li><strong>기부금영수증 발급 관련 이력 정보</strong>
+    <ul>
+      <li>보존항목: 기부금 영수증 발급 이력에 관한 기록</li>
+      <li>보존근거: 소득세법, 법인세법</li>
+      <li>보존기간: 5년</li>
+    </ul>
+  </li>
+  <li><strong>상거래 관련 개인정보</strong>
+    <ul>
+      <li>보존항목: 상거래 이력</li>
+      <li>보존근거: 전자상거래 등에서의 소비자보호에 관한 법률</li>
+      <li>보존기간: 계약 또는 청약철회 등에 관한 기록 5년 / 대금 결제 및 재화 등의
+        공급에 관한 기록 5년 / 소비자의 불만 또는 분쟁처리에 관한 기록 3년</li>
+    </ul>
+  </li>
+</ol>
+
+<h2 id="p4">4. 개인정보의 파기절차 및 방법</h2>
+<p>
+  함께하는 시민행동은 원칙적으로 개인정보 처리목적이 달성된 경우에는 즉시 개인정보를
+  파기합니다. 단, 관계법령에서 보유하도록 하는 경우에는 해당 기간 동안 보유할 수 있습니다.
+</p>
+<h3>① 파기절차</h3>
+<p>
+  이용자의 정보는 이용목적이 달성된 후 파기됩니다. 다만, 법령에 따라(보유 및 이용기간
+  참조) 일정 기간 저장된 후 파기됩니다. 동 개인정보는 법률에 의한 경우가 아니고서는
+  보존되는 이외의 다른 목적으로 이용되지 않습니다.
+</p>
+<h3>② 파기방법</h3>
+<p>
+  전자적 파일 형태로 저장된 개인정보는 기록을 재생할 수 없도록 삭제합니다. 종이에 출력된
+  개인정보는 분쇄기로 분쇄하거나 소각을 통하여 파기합니다.
+</p>
+
+<h2 id="p5">5. 만 14세 미만 아동의 개인정보 처리에 관한 사항</h2>
+<p>
+  (1) 함께하는 시민행동은 만 14세 미만 아동에 대해 개인정보를 수집할 때 법정대리인의
+  동의를 얻어 해당 서비스 수행에 필요한 최소한의 개인정보를 수집합니다.
+</p>
+<ul>
+  <li>필수항목: 법정대리인의 성명, 관계, 연락처</li>
+</ul>
+<p>
+  (2) 함께하는 시민행동은 만 14세 미만 아동의 개인정보를 수집할 때에는 아동에게
+  법정대리인의 성명, 연락처와 같이 최소한의 정보를 요구할 수 있으며, 다음 중 하나의
+  방법으로 적법한 법정대리인이 동의하였는지를 확인합니다.
+</p>
+<ul>
+  <li>동의 내용을 게재한 인터넷 사이트에 법정대리인이 동의 여부를 표시하도록 하고
+    개인정보처리자가 그 동의 표시를 확인했음을 법정대리인의 휴대전화 문자메시지로 알리는 방법</li>
+  <li>동의 내용을 게재한 인터넷 사이트에 법정대리인이 동의 여부를 표시하도록 하고
+    법정대리인의 신용카드·직불카드 등의 카드정보를 제공받는 방법</li>
+  <li>동의 내용을 게재한 인터넷 사이트에 법정대리인이 동의 여부를 표시하도록 하고
+    법정대리인의 휴대전화 본인인증 등을 통해 본인 여부를 확인하는 방법</li>
+  <li>동의 내용이 적힌 서면을 법정대리인에게 직접 발급하거나, 우편 또는 팩스를 통하여
+    전달하고 법정대리인이 동의 내용에 대하여 서명날인 후 제출하도록 하는 방법</li>
+  <li>동의 내용이 적힌 전자우편을 발송하여 법정대리인으로부터 동의의 의사표시가 적힌
+    전자우편을 전송받는 방법</li>
+  <li>전화를 통하여 동의 내용을 법정대리인에게 알리고 동의를 얻거나, 인터넷주소 등 동의
+    내용을 확인할 수 있는 방법을 안내하고 재차 전화 통화를 통하여 동의를 얻는 방법</li>
+  <li>그 밖에 위와 준하는 방법으로 법정대리인에게 동의 내용을 알리고 동의의 의사표시를
+    확인하는 방법</li>
+</ul>
+
+<h2 id="p6">6. 개인정보의 제3자 제공</h2>
+<p>
+  함께하는 시민행동은 원칙적으로 이용자의 개인정보를 수집 및 이용목적에 한해서만
+  이용하며 타인 및 타 기관에 제공하지 않습니다. 다만, 아래의 경우 개인정보를 제3자에게
+  제공하고 있습니다.
+</p>
+<ol>
+  <li>함께하는 시민행동의 요청에 따라 이용자들이 사전에 동의한 경우</li>
+  <li>법령의 규정에 의거하거나, 수사 목적으로 법령에 정해진 절차와 방법에 따라 수사기관의
+    요구가 있는 경우</li>
+  <li>주무관청이 「민법」 제37조에 따른 비영리법인 사무의 검사 및 감독을 위하여 불가피한
+    때에 관계 서류·장부 또는 그 밖의 참고자료 제출을 명하거나 사무 및 재산 상황을 검사하는 경우</li>
+  <li>공익법인 결산 서류 공시 및 공익법인 출연재산 등에 대한 보고서를 제출하는 경우
+    (상속세및증여세법 제50조, 같은 법 시행령 제41조·제43조의3)</li>
+  <li>외부회계감사를 받아야 할 의무(상속세및증여세법 제50조,
+    주식회사 등의 외부감사에 관한 법률 제3조)</li>
+  <li>기부금영수증 발급내역 작성·보관·제출 의무(법인세법 제112조)</li>
+</ol>
+<div class="dok-notice">
+  <b>확인 필요.</b> 위 3~6번은 법인 형태(사단법인·재단법인·비영리민간단체 등)와
+  공익법인 해당 여부에 따라 적용되는 조항이 달라집니다. 시민행동의 법인 형태에 맞는
+  것만 남겨 주세요.
+</div>
+
+<h2 id="p7">7. 개인정보의 위탁</h2>
+<p>
+  함께하는 시민행동은 후원회원 가입, 기부금 입출금, 소식 발송 등의 서비스를 위해 외부
+  전문업체에 개인정보를 위탁하여 운영할 수 있습니다. 위탁계약 체결 시 개인정보 보호법
+  제26조에 따라 위탁업무 수행목적 외 개인정보 처리금지, 기술적·관리적 보호조치,
+  재위탁 제한, 수탁자에 대한 관리·감독, 손해배상 등 책임에 관한 사항을 계약서 등 문서에
+  명시하고, 수탁자가 개인정보를 안전하게 처리하는지를 감독하고 있습니다. 위탁업무의
+  내용이나 수탁자가 변경될 경우 즉시 본 개인정보 처리방침을 통하여 공개하겠습니다.
+</p>
+
+<div class="dok-table-scroll">
+<table>
+  <thead>
+    <tr><th>위탁받는 자</th><th>위탁하는 업무</th><th>보유 및 이용기간</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td colspan="3">
+        <span class="dok-todo">확인 필요: 실제로 개인정보를 맡기고 있는 업체를 채워주세요.</span><br>
+        <span style="color:var(--ink-soft);font-size:14px">
+          기후솔루션이 쓰는 업체(트라패스, 크레비스파트너스, HubSpot 등)를 그대로 옮기면
+          사실과 다른 내용이 됩니다. 보통 아래 종류가 해당합니다 —
+          결제·CMS 자동이체 대행, 문자·이메일 발송, 뉴스레터 발송, CRM,
+          우편물 발송, 웹사이트 호스팅.
+        </span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="p8">8. 개인정보의 국외 이전</h2>
+<p>
+  <span class="dok-todo">확인 필요.</span>
+  해외에 서버를 둔 서비스(예: 해외 CRM, 해외 이메일 발송 서비스, 해외 클라우드 호스팅)를
+  통해 개인정보가 국외로 이전되는 경우, 이전되는 항목·국가·일시 및 방법·이전받는 자·
+  이용 목적·보유 및 이용 기간을 이 자리에 표로 적어야 합니다. 국외로 이전되는 개인정보가
+  없다면 “함께하는 시민행동은 개인정보를 국외로 이전하지 않습니다.”라고 적으면 됩니다.
+</p>
+
+<h2 id="p9">9. 이용자의 권리 및 행사방법</h2>
+<ol>
+  <li>이용자 및 법정대리인은 언제든지 등록되어 있는 자신 혹은 당해 만 14세 미만 아동의
+    개인정보를 열람하거나 정정할 수 있으며 가입 해지 또는 삭제를 요청할 수 있습니다.</li>
+  <li>제1항에 따른 권리행사는 개인정보관리책임자에게 서면, 전화 또는 이메일로 연락하시면
+    지체 없이 조치하겠습니다.</li>
+  <li>이용자가 개인정보의 오류에 대해 정정 또는 삭제를 요청한 경우에는 즉시 조치하며,
+    삭제 또는 정정이 완료할 때까지 개인정보를 이용하거나 제공하지 않겠습니다. 또한 잘못된
+    개인정보를 제3자에게 이미 제공한 경우에는 정정 처리결과를 제3자에게 즉시 통지하여
+    정정이 이루어지도록 하겠습니다.</li>
+  <li>이와 같은 권리 행사는 만 14세 미만 아동의 법정대리인이나 정보주체로부터 위임을 받은
+    자 등 대리인을 통하여 할 수 있습니다. 이 경우 「개인정보 처리 방법에 관한 고시」
+    별지 제11호 서식에 따른 위임장을 제출해야 합니다.</li>
+</ol>
+
+<h2 id="p10">10. 개인정보의 안전성 확보조치에 관한 사항</h2>
+<p>함께하는 시민행동은 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다.</p>
+<h3>① 기술적인 조치</h3>
+<ul>
+  <li>백신프로그램을 이용하여 컴퓨터 바이러스에 의한 피해를 방지하기 위한 조치를 취하고
+    있습니다. 백신프로그램은 주기적으로 업데이트되며, 갑작스런 바이러스가 출현할 경우
+    백신이 나오는 즉시 이를 적용함으로써 개인정보가 침해되는 것을 방지하고 있습니다.</li>
+  <li>해킹 등에 의해 이용자의 개인정보가 유출되는 것을 방지하기 위하여 외부로부터의 침입을
+    차단하는 시스템을 이용하고 있습니다.</li>
+  <li>제보 접수 시 접속 IP 주소는 원본을 저장하지 않고, 되돌릴 수 없는 형태로 변환한 값만
+    보관합니다.</li>
+</ul>
+<h3>② 관리적인 조치</h3>
+<ul>
+  <li>개인정보 관리업무를 수행하는 직원을 업무상 개인정보의 처리가 불가피한 자로 엄격히
+    제한하고, 담당직원에 대한 수시 교육을 통하여 개인정보 처리방침의 준수를 강조하고
+    있습니다.</li>
+</ul>
+
+<h2 id="p11">11. 개인정보 책임자 및 연락처</h2>
+<p>
+  함께하는 시민행동은 이용자의 개인정보를 보호하고 개인정보와 관련한 불만을 처리하기
+  위하여 아래와 같이 개인정보보호 책임자 및 관련 부서를 지정하고 있습니다.
+</p>
+<div class="dok-table-scroll">
+<table>
+  <tbody>
+    <tr>
+      <th>개인정보보호 책임자</th>
+      <td>성명 <span class="dok-todo">확인 필요</span> ·
+          직책 <span class="dok-todo">확인 필요</span></td>
+    </tr>
+    <tr>
+      <th>담당부서</th>
+      <td><span class="dok-todo">확인 필요</span></td>
+    </tr>
+    <tr>
+      <th>연락처</th>
+      <td>전화 <span class="dok-todo">확인 필요</span> ·
+          이메일 <span class="dok-todo">확인 필요</span></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+<p>
+  이용자께서는 함께하는 시민행동의 서비스를 이용하시며 발생하는 모든 개인정보보호 관련
+  민원을 담당부서로 신고하실 수 있습니다. 함께하는 시민행동은 이용자의 신고사항에 대해
+  신속하게 충분한 답변을 드릴 것입니다.
+</p>
+
+<h2 id="p12">12. 권익침해 구제 방법</h2>
+<p>
+  기타 개인정보 침해에 대한 신고나 상담이 필요하신 경우에는 아래 기관에 문의하시기 바랍니다.
+</p>
+<ul>
+  <li><strong>개인정보보호 종합지원 포털</strong>(행정안전부 운영) —
+    개인정보 침해사실 신고, 상담 신청, 자료제공 ·
+    <a href="https://www.privacy.go.kr" target="_blank" rel="noopener">www.privacy.go.kr</a> ·
+    02-2100-3394</li>
+  <li><strong>개인정보 침해신고센터</strong>(한국인터넷진흥원 운영) —
+    개인정보 침해사실 신고, 상담 신청 ·
+    <a href="https://privacy.kisa.or.kr" target="_blank" rel="noopener">privacy.kisa.or.kr</a> ·
+    (국번없이) 118</li>
+  <li><strong>개인정보 분쟁조정위원회</strong>(한국인터넷진흥원 운영) —
+    개인정보 분쟁조정신청, 집단분쟁조정(민사적 해결) ·
+    <a href="https://privacy.kisa.or.kr" target="_blank" rel="noopener">privacy.kisa.or.kr</a> ·
+    (국번없이) 118</li>
+  <li><strong>경찰청 사이버수사국</strong> —
+    개인정보 침해 관련 형사사건 문의 및 신고 ·
+    <a href="https://ecrm.police.go.kr" target="_blank" rel="noopener">ecrm.police.go.kr</a> ·
+    (국번없이) 182</li>
+</ul>
+
+<h2 id="p13">13. 부칙</h2>
+<ol>
+  <li>이 개인정보 처리방침은 시행일부터 적용됩니다.
+    시행일자: <span class="dok-todo">확인 필요: 시행일</span></li>
+  <li>이전의 개인정보 처리방침은 아래에서 확인하실 수 있습니다.
+    <span class="dok-todo">확인 필요: 이전 방침이 있다면 적용 기간과 링크</span></li>
+</ol>
+
+<h2 id="consent-campaign">별첨. 캠페인 소식 및 후원 정보 수신 동의</h2>
+<p>
+  캠페인 서명 등에 참여할 때 아래 내용에 동의를 받습니다. 이 동의문은 서명 양식에도
+  그대로 보여집니다.
+</p>
+
+<div class="dok-notice">
+  <b>⚠️ 이 동의를 “필수”로 두지 마세요.</b>
+  캠페인 참여 자체에 꼭 필요한 정보가 아닌 <b>홍보·후원 안내 목적의 수신 동의는
+  선택 항목이어야 합니다.</b> 필수로 걸어 두면 동의하지 않은 사람이 서명을 할 수 없게
+  되는데, 이는 동의 거부를 이유로 서비스 제공을 거부하는 것이 되어 개인정보 보호법상
+  문제가 될 수 있습니다(같은 법 제22조·제39조의3 취지).
+  <br><br>
+  권하는 방식 — 서명에 꼭 필요한 항목(이름·이메일·전화번호)은 <b>필수 동의</b>로,
+  아래 소식·후원 안내 수신은 <b>선택 동의</b>로 나누어 받는 것입니다.
+</div>
+
+<div class="dok-consent">
+  <div class="dok-consent-title">캠페인 소식 및 후원 정보 수신 동의</div>
+  <p>
+    함께하는 시민행동은 참여하신 캠페인의 진행 상황과 결과 및 후속 활동을 안내하고,
+    함께하는 시민행동의 다른 예산감시 활동과 후원 안내도 드리기 위해 개인정보를
+    수집·이용합니다.
+  </p>
+
+  <h3>■ 개인정보 수집·이용 안내</h3>
+
+  <h3>1. 수집 항목</h3>
+  <p>이름, 휴대전화번호, 이메일 주소</p>
+
+  <h3>2. 이용 목적</h3>
+  <ul>
+    <li>참여한 캠페인의 진행 상황 및 결과 안내</li>
+    <li>캠페인 관련 후속 활동 및 참여 기회 안내</li>
+    <li>참여자 후원회원 전환 안내</li>
+    <li>함께하는 시민행동의 주요 활동, 캠페인 및 행사 관련 정보 제공</li>
+  </ul>
+
+  <h3>3. 보유 및 이용 기간</h3>
+  <p>동의 철회 시까지</p>
+
+  <div class="dok-consent-foot">
+    <p>
+      ※ 개인정보 처리에 관한 자세한 사항은 함께하는 시민행동 홈페이지의
+      <a href="#p1">개인정보 처리방침</a>을 확인해 주시기 바랍니다.
+    </p>
+    <p>
+      ※ 캠페인 소식 및 후원 정보 수신 동의 여부는
+      <span class="dok-todo">확인 필요: 동의 철회 방법</span>에서 변경할 수 있습니다.
+      <br>
+      <span style="font-size:13.5px">
+        (기후솔루션은 “홈페이지 후원과 참여 &gt; 마이페이지”로 안내합니다.
+        시민행동에는 마이페이지가 없을 수 있으니, 실제로 가능한 방법 —
+        예: 뉴스레터 하단 수신거부 링크, 담당자 이메일 — 으로 적어야 합니다.
+        철회 방법을 적어 두지 않으면 동의 자체가 유효하지 않을 수 있습니다.)
+      </span>
+    </p>
+  </div>
+</div>
+
+</main>
+
+<footer>
+  <div>
+    <span><strong>함께하는 시민행동</strong> ·
+      <a href="https://action.or.kr" target="_blank" rel="noopener">action.or.kr</a></span>
+    <span><a href="index.html">밑빠진 독상</a></span>
+  </div>
+</footer>
+
+</div>
+<!-- /캠페이너스 이식 단위 -->
+
+</body>
+</html>
