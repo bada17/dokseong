@@ -60,6 +60,34 @@ html { scroll-behavior: smooth; }
   #dok *, #dok *::before, #dok *::after { animation: none !important; transition: none !important; }
 }
 
+/* ── 스크롤 리빌 ──
+   화면에 들어오는 순간 한 번만 미끄러지며 나타난다.
+   감추는 규칙을 #dok.dok-reveal-on 안에만 둔 이유 — 스크립트가 실행되기 전이거나
+   실패했을 때 내용이 안 보이는 사고를 막기 위함이다. 그 클래스를 붙이는 곳은
+   맨 아래 '스크롤 리빌' 스크립트 하나뿐이다. */
+#dok.dok-reveal-on [data-reveal] {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity .6s cubic-bezier(.22,.61,.36,1),
+              transform .6s cubic-bezier(.22,.61,.36,1);
+  transition-delay: var(--dok-reveal-delay, 0ms);
+}
+#dok.dok-reveal-on [data-reveal="left"]  { transform: translateX(-24px); }
+#dok.dok-reveal-on [data-reveal="right"] { transform: translateX(24px); }
+#dok.dok-reveal-on [data-reveal].is-in { opacity: 1; transform: none; }
+
+/* 좁은 화면에서는 좌우로 밀지 않는다 — 가로 스크롤이 생길 수 있다 */
+@media (max-width: 719px) {
+  #dok.dok-reveal-on [data-reveal="left"],
+  #dok.dok-reveal-on [data-reveal="right"] { transform: translateY(18px); }
+}
+
+/* 움직임을 줄여 달라고 한 사람에게는 리빌을 걸지 않는다.
+   아래 스크립트도 같은 조건에서 아예 켜지지 않지만, 두 겹으로 막아 둔다. */
+@media (prefers-reduced-motion: reduce) {
+  #dok.dok-reveal-on [data-reveal] { opacity: 1; transform: none; }
+}
+
 /* ── 예산감시 사업 (진행 중 / 종료) ── */
 #dok .dok-camp-tabs {
   display: flex; gap: 10px; justify-content: center;
@@ -123,7 +151,7 @@ html { scroll-behavior: smooth; }
 
 /* ── 지역 지도 ── */
 #dok .dok-map-wrap {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 40px;
+  display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 40px;
   align-items: start; margin-top: 36px;
 }
 #dok .dok-map-figure { position: relative; }
@@ -134,15 +162,21 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-map-area:hover { fill: var(--brand); }
 #dok .dok-map-area.is-on { fill: var(--brand-deep); }
+/* 글자 크기는 스크립트가 지도 폭을 재서 넣어 준다(fitMapText).
+   아래 값은 스크립트가 돌기 전까지 쓰이는 기본값이다. */
 #dok .dok-map-label {
-  font-size: 21px; font-weight: 700; fill: var(--ink);
+  font-size: var(--dok-map-label, 21px); font-weight: 700; fill: var(--ink);
   text-anchor: middle; pointer-events: none; paint-order: stroke;
   stroke: #fff; stroke-width: 4px; stroke-linejoin: round;
 }
 #dok .dok-map-label.is-light { fill: #fff; stroke: none; }
+/* 지도 위 건수 숫자. 지금은 그려지지 않습니다 —
+   스크립트의 SHOW_MAP_COUNT 를 true 로 바꾸면 다시 나옵니다. */
 #dok .dok-map-dot {
-  font-size: 16px; font-weight: 700; fill: var(--alert);
+  font-size: var(--dok-map-dot, 16px); font-weight: 800; fill: var(--alert);
   text-anchor: middle; pointer-events: none;
+  /* 진하게 칠해진 지역 위에서도 읽히도록 흰 테두리를 두른다 */
+  paint-order: stroke; stroke: #fff; stroke-width: 5px; stroke-linejoin: round;
 }
 
 #dok .dok-map-modes { display: flex; gap: 8px; margin-bottom: 18px; }
@@ -204,8 +238,8 @@ html { scroll-behavior: smooth; }
   #dok .dok-map-wrap { grid-template-columns: 1fr; gap: 24px; }
   #dok .dok-map-side { position: static; padding: 22px 20px; }
   /* 지도가 작아지므로 라벨은 상대적으로 키운다 */
-  #dok .dok-map-label { font-size: 30px; }
-  #dok .dok-map-dot { font-size: 24px; }
+  #dok .dok-map-label { font-size: var(--dok-map-label, 30px); }
+  #dok .dok-map-dot { font-size: var(--dok-map-dot, 24px); }
   #dok .dok-map-mode { min-height: 44px; padding: 0 18px; }
   #dok .dok-map-offmap button { min-height: 44px; }
   #dok .dok-map-stat b { font-size: 30px; }
@@ -919,25 +953,49 @@ html { scroll-behavior: smooth; }
 }
 
 /* ── History cases ── */
-#dok .dok-rep-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 18px; margin-top: 40px;
+/* ── 활동가·후원자 이야기 ── */
+#dok .dok-story-wrap { margin-top: 40px; }
+#dok .dok-story-head { font-size: 20px; font-weight: 700; word-break: keep-all; }
+#dok .dok-story-sub {
+  font-size: 14.5px; color: var(--ink-soft); margin-top: 6px; word-break: keep-all;
 }
-#dok .dok-rep-card {
+#dok .dok-story-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 18px; margin-top: 22px;
+  align-items: start;
+}
+#dok .dok-story-card {
   border: 1px solid var(--line);
   border-radius: 16px;
   padding: 26px 24px;
-  position: relative;
+  background: #fff;
 }
-#dok .dok-rep-card .dok-rep-no {
+#dok .dok-story-meta {
   font-family: 'GmarketSans', sans-serif;
   font-weight: 700; font-size: 12px;
-  color: var(--alert);
-  margin-bottom: 12px;
+  color: var(--brand-deep);
+  margin-bottom: 12px; word-break: keep-all;
 }
-#dok .dok-rep-card h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; word-break: keep-all; }
-#dok .dok-rep-card p { font-size: 14px; color: var(--ink-soft); word-break: keep-all; }
+#dok .dok-story-card h4 {
+  font-size: 18px; font-weight: 700; margin-bottom: 8px; word-break: keep-all;
+}
+#dok .dok-story-excerpt {
+  font-size: 14.5px; line-height: 1.7; color: var(--ink-soft); word-break: keep-all;
+}
+#dok .dok-story-more {
+  display: inline-flex; align-items: center; min-height: 44px;
+  font-size: 14px; font-weight: 700; color: var(--brand-deep);
+  background: none; border: 0; padding: 0; margin-top: 6px;
+  cursor: pointer; text-decoration: none;
+}
+#dok .dok-story-more:hover { text-decoration: underline; }
+#dok .dok-story-body {
+  margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--line);
+  font-size: 15px; line-height: 1.8; color: var(--ink); word-break: keep-all;
+}
+#dok .dok-story-body > * + * { margin-top: 12px; }
+#dok .dok-story-body a { color: var(--brand-deep); }
 
 #dok .dok-all-toggle {
   margin-top: 40px;
@@ -1552,27 +1610,19 @@ html { scroll-behavior: smooth; }
     이어지는 후속 활동을 함께 진행합니다.
   </p>
 
-  <div class="dok-rep-grid">
-    <div class="dok-rep-card">
-      <div class="dok-rep-no">제40회 · 2025.3</div>
-      <h3>서울시 한강 리버버스</h3>
-      <p>부실한 타당성 조사와 실패 사례의 반복. 예정 예산의 3배가 넘는 1,700억 이상 소요 추정, 정식 운행 열흘 만에 중단.</p>
-    </div>
-    <div class="dok-rep-card">
-      <div class="dok-rep-no">제39회 · 2024.3</div>
-      <h3>대검찰청 검찰 특수활동비</h3>
-      <p>집행 근거 없는 깜깜이 예산. 시민사회 공동 대응으로 자료 공개를 이끌어냈으나 2026년 예산안에 다시 부활.</p>
-    </div>
-    <div class="dok-rep-card">
-      <div class="dok-rep-no">제24회 · 2003.4</div>
-      <h3>경인운하</h3>
-      <p>수요 부풀리기와 경제성 논란 속에 추진된 대형 토건 사업. 밑빠진 독상의 대표적인 초기 수상 사례.</p>
-    </div>
-    <div class="dok-rep-card">
-      <div class="dok-rep-no">제10회 · 2001.5</div>
-      <h3>새만금 개발</h3>
-      <p>막대한 재정 투입 대비 불확실한 효과로 지목된 대규모 국책사업.</p>
-    </div>
+  <!-- ── 활동가·후원자 이야기 ──
+       수상 목록은 아래 전체 표와 지도에 이미 두 번 나오므로, 이 자리는
+       상을 만들어 온 사람들의 글로 씁니다.
+
+       글이 한 편도 없으면 이 칸은 화면에 아예 나오지 않습니다.
+       (빈 카드가 공개된 사이트에 뜨는 것을 막기 위해서입니다)
+
+       채우는 법은 README 의 '이야기 채우는 법' 을 보세요.
+       아래 두 줄(소제목·설명)도 그냥 고쳐 쓰시면 됩니다. -->
+  <div class="dok-story-wrap" id="dok-story-wrap" hidden>
+    <h3 class="dok-story-head">상을 주는 사람들</h3>
+    <p class="dok-story-sub">밑빠진 독상을 만들어 온 활동가들의 글입니다.</p>
+    <div class="dok-story-grid" id="dok-story-grid"></div>
   </div>
 
   <button type="button" class="dok-all-toggle" id="dok-all-toggle">역대 수상 내역 전체 보기 (1~40회) ▾</button>
@@ -1626,6 +1676,115 @@ html { scroll-behavior: smooth; }
     </table>
   </div>
 </section>
+
+<!-- ── 이야기 목록 ──
+     여기에 한 편씩 추가하면 위 히스토리 칸에 카드로 나옵니다. 코드는 건드리지 않습니다.
+     적은 순서대로 나오므로, 새 글은 맨 위에 넣으세요.
+
+       id      : 아래 본문과 이어 주는 이름. 영문·숫자로 아무렇게나 지으면 됩니다.
+       title   : 글 제목
+       author  : 글쓴이 이름
+       role    : 직책이나 소속 (비워도 됩니다)
+       date    : 쓴 때 (예: "2026. 8")
+       excerpt : 카드에 보이는 두세 줄. 전문에서 그대로 따와도 됩니다.
+       link    : 원문이 밖에 있으면 그 주소. 본문을 아래에 넣었으면 비워 두세요.
+
+     본문을 넣으면 카드에 '이어서 읽기'가 생기고, 본문 없이 link 만 있으면
+     '원문 보기'로 새 창이 열립니다. 둘 다 없으면 카드에 발췌까지만 나옵니다. -->
+<script type="application/json" id="dok-story-data">
+[
+  {
+    "id": "2026-08-hamkke",
+    "title": "‘함께’하는 ‘시민행동’을 아십니까?",
+    "author": "채연하",
+    "role": "함께하는 시민행동",
+    "date": "2026. 8",
+    "excerpt": "2004년 이 단체에서 처음 활동을 시작했을 때 첫 느낌부터 지금까지 이 곳에서 있었던 일들과 만났던 사람들에 대한 이야기들을 들려드리고자 합니다. 잠깐이라도 한번 들어주시겠습니까?",
+    "link": ""
+  }
+]
+</script>
+
+<!-- 이야기 본문. 위 목록의 id 와 data-story 값이 같아야 이어집니다.
+     그냥 HTML이라 <p>, <b>, <a> 를 평소처럼 쓰면 됩니다.
+
+     예시 (그대로 두면 화면에 안 나옵니다 — 위 목록이 비어 있으니까요):
+
+     <article data-story="first">
+       <p>첫 문단.</p>
+       <p>둘째 문단.</p>
+     </article>
+-->
+<div id="dok-story-bodies" hidden>
+  <article data-story="2026-08-hamkke">
+    <p>안녕하세요. 저는 함께하는 시민행동에서 가장 오랜 시간 활동하고 있는 채연하입니다.
+    이렇게 글로 인사를 드리게 된건 정말 오랜만인 것 같아요.</p>
+
+    <p>2004년 이 단체에서 처음 활동을 시작했을 때 첫 느낌부터 지금까지 이 곳에서 있었던
+    일들과 만났던 사람들에 대한 이야기들을 들려드리고자 합니다.
+    잠깐이라도 한번 들어주시겠습니까?</p>
+
+    <p>지금은 연대의 의미를 가지고 다양한 단체들이 하나의 지향과 운동목표를 향해 모였을 때
+    ‘시민행동’이라는 단어를 뒤에 많이 붙이고 있다. 하지만 이 단체가 만들어지고 2000년대
+    중반까지도 ‘함께하는 시민행동’이라는 이름은 꽤나 신선한 단체명이라는 평가를 들었다고 한다.
+    그러면 대체 왜 이런 이름이 붙었을까? 단체를 만들고, 첫 활동을 시작했던 사람은 아니지만
+    그 의미를 나 나름대로 해석해보고자 한다.</p>
+
+    <p>‘함께’는 여러가지 의미를 가지고 있다. 가장 큰 의미 중 하나는 하나의 문제를 해결하기
+    위해서는 정말 많은 사람들의 의견과 활동, 연대가 모아져야만 가능해진다.</p>
+
+    <p>그래서 시민행동은 하나의 문제를 발굴하고 그 문제의 실체를 찾아가고 어떻게 해결해야
+    하는지에 대한 대안을 얘기할 때, 단체의 활동가들 내부에서의 논의에서 시작해서 관련 전문가를
+    찾고, 지역의 문제라면 그 지역의 얘기를 해줄 사람을 찾고, 그 분야를 오랫동안 문제제기했던
+    활동가들을 찾는다. 대안을 ‘함께’ 얘기할 ‘사람’을 찾는다. 그게 곧 운동이라고 생각했다.</p>
+
+    <p>그래서 ‘시민행동’이 그간 해왔던 밑빠진 독상이 지역의 문제를 다룰때는 반드시 그 얘기를
+    같이 해 온 지역단체를 찾고, 같이 문제제기할 수 있어야 한다는 원칙을 유지하고 있다.
+    그게 ‘지역’과 ‘함께’하고 있는 우리의 방식이다.</p>
+
+    <p>시민행동은 더 많은 ‘시민’들과 ‘함께’하는 것은 무엇일지를 고민해왔다.
+    그 시작은 인터넷이었다. 지난 코로나 시절 많은 단체들이 시민행동에 연락을 해왔다.
+    그 이유는 단체 창립부터 지금까지 인터넷 총회를 해오고 있는 단체의 노하우를 알고
+    싶다는 거였다.</p>
+
+    <p>인터넷 총회는 언뜻 보면 행사를 하는 것은 아니어서 조금은 더 쉬운거 아니야? 라고 생각할
+    수 있지만 그건 오해다. 시민행동의 총회는 의결권을 가진 회원의 절반 이상이 반드시 총회에
+    참석을 해야만 가능한 일이기 때문이다. 한번은 이걸 좀 낮추자는 의견이 있었다. 실제로 30%의
+    참석율로 낮춘 적도 있었는데, 그 해는 총회 마무리가 정말 쉬웠던 기억이 있다. 그러자
+    사무처장님의 문제제기가 있었다. 아무래도 이 방식은 회원의 의견을 충분히 받고 반영했다고
+    보기 어렵지 않겠냐는 것이었다. 그래서 결국 50%의 참석으로 돌아오고 말았고 지금도
+    이어지고 있다.</p>
+
+    <p>그 외에도 인터넷이라는 공간을 통해 조금은 쉽게 모이고 의견을 나눌 수 있도록 해보자고
+    했고 그러한 운동은 시민행동을 상징하는 것이 되었다.</p>
+
+    <p>‘시민행동’이라는 단어 하나때문에 지금도 가끔 오해를 사 다른 연대체 사무실인줄 알고
+    연락이 오기도 한다. 그럼 우리는 왜 ‘시민행동’이라는 이름을 붙인 걸까.</p>
+
+    <!-- ⚠️ 원문에 '(링크필요)' 로 표시돼 있던 자리입니다.
+         추가세수 캠페인 주소를 받으면 아래 캠페인 이름을 <a> 로 감싸 주세요. -->
+    <p>지금 함께하는 시민행동에서 진행하고 있는 “더 걷힐 세금, 어디에 쓸래? 추가세수 시민의견
+    수렴 캠페인”처럼 많은 활동은 시민들이 평소에 문제라고 생각하는 이슈를 드러내기 위한 행동을
+    같이 진행하였다. 그 방식과 내용 역시 그걸 지적했던 시민들과 같이 상의하였다. 그러면 실제
+    대안이 정부에 받아들여졌을 때 느끼는 성취감과 단체에 대한 신뢰를 기대한 것이다.</p>
+
+    <p>‘시민행동’은 ‘시민’이 자기가 느낀 문제를 바탕으로 비슷한 생각을 가진 사람들이 모여서
+    말과 생각과 뜻을 모으는 과정을 돕고 함께하자는 것이다.</p>
+
+    <p>이제는 20년도 넘은 ‘노리추’사업이 대표적이다. 지금이야 맥북이 너무 일상화되어 있지만
+    그렇지 않았던 2000년대 초반 정부가 구축한 전자정부 홈페이지는 ms체계가 아닌 리눅스
+    체계로는 접속이 되지 않았다. 그런 문제를 느끼고 있던 많은 이들이 ‘노리추, 즉 노무현
+    대통령에게 리눅스컴퓨터 보내기 추진모임’을 만들었고, 함께하는 시민행동은 차별제보게시판을
+    만들어 의견을 모으고 활동을 지원하는 역할을 다했다.
+    (당시 기사: <a href="https://v.daum.net/v/20030423111159819" target="_blank" rel="noopener">청와대에 항의표시로 리눅스 컴퓨터 전달</a>)</p>
+
+    <p>함께하는 시민행동은 많이 미흡하지만 여전히 ‘함께’의 의미와 ‘시민행동’의 가치를 다하기
+    위해서는 어떻게 해야 할지를 항상 고민하고 있다. 그 답은 활동가만의 고민으로는 얻을 수 없다.
+    결국은 ‘함께’할 사람을 찾고 ‘시민’과 함께 ‘행동’했을때이지 않을까?</p>
+  </article>
+</div>
+
+
 
 <div class="dok-report" id="dok-report">
   <div class="dok-section">
@@ -1822,7 +1981,7 @@ items.forEach(item => {
 })();
 
 // ── 지역 지도 ──
-// 지금은 17개 시도까지만 그린다. 시군구 데이터(public/data/map-sigungu/)는
+// 지금은 시도 단위(16개)까지만 그린다. 시군구 데이터(public/data/map-sigungu/)는
 // 이미 만들어져 있고, 행정구역 변경분을 반영한 뒤에 드릴다운을 붙일 예정이다.
 (function () {
   const svg  = document.getElementById('dok-map-svg');
@@ -1841,9 +2000,15 @@ items.forEach(item => {
     '31': [46, 34],    // 경기
     '29': [-30, -10],  // 세종
     '25': [16, 14],    // 대전
-    '24': [-18, 4],    // 광주
     '22': [10, -6],    // 대구
   };
+
+  // 지도 위에 뜨던 건수 숫자(빨간 글씨). 지금은 꺼 두었습니다.
+  // 같은 숫자가 바로 아래 지역 칩에도 나와서 겹치기 때문입니다.
+  // 다시 보이게 하려면 이 한 줄만 true 로 바꾸면 됩니다 —
+  // 그리는 곳(drawMap), 값 넣는 곳(paint), 크기 맞추는 곳(fitMapText)과
+  // CSS 의 .dok-map-dot 규칙은 그대로 남겨 두었습니다.
+  const SHOW_MAP_COUNT = false;
 
   let areas = [];          // 시도 도형
   let awards = [];         // 역대 수상
@@ -1861,10 +2026,12 @@ items.forEach(item => {
       if (!el) return;
       const n = countOf(a.code);
       const t = n / max;
+      // 건수가 적어도 한눈에 보이게 가장 옅은 칸을 0.34 에서 시작한다.
+      // (수상이 1건뿐인 시도가 여럿이라 0.18 로는 흰 바탕과 구분이 안 됐다)
       el.style.fill = n === 0 ? '#eaf1f5'
         : mode === 'awards'
-          ? `rgba(0, 135, 184, ${0.18 + t * 0.72})`
-          : `rgba(255, 74, 61, ${0.18 + t * 0.72})`;
+          ? `rgba(0, 135, 184, ${0.34 + t * 0.56})`
+          : `rgba(255, 74, 61, ${0.34 + t * 0.56})`;
       el.classList.toggle('is-on', selected === a.code);
 
       const label = svg.querySelector(`.dok-map-label[data-code="${a.code}"]`);
@@ -1994,13 +2161,43 @@ items.forEach(item => {
         const [ox, oy] = NUDGE[a.code] || [0, 0];
         const x = a.cx + ox, y = a.cy + oy;
         return `<text class="dok-map-label" data-code="${a.code}" x="${x}" y="${y}">${esc(a.short || a.name)}</text>` +
-               `<text class="dok-map-dot" data-code="${a.code}" x="${x}" y="${y + 22}"></text>`;
+               (SHOW_MAP_COUNT
+                 ? `<text class="dok-map-dot" data-code="${a.code}" x="${x}" y="${y + 22}" data-y="${y}"></text>`
+                 : '');
       }).join('');
 
     svg.querySelectorAll('.dok-map-area').forEach((el) => {
       el.addEventListener('click', () => select(el.dataset.code));
     });
+    fitMapText();
   }
+
+  // SVG 안 글자는 viewBox 단위라, 지도가 좁아지면 같이 줄어든다.
+  // 모바일에서는 이것 때문에 지역 이름과 건수가 5~8px 로 찌그러져 읽히지 않았다.
+  // 실제로 그려진 폭을 재서, 화면에서 늘 같은 크기로 보이도록 되돌린다.
+  function fitMapText() {
+    const w = svg.clientWidth;
+    if (!w) return;
+    const vb = svg.viewBox.baseVal.width || 857;
+    const scale = w / vb;
+    // 화면에서 보이길 바라는 크기(px) → viewBox 단위로 환산
+    const unit = (target, lo, hi) =>
+      Math.max(lo, Math.min(hi, Math.round(target / scale)));
+
+    const label = unit(13.5, 18, 46);
+    const dot = unit(13, 16, 42);
+    svg.style.setProperty('--dok-map-label', label + 'px');
+    svg.style.setProperty('--dok-map-dot', dot + 'px');
+
+    // 글자가 커지면 이름과 숫자가 겹친다. 간격도 같이 벌린다.
+    svg.querySelectorAll('.dok-map-dot').forEach((el) => {
+      const base = Number(el.dataset.y);
+      if (!Number.isNaN(base)) el.setAttribute('y', base + label * 0.92);
+    });
+  }
+
+  if ('ResizeObserver' in window) new ResizeObserver(fitMapText).observe(svg);
+  else window.addEventListener('resize', fitMapText);
 
   function select(code) {
     selected = selected === code ? null : code;
@@ -2612,6 +2809,144 @@ toggleBtn.addEventListener('click', () => {
   toggleBtn.textContent = open ? '역대 수상 내역 접기 ▴' : '역대 수상 내역 전체 보기 (1~40회) ▾';
   if (open) track('open_history_table', {});
 });
+
+// ── 활동가·후원자 이야기 ──
+// 목록(JSON)과 본문(HTML)을 나눠 둔 것은 예산감시 사업과 같은 방식입니다.
+// JSON 안에 긴 글을 넣으면 줄바꿈·따옴표 때문에 쓰기 어렵기 때문입니다.
+(function () {
+  const wrap = document.getElementById('dok-story-wrap');
+  const grid = document.getElementById('dok-story-grid');
+  const src  = document.getElementById('dok-story-data');
+  if (!wrap || !grid || !src) return;
+
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  let stories = [];
+  try {
+    stories = JSON.parse(src.textContent) || [];
+  } catch (e) {
+    // 쉼표 하나 빠뜨렸다고 페이지 전체가 멈추면 안 된다
+    console.error('이야기 목록을 읽지 못했습니다 (dok-story-data)', e);
+    return;
+  }
+
+  // 글이 없으면 빈 칸을 내보내지 않는다
+  if (!Array.isArray(stories) || !stories.length) return;
+
+  grid.innerHTML = stories.map((s, i) => {
+    const body = document.querySelector(`#dok-story-bodies [data-story="${s.id}"]`);
+    const meta = [s.author, s.role, s.date].filter(Boolean).map(esc).join(' · ');
+    let tail = '';
+    if (body) {
+      tail = `<button type="button" class="dok-story-more" data-i="${i}"
+                aria-expanded="false" aria-controls="dok-story-body-${i}">이어서 읽기 ▾</button>
+              <div class="dok-story-body" id="dok-story-body-${i}" hidden>${body.innerHTML}</div>`;
+    } else if (s.link) {
+      tail = `<a class="dok-story-more" href="${esc(s.link)}"
+                target="_blank" rel="noopener">원문 보기 →</a>`;
+    }
+    return `<article class="dok-story-card">
+      ${meta ? `<div class="dok-story-meta">${meta}</div>` : ''}
+      <h4>${esc(s.title)}</h4>
+      ${s.excerpt ? `<p class="dok-story-excerpt">${esc(s.excerpt)}</p>` : ''}
+      ${tail}
+    </article>`;
+  }).join('');
+
+  grid.querySelectorAll('.dok-story-more[data-i]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const box = document.getElementById('dok-story-body-' + btn.dataset.i);
+      const open = box.hidden;
+      box.hidden = !open;
+      btn.setAttribute('aria-expanded', String(open));
+      btn.textContent = open ? '접기 ▴' : '이어서 읽기 ▾';
+      if (open) track('open_story', { id: String(stories[btn.dataset.i].id || '') });
+    });
+  });
+
+  wrap.hidden = false;
+})();
+
+// ── 스크롤 리빌 ──
+// 화면에 들어온 요소를 한 번 미끄러뜨리며 보여준다.
+// HTML에 표시를 달지 않고 여기 목록으로 지정하는 이유 — 분기마다 사업·제보 내용을
+// 손으로 고치고, 사업 카드는 JS가 다시 그리기 때문이다. 마크업에 손대지 않아도
+// 새로 들어온 내용이 알아서 따라온다.
+(function () {
+  const root = document.getElementById('dok');
+  if (!root) return;
+  if (!('IntersectionObserver' in window)) return;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  // [셀렉터, 방향, 형제 간 시차(ms)]
+  // 부모와 자식이 함께 걸리면 자식만 남는다 (아래 걸러내기 참고)
+  const TARGETS = [
+    ['.dok-hero-inner > div > *',         'up',    90],
+    ['.dok-stats-inner > .dok-stat-item', 'up',    90],
+    ['.dok-section > *',                  'up',    70],
+    ['.dok-story-grid > *',               'up',    55],
+    ['.dok-camp-grid > *',                'up',    55],
+    ['.dok-map-figure',                   'left',   0],
+    ['.dok-map-side',                     'right',  0],
+    ['.dok-bottom-cta > *',               'up',    80],
+    ['.dok-footer-inner > *',             'up',    60],
+  ];
+
+  // 움직이면 안 되는 것들. 모달은 열릴 때 스스로 나타나고,
+  // 접혀 있는 영역은 펼쳤을 때 투명한 채로 남을 수 있다.
+  const SKIP = 'dialog, script, style, template, .dok-donate-bar,'
+             + ' .dok-all-table-wrap, #dok-vote-fold-body';
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach((e) => {
+      if (!e.isIntersecting) return;
+      io.unobserve(e.target);          // 한 번만 나타난다
+      e.target.classList.add('is-in');
+    });
+  }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+
+  function scan() {
+    const plan = new Map();
+
+    TARGETS.forEach(([sel, dir, gap]) => {
+      root.querySelectorAll(sel).forEach((el) => {
+        if (el.dataset.revealOff) return;
+        if (el.matches(SKIP) || el.closest('dialog')) return;
+        // 접혀 있어 지금 화면에 없는 것은 건드리지 않는다. 나중에 펼쳤을 때
+        // 투명한 채로 남는 사고를 막으려고, 한번 제외한 요소는 계속 제외한다.
+        if (!el.getClientRects().length) { el.dataset.revealOff = '1'; return; }
+        plan.set(el, { dir, gap });
+      });
+    });
+
+    // 부모와 자식이 함께 걸렸으면 자식만 남긴다.
+    // (그리드가 통째로 올라오면서 카드가 또 한 번 움직이면 어지럽다)
+    const picked = [...plan.keys()];
+    picked.forEach((el) => {
+      if (picked.some((other) => other !== el && el.contains(other))) plan.delete(el);
+    });
+
+    plan.forEach(({ dir, gap }, el) => {
+      if (el.hasAttribute('data-reveal')) return;   // 이미 붙은 것은 그대로 둔다
+      const sibs = [...el.parentElement.children].filter((c) => plan.has(c));
+      // 형제가 많아도 시차는 여섯 번째에서 멈춘다 — 마지막이 너무 늦게 뜬다
+      el.style.setProperty('--dok-reveal-delay', Math.min(sibs.indexOf(el), 5) * gap + 'ms');
+      el.setAttribute('data-reveal', dir);
+      io.observe(el);
+    });
+  }
+
+  root.classList.add('dok-reveal-on');
+  scan();
+
+  // 사업 카드·지도는 JS가 나중에 다시 그린다. 그때 생긴 요소도 챙긴다.
+  let t;
+  new MutationObserver(() => {
+    clearTimeout(t);
+    t = setTimeout(scan, 60);
+  }).observe(root, { childList: true, subtree: true });
+})();
 </script>
 
 </body>
