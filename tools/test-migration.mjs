@@ -31,4 +31,25 @@ if (
   throw new Error("existing row was not preserved");
 }
 
+database
+  .prepare(
+    "INSERT INTO reports(round, project_name, detail, sido, sigungu) VALUES (?, ?, ?, ?, ?)"
+  )
+  .run(41, "광주 테스트", "지역 코드 이동", "24", "24110");
+
+const regionMigration = readFileSync(
+  "migrations/2026-08-24-gwangju-to-jeonnam.sql",
+  "utf8"
+);
+database.exec(regionMigration);
+database.exec(regionMigration);
+
+const moved = database
+  .prepare("SELECT sido, sigungu FROM reports WHERE project_name = ?")
+  .get("광주 테스트");
+
+if (moved.sido !== "36" || moved.sigungu !== "24110") {
+  throw new Error("Gwangju report migration failed or changed sigungu");
+}
+
 console.log("migration_ok");
