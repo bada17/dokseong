@@ -1,2 +1,8 @@
 /*
   X-Robots-Tag: noindex, nofollow, noarchive
+
+# 개편안 홈의 '활동 > 밑빠진 독상' 페이지가 이 데이터를 받아다 지도와 역대 표를 그립니다.
+# 다른 도메인(action.or.kr)에서 부르므로 읽기 허용이 필요합니다.
+# 여기 있는 것은 이미 공개된 수상 기록뿐이라 열어도 문제 없습니다.
+/data/*
+  Access-Control-Allow-Origin: *
