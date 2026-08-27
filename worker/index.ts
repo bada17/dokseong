@@ -26,13 +26,16 @@ const worker = {
     let handler: Handler | undefined;
 
     if (
-      pathname.startsWith("/data/") &&
+      (pathname.startsWith("/data/") || pathname.startsWith("/public-data/")) &&
       (request.method === "GET" || request.method === "HEAD")
     ) {
       const assets = env.ASSETS as AssetsBinding | undefined;
       if (!assets) return json({ ok: false, error: "Assets unavailable" }, 503);
 
-      const response = await assets.fetch(request);
+      const assetRequest = pathname.startsWith("/public-data/")
+        ? new Request(request.url.replace("/public-data/", "/data/"), request)
+        : request;
+      const response = await assets.fetch(assetRequest);
       const headers = new Headers(response.headers);
       headers.set("Access-Control-Allow-Origin", "*");
       return new Response(response.body, {
