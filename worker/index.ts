@@ -12,6 +12,10 @@ type Handler = (context: { request: Request; env: Record<string, unknown> }) =>
   | Response
   | Promise<Response>;
 
+type AssetsBinding = {
+  fetch(request: Request): Promise<Response>;
+};
+
 function json(data: unknown, status = 200) {
   return Response.json(data, { status });
 }
@@ -20,6 +24,23 @@ const worker = {
   async fetch(request: Request, env: Record<string, unknown>): Promise<Response> {
     const { pathname } = new URL(request.url);
     let handler: Handler | undefined;
+
+    if (
+      pathname.startsWith("/data/") &&
+      (request.method === "GET" || request.method === "HEAD")
+    ) {
+      const assets = env.ASSETS as AssetsBinding | undefined;
+      if (!assets) return json({ ok: false, error: "Assets unavailable" }, 503);
+
+      const response = await assets.fetch(request);
+      const headers = new Headers(response.headers);
+      headers.set("Access-Control-Allow-Origin", "*");
+      return new Response(response.body, {
+        status: response.status,
+        statusText: response.statusText,
+        headers,
+      });
+    }
 
     if (pathname === "/api/report") {
       handler = request.method === "POST" ? postReport : request.method === "GET" ? getReport : undefined;
