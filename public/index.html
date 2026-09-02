@@ -160,6 +160,12 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-map-figure { position: relative; }
 #dok .dok-map-svg { width: 100%; height: auto; display: block; }
+/* 멀리 떨어진 섬을 본토 가까이 당겨 붙이면서(2026-09-02) viewBox 가 857x908 에서
+   562x848 로 좁고 길어졌다. 본토는 1.5 배 커졌지만, 넓은 화면에서는 지도가
+   한 화면을 넘길 만큼 길어진다. 높이를 묶으면 알아서 가운데로 맞춰 들어간다. */
+@media (min-width: 861px) {
+  #dok .dok-map-svg { max-height: 78vh; }
+}
 #dok .dok-map-area {
   fill: #eaf1f5; stroke: #fff; stroke-width: 2;
   cursor: pointer; transition: fill .15s;
@@ -2198,7 +2204,7 @@ items.forEach(item => {
   function fitMapText() {
     const w = svg.clientWidth;
     if (!w) return;
-    const vb = svg.viewBox.baseVal.width || 857;
+    const vb = svg.viewBox.baseVal.width || 562;
     const scale = w / vb;
     // 화면에서 보이길 바라는 크기(px) → viewBox 단위로 환산
     const unit = (target, lo, hi) =>
