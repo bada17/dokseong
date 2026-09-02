@@ -1927,6 +1927,73 @@ html { scroll-behavior: smooth; }
 <!-- /캠페이너스 이식 단위 -->
 
 <script>
+// ══════════════════════════════════════════════════════════════════
+//  공개 설정 — 2026-09-02
+//
+//  이 사이트는 이미 밖에서 열립니다. 그래서 확인 안 된 값과, 갈 곳 없는
+//  개인정보 입력을 화면에 두면 안 됩니다. 아래 두 스위치가 그것을 막습니다.
+//  파일을 손으로 뜯어고치지 말고 이 두 곳만 바꾸세요.
+// ══════════════════════════════════════════════════════════════════
+
+// 예시(더미) 내용을 화면에 낼지. 실제 값으로 갈아 끼운 뒤 true 로 바꾸세요.
+//   false 일 때 감추는 것 —
+//     · 예산감시 사업 4건(전부 "(예시)")과 그 상세 보고서
+//     · 제41회 투표 후보 5건
+//     · '이렇게 제보가 쓰입니다' 예시 제보 2건
+//     · 첫 화면 지표의 '1,000억 원' (검증 안 된 값. 40회·26년은 실제 값이라 남습니다)
+const DOK_SHOW_SAMPLE = false;
+
+// 폼이 받은 것을 어디로 보낼지.
+//   'disabled' — 보내지 않습니다. 버튼이 잠기고 안내만 뜹니다(개인정보가 나가지 않음).
+//   'link'     — 우리 폼 대신 url 의 바깥 접수처로 보냅니다(캠페이너스 입력폼 · 도너스).
+//
+//  ⚠️ 예전 Cloudflare API(/api/report · /api/join · /api/regions)는 2026-08-24
+//     운영 구조 변경으로 쓰지 않습니다(OPERATIONS.md). 코드는 비교·롤백용으로
+//     남겨 두었을 뿐이라, 지금 부르면 실패하거나 아무 데도 저장되지 않습니다.
+//  ⚠️ 접수처를 붙이기 전에 받아야 하는 것 — OPERATIONS.md 2·3장을 보세요.
+//     제보: 캠페이너스 입력폼 주소 / 서명: 도너스 Formkey·채널·분류 코드
+const DOK_INTAKE = {
+  report:  { mode: 'disabled', url: '' },   // 예산낭비 제보 → 캠페이너스 입력폼
+  join:    { mode: 'disabled', url: '' },   // 감시 참여·서명 → 도너스
+  regions: { mode: 'disabled', url: '' },   // 지역별 제보 건수 집계
+};
+
+// 접수처가 없을 때 폼에 띄우는 말. 폼마다 다르게 하고 싶으면 여기만 고치세요.
+const DOK_INTAKE_OFF_MSG = '접수 창구를 준비하고 있습니다. 곧 열겠습니다.';
+
+// ── 위 스위치 적용 ──
+(function applyDokFlags() {
+  const hide = (el) => { if (el) el.style.display = 'none'; };
+
+  if (!DOK_SHOW_SAMPLE) {
+    // 첫 화면 지표 가운데 칸 — 확인 안 된 '1,000억 원'
+    hide(document.querySelector('.dok-stat-item.is-lead'));
+    // 투표(예시 후보 5건)는 접힌 채로도 펼치면 보이므로 통째로 감춥니다
+    hide(document.getElementById('dok-vote-fold'));
+    // '이렇게 제보가 쓰입니다' 예시 제보
+    hide(document.querySelector('.dok-samples'));
+    // 예시 데이터임을 알리던 딱지도 같이 내립니다 — 감췄으니 알릴 것이 없습니다
+    document.querySelectorAll('.dok-vote-notice').forEach(hide);
+  }
+
+  // 접수처가 없는 폼은 잠급니다. 개인정보가 우리 손을 타지 않게 하는 것이 목적이라
+  // 화면만 가리는 것이 아니라 제출 자체를 막습니다(아래 submit 처리에서도 한 번 더 봅니다).
+  const lock = (form, key) => {
+    if (!form || DOK_INTAKE[key].mode !== 'disabled') return;
+    const btn = form.querySelector('button[type="submit"], .dok-report-submit, .dok-join-submit');
+    if (btn) { btn.disabled = true; btn.dataset.dokLocked = '1'; }
+    form.querySelectorAll('input, textarea, select').forEach((el) => { el.disabled = true; });
+    const p = document.createElement('p');
+    p.className = 'dok-intake-off';
+    p.textContent = DOK_INTAKE_OFF_MSG;
+    p.style.cssText = 'margin-top:14px;font-size:14.5px;font-weight:600;color:#e0392c';
+    form.appendChild(p);
+  };
+  lock(document.getElementById('dok-report-form'), 'report');
+  lock(document.getElementById('dok-report-form-modal'), 'report');
+  lock(document.getElementById('dok-join-form'), 'join');
+})();
+
 // ── UTM 보관 ──
 const urlParams = new URLSearchParams(window.location.search);
 const utmParams = {};
@@ -2256,10 +2323,15 @@ items.forEach(item => {
     });
   }
 
+  // 지역별 제보 건수 — 접수처가 없으면 부르지 않습니다(있지도 않은 주소입니다).
+  const regionsReq = DOK_INTAKE.regions.mode === 'disabled'
+    ? Promise.resolve({ sido: {} })
+    : fetch(DOK_INTAKE.regions.url).then((r) => r.json()).catch(() => ({ sido: {} }));
+
   Promise.all([
     fetch('data/map-sido.json').then((r) => r.json()),
     fetch('data/awards.json').then((r) => r.json()),
-    fetch('/api/regions').then((r) => r.json()).catch(() => ({ sido: {} })),
+    regionsReq,
   ]).then(([map, aw, reg]) => {
     awards = aw.awards || [];
     reportCounts = reg.sido || {};
@@ -2305,7 +2377,11 @@ items.forEach(item => {
 
   let campaigns = [];
   try {
-    campaigns = JSON.parse(document.getElementById('dok-campaign-data').textContent);
+    // 아래 데이터는 아직 전부 "(예시)" 입니다. 실제 사업으로 갈아 끼우기 전에는
+    // 화면에 내지 않습니다 — DOK_SHOW_SAMPLE 을 보세요.
+    campaigns = DOK_SHOW_SAMPLE
+      ? JSON.parse(document.getElementById('dok-campaign-data').textContent)
+      : [];
   } catch (err) {
     console.error('사업 데이터를 읽지 못했습니다', err);
   }
@@ -2408,8 +2484,8 @@ items.forEach(item => {
     grid.innerHTML = list.length
       ? list.map((c, i) => card(c, i)).join('')
       : `<p class="dok-camp-empty">${status === 'ongoing'
-          ? '지금 진행 중인 사업이 없습니다.'
-          : '아직 종료된 사업이 없습니다.'}</p>`;
+          ? '지금 지켜보고 있는 사업을 정리하고 있습니다.'
+          : '종료된 사업을 정리하고 있습니다.'}</p>`;
 
     grid.querySelectorAll('.dok-camp-card').forEach((el) => {
       const c = list[Number(el.dataset.i)];
@@ -2504,6 +2580,17 @@ items.forEach(item => {
 
     joinForm.addEventListener('submit', async (e) => {
       e.preventDefault();
+      // 접수처가 없으면 여기서 끝냅니다. 이름·이메일·전화번호가 담긴 요청을
+      // 갈 곳 없는 주소로 보내지 않기 위한 것입니다(화면 잠금과 별개의 두 번째 빗장).
+      if (DOK_INTAKE.join.mode === 'disabled') {
+        joinError.textContent = DOK_INTAKE_OFF_MSG;
+        joinError.style.display = 'block';
+        return;
+      }
+      if (DOK_INTAKE.join.mode === 'link') {
+        window.open(DOK_INTAKE.join.url, '_blank', 'noopener');
+        return;
+      }
       if (!joinTarget) return;
       joinError.style.display = 'none';
 
@@ -2523,7 +2610,7 @@ items.forEach(item => {
       joinSubmit.textContent = '보내는 중…';
 
       try {
-        const res = await fetch('/api/join', {
+        const res = await fetch(DOK_INTAKE.join.url, {
           method: 'POST',
           headers: { 'content-type': 'application/json' },
           body: JSON.stringify(payload)
@@ -2554,10 +2641,13 @@ items.forEach(item => {
   }
 
   // 참여자 수 불러오기 (없어도 화면은 그대로 뜬다)
-  fetch('/api/join')
-    .then((r) => r.json())
-    .then((d) => { joinCounts = d.counts || {}; paintCounts(); })
-    .catch(() => {});
+  // 참여자 수 — 접수처가 없으면 부르지 않습니다(있지도 않은 주소입니다).
+  if (DOK_INTAKE.join.mode !== 'disabled') {
+    fetch(DOK_INTAKE.join.url)
+      .then((r) => r.json())
+      .then((d) => { joinCounts = d.counts || {}; paintCounts(); })
+      .catch(() => {});
+  }
 
   render('ongoing');
 })();
@@ -2632,6 +2722,17 @@ function setupReportForm(form) {
 
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
+    // 접수처가 없으면 여기서 끝냅니다. 제보 내용·사진·회신 이메일이 갈 곳 없는
+    // 주소로 나가지 않게 하는 것입니다(화면 잠금과 별개의 두 번째 빗장).
+    if (DOK_INTAKE.report.mode === 'disabled') {
+      error.textContent = DOK_INTAKE_OFF_MSG;
+      error.style.display = 'block';
+      return;
+    }
+    if (DOK_INTAKE.report.mode === 'link') {
+      window.open(DOK_INTAKE.report.url, '_blank', 'noopener');
+      return;
+    }
     error.style.display = 'none';
     done.style.display = 'none';
 
@@ -2656,7 +2757,7 @@ function setupReportForm(form) {
     btn.textContent = '보내는 중…';
 
     try {
-      const res = await fetch('/api/report', { method: 'POST', body: fd });
+      const res = await fetch(DOK_INTAKE.report.url, { method: 'POST', body: fd });
       const out = await res.json().catch(() => ({}));
 
       if (res.ok && out.ok) {
@@ -2732,7 +2833,9 @@ if (reportModal) {
   if (!box) return;
   let items = [];
   try {
-    items = JSON.parse(document.getElementById('dok-sample-data').textContent);
+    items = DOK_SHOW_SAMPLE
+      ? JSON.parse(document.getElementById('dok-sample-data').textContent)
+      : [];
   } catch (err) {
     console.error('제보 예시를 읽지 못했습니다', err);
   }
