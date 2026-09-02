@@ -1147,6 +1147,9 @@ html { scroll-behavior: smooth; }
 
 #dok :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
 
+
+
+
 /* ▼▼ 역대 수상 요약 팝업 — dok-history.html 에서 옮겨 온 것 ▼▼ */
 /* 맨 오른쪽 '요약 →' 칸. 표 전체가 눌린다는 것을 알려 줍니다.
    .is-clickable 이 없으면(스크립트가 막히면) 아예 숨어서 헛되이 꾀지 않습니다. */
@@ -3528,6 +3531,72 @@ toggleBtn.addEventListener('click', () => {
 
 
 
+
+</script>
+
+<script>
+/* ── 「월간 좋은예산」이 다룬 사례 ──
+   밑빠진 독상 수상작이 아니라 좋은예산센터 월간지가 다룬 예산낭비 사례입니다.
+   회차가 없어 awards 에 섞지 않고 public/data/cases.json 으로 따로 둡니다
+   (수상 기록을 흐리지 않게). 지도 옆 목록에서 누르면 위 팝업으로 열립니다.
+   ★ 굽는 블록 밖에 둡니다 — 안에 두면 tools/port-summary.py 가 지웁니다.
+     2026-09-02 에 실제로 한 번 지워 먹었습니다. */
+(function () {
+  var CASES = {};
+  var esc = function (v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+
+  window.dokOpenCase = function (id) {
+    var c = CASES[id];
+    if (!c || !window.dokModal) return;
+    window.dokModal.open(
+      '<span class="dok-modal-no">월간 좋은예산</span>' +
+      '<span class="dok-modal-when">' + esc(c.ym.replace('-', '. ')) + '</span>' +
+      '<h3>' + esc(c.title) + '</h3>' +
+      '<div class="dok-modal-who">' + esc(c.who || '') + '</div>',
+      window.dokModal.render(c));
+  };
+
+  /* 지도가 지역별로 물어봅니다. 중앙정부 사례는 code 가 빈 값일 때 옵니다. */
+  window.dokCasesOf = function (code) {
+    var out = [];
+    for (var id in CASES) {
+      var c = CASES[id];
+      if (code ? (c.sido || []).indexOf(code) >= 0 : !(c.sido || []).length) out.push(c);
+    }
+    return out.sort(function (a, b) { return a.ym < b.ym ? 1 : -1; });
+  };
+
+  fetch('data/cases.json')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      (d.cases || []).forEach(function (c) { CASES[c.id] = c; });
+      window.dispatchEvent(new CustomEvent('dok:cases'));
+    })
+    .catch(function () { /* 못 읽어도 나머지 화면은 그대로 돕니다 */ });
+
+  ['dok-map-side', 'dok-map-offmap'].forEach(function (id) {
+    var box = document.getElementById(id);
+    if (!box) return;
+    box.addEventListener('click', function (e) {
+      var li = e.target.closest('[data-case]');
+      if (li) window.dokOpenCase(li.dataset.case);
+    });
+    box.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var li = e.target.closest('[data-case]');
+      if (li) { e.preventDefault(); window.dokOpenCase(li.dataset.case); }
+    });
+  });
+})();
+
+
+
+
+
 /* ▼▼ 역대 수상 요약 팝업 — dok-history.html 에서 옮겨 온 것 ▼▼ */
 /* 개편 저장소 action-home-renewal/dok-history.html 의 DOK_SUMMARY 와 팝업을
    그대로 옮겨 온 것입니다. 사용자 결정(2026-09-02)으로 두 곳에서 관리합니다.
@@ -4243,7 +4312,7 @@ toggleBtn.addEventListener('click', () => {
   var modal, modalBody, modalHd, btnPrev, btnNext, lastFocus = null, curRound = null;
 
   function renderBody(a) {
-    var s = DOK_SUMMARY[a.round];
+    var s = (a && a.round !== undefined) ? DOK_SUMMARY[a.round] : a;
     if (!s) {
       return '<div class="dok-modal-none">' +
         '<b>요약을 준비하고 있습니다</b>' +
@@ -4443,6 +4512,29 @@ toggleBtn.addEventListener('click', () => {
     wireOpeners();
     openFromHash();
   }
+
+  /* 「월간 좋은예산」 사례를 같은 팝업으로 열 수 있게 내보냅니다.
+     사례 코드 자체는 이 블록 밖 별도 <script> 에 있습니다 — 여기에 두면
+     다시 구울 때 지워집니다(2026-09-02 에 한 번 지워 먹었습니다).
+     내보내기만 여기서 만들어 내므로 다시 구워도 살아남습니다. */
+  window.dokModal = {
+    open: function (head, bodyHtml) {
+      if (!modal) return;
+      curRound = null;
+      modalHd.innerHTML = head;
+      modalBody.innerHTML = bodyHtml;
+      modalBody.scrollTop = 0;
+      btnPrev.disabled = true; btnNext.disabled = true;
+      btnPrev.dataset.go = ''; btnNext.dataset.go = '';
+      if (!modal.classList.contains('open')) {
+        lastFocus = document.activeElement;
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      modal.querySelector('.dok-modal-x').focus();
+    },
+    render: renderBody
+  };
 })();
 /* ▲▲ 역대 수상 요약 팝업 끝 ▲▲ */
 </script>

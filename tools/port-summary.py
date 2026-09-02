@@ -58,6 +58,11 @@ def main():
     # ── 3. 팝업 엔진 ──
     engine = slice_between(src, u'  var modal, modalBody, modalHd,',
                            u'  // ── 역대 수상 표 ──', u'팝업 엔진')
+    # 수상작은 회차로, 사례는 요약 객체를 그대로 받습니다. 두 자료가 같은 칸
+    # (lead·figs·body·src)을 쓰므로 그리는 코드는 하나로 둡니다.
+    engine = engine.replace(
+        u'    var s = DOK_SUMMARY[a.round];',
+        u'    var s = (a && a.round !== undefined) ? DOK_SUMMARY[a.round] : a;', 1)
     hashjs = slice_between(src, u'  /* ── 주소로 회차 열기 ──',
                            u'  // ── 숫자 올리기 ──', u'해시 처리')
 
@@ -126,6 +131,29 @@ def main():
     wireOpeners();
     openFromHash();
   }
+
+  /* 「월간 좋은예산」 사례를 같은 팝업으로 열 수 있게 내보냅니다.
+     사례 코드 자체는 이 블록 밖 별도 <script> 에 있습니다 — 여기에 두면
+     다시 구울 때 지워집니다(2026-09-02 에 한 번 지워 먹었습니다).
+     내보내기만 여기서 만들어 내므로 다시 구워도 살아남습니다. */
+  window.dokModal = {
+    open: function (head, bodyHtml) {
+      if (!modal) return;
+      curRound = null;
+      modalHd.innerHTML = head;
+      modalBody.innerHTML = bodyHtml;
+      modalBody.scrollTop = 0;
+      btnPrev.disabled = true; btnNext.disabled = true;
+      btnPrev.dataset.go = ''; btnNext.dataset.go = '';
+      if (!modal.classList.contains('open')) {
+        lastFocus = document.activeElement;
+        modal.classList.add('open');
+        document.body.style.overflow = 'hidden';
+      }
+      modal.querySelector('.dok-modal-x').focus();
+    },
+    render: renderBody
+  };
 })();
 %(markend)s
 """ % {'mark': MARK_JS, 'markend': MARK_JS_END,
