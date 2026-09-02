@@ -147,6 +147,10 @@ html { scroll-behavior: smooth; }
 }
 @media (max-width: 620px) {
   #dok .dok-camp-grid { grid-template-columns: 1fr; }
+  /* 지도만 화면 폭 끝까지 쓴다 — 360px 화면에서 320px → 360px (+12%).
+     섹션 좌우 여백(20px)을 되돌리고, 칩은 원래 자리로 다시 넣는다. */
+  #dok .dok-map-figure { margin-inline: -20px; }
+  #dok .dok-map-chips { margin-inline: 20px; }
 }
 
 /* ── 지역 지도 ── */
@@ -170,6 +174,12 @@ html { scroll-behavior: smooth; }
   stroke: #fff; stroke-width: 4px; stroke-linejoin: round;
 }
 #dok .dok-map-label.is-light { fill: #fff; stroke: none; }
+/* 이름을 도형 밖으로 뺀 지역(세종)을 잇는 가는 선.
+   non-scaling-stroke 라 지도가 작아져도 굵기는 화면에서 그대로다. */
+#dok .dok-map-leader {
+  stroke: var(--ink-soft); stroke-width: 1.2px; opacity: .5;
+  stroke-linecap: round; pointer-events: none;
+}
 /* 지도 위 건수 숫자. 지금은 그려지지 않습니다 —
    스크립트의 SHOW_MAP_COUNT 를 true 로 바꾸면 다시 나옵니다. */
 #dok .dok-map-dot {
@@ -1998,7 +2008,9 @@ items.forEach(item => {
     '11': [14, -20],   // 서울
     '23': [-46, 4],    // 인천
     '31': [46, 34],    // 경기
-    '29': [-30, -10],  // 세종
+    // 세종은 도형이 너무 작아 이름이 어떤 크기로도 충남과 겹쳤다(2026-09-02).
+    // 위쪽 빈 곳으로 빼고 아래 LEADER 로 가는 선을 이어 준다.
+    '29': [-15, -61],  // 세종
     '25': [16, 14],    // 대전
     '22': [10, -6],    // 대구
   };
@@ -2009,6 +2021,9 @@ items.forEach(item => {
   // 그리는 곳(drawMap), 값 넣는 곳(paint), 크기 맞추는 곳(fitMapText)과
   // CSS 의 .dok-map-dot 규칙은 그대로 남겨 두었습니다.
   const SHOW_MAP_COUNT = false;
+
+  // 이름을 도형 밖으로 뺀 지역. 어디를 가리키는지 가는 선으로 이어 준다.
+  const LEADER = { '29': true };
 
   let areas = [];          // 시도 도형
   let awards = [];         // 역대 수상
@@ -2157,6 +2172,11 @@ items.forEach(item => {
     svg.innerHTML =
       areas.map((a) =>
         `<path class="dok-map-area" data-code="${a.code}" d="${a.d}"><title>${esc(a.name)}</title></path>`).join('') +
+      areas.filter((a) => LEADER[a.code]).map((a) => {
+        const [ox, oy] = NUDGE[a.code] || [0, 0];
+        return `<line class="dok-map-leader" x1="${a.cx + ox}" y1="${a.cy + oy + 14}"`
+             + ` x2="${a.cx}" y2="${a.cy - 4}" vector-effect="non-scaling-stroke"></line>`;
+      }).join('') +
       areas.map((a) => {
         const [ox, oy] = NUDGE[a.code] || [0, 0];
         const x = a.cx + ox, y = a.cy + oy;
@@ -2184,8 +2204,11 @@ items.forEach(item => {
     const unit = (target, lo, hi) =>
       Math.max(lo, Math.min(hi, Math.round(target / scale)));
 
-    const label = unit(13.5, 18, 46);
-    const dot = unit(13, 16, 42);
+    // 지도가 좁아지면 글자가 상대적으로 커져 이름끼리 부딪친다.
+    // 화면 폭에 따라 조금씩 줄인다(360px 에서 대구·울산이 겹치던 것).
+    const target = w < 380 ? 12.5 : (w < 460 ? 13 : 13.5);
+    const label = unit(target, 18, 46);
+    const dot = unit(target - 0.5, 16, 42);
     svg.style.setProperty('--dok-map-label', label + 'px');
     svg.style.setProperty('--dok-map-dot', dot + 'px');
 
