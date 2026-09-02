@@ -317,6 +317,15 @@ html { scroll-behavior: smooth; }
   background: var(--brand-deep); border-color: var(--brand-deep); color: #fff;
 }
 #dok .dok-map-chip .dok-chip-n:empty { display: none; }
+
+/* 「월간 좋은예산」 사례 목록. 수상 목록과 같은 모양이되 위에 실선 한 줄로 가릅니다
+   — 같은 칸에 있지만 다른 자료라는 것을 보여 주려는 것입니다. */
+#dok .dok-map-cases { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--line); }
+#dok .dok-map-cases-t {
+  font-size: 12.5px; font-weight: 700; color: var(--ink-soft);
+  margin-bottom: 10px; letter-spacing: -.01em;
+}
+#dok .dok-map-list-case .dok-map-round { color: var(--ink-soft); }
 #dok .dok-map-chip .dok-chip-n {
   font-size: 12.5px; font-weight: 700; color: var(--alert);
   background: var(--alert-tint); border-radius: 999px; padding: 1px 7px;
@@ -416,35 +425,42 @@ html { scroll-behavior: smooth; }
 
 /* ── 제보 팝업 ──
    지도에서 지역을 고른 채로 바로 쓸 수 있게, 아래로 내려보내지 않고 그 자리에서 연다. */
+/* 2026-09-02: 짙은 남색을 걷어냈습니다.
+   ⚠️ 크림(--cream)은 첫 화면 전용 색입니다. 여기에 쓰지 마세요 — 히어로만
+      따뜻한 색으로 구분한다는 규칙이 깨집니다. 팝업은 흰 바탕에 실선 한 줄로
+      머리와 폼을 가릅니다. */
 #dok .dok-report-modal {
   margin: auto;                       /* #dok * 의 margin:0 을 되돌린다 */
   width: min(560px, calc(100vw - 32px));
   max-height: min(88vh, 940px);
   padding: 0; border: 0; border-radius: 18px;
-  background: var(--ink); color: #fff;
+  background: #fff; color: var(--ink);
   overflow: hidden;
 }
-#dok .dok-report-modal::backdrop { background: rgba(13,28,38,.6); }
+#dok .dok-report-modal::backdrop { background: rgba(13,28,38,.5); }
 #dok .dok-report-modal-inner {
   display: flex; flex-direction: column; max-height: inherit; overflow-y: auto;
 }
-#dok .dok-report-modal-head { padding: 26px 28px 4px; position: relative; }
+#dok .dok-report-modal-head {
+  padding: 26px 28px 20px; position: relative;
+  border-bottom: 1px solid var(--line);
+}
 #dok .dok-report-modal-tag {
   font-family: 'GmarketSans', sans-serif; font-size: 12px;
-  letter-spacing: .16em; color: var(--brand); margin-bottom: 8px;
+  letter-spacing: .16em; color: var(--brand-deep); margin-bottom: 8px;
 }
 #dok .dok-report-modal-head h3 { font-size: 22px; padding-right: 44px; word-break: keep-all; }
 #dok .dok-report-modal-sub {
-  font-size: 14.5px; color: rgba(255,255,255,.72);
+  font-size: 14.5px; color: var(--ink-soft);
   margin-top: 8px; word-break: keep-all;
 }
 #dok .dok-report-modal-close {
   position: absolute; top: 20px; right: 20px;
   width: 40px; height: 40px; border: 0; border-radius: 50%;
-  background: rgba(255,255,255,.12); color: #fff; font-size: 17px; cursor: pointer;
+  background: rgba(13,28,38,.07); color: var(--ink-soft); font-size: 17px; cursor: pointer;
 }
-#dok .dok-report-modal-close:hover { background: rgba(255,255,255,.24); }
-#dok .dok-report-form-modal { padding: 18px 28px 28px; }
+#dok .dok-report-modal-close:hover { background: rgba(13,28,38,.14); color: var(--ink); }
+#dok .dok-report-form-modal { padding: 22px 28px 28px; margin-top: 0; }
 #dok .dok-report-form-modal textarea { min-height: 110px; }
 
 @media (max-width: 620px) {
@@ -709,32 +725,27 @@ html { scroll-behavior: smooth; }
 #dok .dok-map-panel-close:hover { background: var(--line); color: var(--ink); }
 
 /* ── 제보 사진 ── */
-#dok .dok-or {
-  font-size: 12px; font-weight: 600; color: rgba(255,255,255,.55);
-  margin-left: 6px; word-break: keep-all;
-}
 #dok .dok-photo-label {
   display: block; font-size: 13.5px; font-weight: 700;
-  margin: 18px 0 8px; color: rgba(255,255,255,.9);
+  margin: 18px 0 8px;
 }
-#dok .dok-photo-box { }
+/* 사진 고르는 칸. 한 줄짜리 띠로 낮췄습니다 — 예전에는 큰 점선 상자에
+   아이콘과 설명이 겹겹이 들어가 폼에서 제일 시끄러운 자리였습니다. */
 #dok .dok-photo-pick {
-  display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 4px; padding: 22px 16px; cursor: pointer;
-  border: 1.5px dashed rgba(255,255,255,.28); border-radius: 12px;
-  background: rgba(255,255,255,.04); transition: all .15s;
-  text-align: center;
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 16px; cursor: pointer;
+  border: 1.5px dashed var(--line); border-radius: 12px;
+  background: #fff; transition: all .15s;
 }
-#dok .dok-photo-pick:hover { border-color: var(--brand); background: rgba(0,175,236,.08); }
-#dok .dok-photo-icon { font-size: 22px; color: var(--brand); line-height: 1; }
-#dok .dok-photo-pick > span:nth-child(2) { font-size: 14.5px; font-weight: 700; color: #fff; }
-#dok .dok-photo-hint { font-size: 12.5px; color: rgba(255,255,255,.5); word-break: keep-all; }
+#dok .dok-photo-pick:hover { border-color: var(--brand); background: #f4fcff; }
+#dok .dok-photo-icon { font-size: 18px; color: var(--brand-deep); line-height: 1; }
+#dok .dok-photo-pick > span:nth-child(2) { font-size: 14.5px; font-weight: 700; }
 #dok .dok-photo-list {
   display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;
 }
 #dok .dok-photo-thumb {
   position: relative; width: 84px; height: 84px; border-radius: 10px;
-  overflow: hidden; background: rgba(255,255,255,.08);
+  overflow: hidden; background: #fff; border: 1px solid var(--line);
 }
 #dok .dok-photo-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
 #dok .dok-photo-del {
@@ -744,28 +755,10 @@ html { scroll-behavior: smooth; }
   line-height: 1;
 }
 #dok .dok-photo-warn {
-  font-size: 12.5px; color: rgba(255,255,255,.5);
+  font-size: 12.5px; color: var(--ink-soft);
   margin-top: 10px; word-break: keep-all; line-height: 1.6;
 }
 
-/* ── 마감 안내 ── */
-#dok .dok-deadline {
-  display: inline-flex; align-items: center; gap: 10px; flex-wrap: wrap;
-  margin-top: 18px; padding: 12px 18px; border-radius: 999px;
-  background: rgba(255,74,61,.14); border: 1px solid rgba(255,74,61,.35);
-  font-size: 14.5px; color: #fff; word-break: keep-all;
-}
-#dok .dok-deadline b { color: var(--alert); }
-#dok .dok-deadline .dok-dday {
-  font-family: 'GmarketSans', sans-serif; font-weight: 700; font-size: 15px;
-  background: var(--alert); color: #fff; padding: 3px 12px; border-radius: 999px;
-}
-#dok .dok-deadline-modal {
-  font-size: 13.5px; color: var(--brand); font-weight: 700; margin-top: 6px;
-}
-@media (max-width: 620px) {
-  #dok .dok-deadline { font-size: 13.5px; padding: 11px 14px; }
-}
 
 #dok .dok-join-why {
   font-size: 12.5px; color: var(--ink-soft); line-height: 1.6;
@@ -1045,23 +1038,54 @@ html { scroll-behavior: smooth; }
 #dok .dok-all-table .dok-no { font-weight: 700; color: var(--brand-deep); white-space: nowrap; }
 
 /* ── Report form ── */
-#dok .dok-report { background: var(--ink); color: #fff; }
-#dok .dok-report .dok-section-tag { color: var(--brand); }
-#dok .dok-report .dok-lead { color: rgba(255,255,255,0.8); }
-#dok .dok-report-gift {
-  display: inline-block;
-  margin-top: 20px; padding: 14px 20px; border-radius: 12px;
-  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16);
-  font-size: 15px; color: #fff; word-break: keep-all; line-height: 1.6;
+/* ── 제보 ──
+   2026-09-02: 짙은 남색 바탕을 걷어냈습니다. 화면에서 여기만 어두워 통째로
+   튀었고, 흰 글씨 위에 안내문이 여럿 얹혀 어수선했습니다.
+   ⚠️ 크림(--cream)은 첫 화면 전용입니다. 여기는 하늘색(--brand-tint) —
+      파란 '제보하기' 버튼과 이어지고, 투표 칸이 이미 쓰는 색입니다. */
+#dok .dok-report { background: var(--brand-tint); color: var(--ink); }
+#dok .dok-report .dok-section-tag { color: var(--brand-deep); }
+#dok .dok-report .dok-lead { color: var(--ink-soft); }
+
+
+/* 한눈에 들어와야 하는 버튼. 폼을 펼쳐 두면 넓은 화면에서 '제보하기'가
+   스크롤 아래로 밀려서, 큰 버튼 하나만 두고 폼은 팝업으로 보냈습니다. */
+#dok .dok-report-open {
+  margin-top: 28px;
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: min(320px, 100%);
+  padding: 20px 40px;
+  font-family: 'GmarketSans', sans-serif; font-size: 19px; font-weight: 700;
+  color: #fff; background: var(--brand);
+  border: 0; border-radius: 14px; cursor: pointer;
+  box-shadow: 0 8px 22px rgba(0,135,184,.22);
+  transition: background .15s, transform .12s, box-shadow .15s;
 }
-#dok .dok-report-gift b { color: var(--brand); }
+#dok .dok-report-open:hover {
+  background: var(--brand-deep);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(0,135,184,.3);
+}
+#dok .dok-report-open:active { transform: none; }
 @media (max-width: 620px) {
-  #dok .dok-report-gift { display: block; font-size: 14.5px; padding: 14px 16px; }
+  #dok .dok-report-open { width: 100%; padding: 18px 24px; font-size: 17px; }
 }
+
+/* '더 적기' — 지역·기관·이메일은 접어 둡니다. 몰라도 보낼 수 있다는 것을
+   버튼 옆에 적어 둡니다(2026-09-02 사용자 지시). */
+#dok .dok-more-head { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; }
+#dok .dok-more-btn {
+  padding: 0; border: 0; background: none; cursor: pointer;
+  font-family: inherit; font-size: 13.5px; font-weight: 700;
+  color: var(--brand-deep); text-decoration: underline; text-underline-offset: 3px;
+}
+#dok .dok-more-hint { font-size: 12.5px; color: var(--ink-soft); }
+#dok .dok-more { display: grid; gap: 14px; }
+
 #dok .dok-report-form {
-  margin-top: 40px;
+  margin-top: 32px;
   display: grid; gap: 14px;
-  max-width: 640px;
+  max-width: 620px;
 }
 #dok .dok-report-form label {
   font-size: 13.5px; font-weight: 700;
@@ -1071,73 +1095,280 @@ html { scroll-behavior: smooth; }
 #dok .dok-report-form input, #dok .dok-report-form select, #dok .dok-report-form textarea {
   width: 100%;
   padding: 15px 16px;
-  border: 1.5px solid rgba(255,255,255,0.25);
-  background: rgba(255,255,255,0.06);
-  color: #fff;
+  border: 1.5px solid var(--line);
+  background: #fff;
+  color: var(--ink);
   border-radius: 12px;
   font-size: 15px; font-family: inherit;
 }
-#dok .dok-report-form input::placeholder, .dok-report-form textarea::placeholder { color: rgba(255,255,255,0.45); }
-#dok .dok-report-form input:focus, .dok-report-form textarea:focus {
+#dok .dok-report-form input::placeholder, #dok .dok-report-form textarea::placeholder { color: #8ba3b0; }
+#dok .dok-report-form input:focus, #dok .dok-report-form select:focus, #dok .dok-report-form textarea:focus {
   outline: 2px solid var(--brand); border-color: transparent;
 }
 #dok .dok-report-form textarea { min-height: 130px; resize: vertical; }
+/* 지역 두 칸은 넓은 화면에서 한 줄에 놓습니다. 줄 수가 줄면 폼이 짧아 보입니다. */
+#dok .dok-report-row { display: grid; gap: 14px; }
+@media (min-width: 620px) {
+  #dok .dok-report-row { grid-template-columns: 1fr 1fr; }
+}
 #dok .dok-report-submit {
   font-family: 'GmarketSans', sans-serif;
   font-weight: 700; font-size: 16px;
-  color: var(--ink); background: var(--brand);
+  background: var(--brand);
   border: none; border-radius: 13px;
   padding: 17px 0; cursor: pointer;
   transition: background 0.15s;
   color: #fff;
 }
 #dok .dok-report-submit:hover { background: var(--brand-deep); }
-#dok .dok-report-done { display: none; margin-top: 16px; font-weight: 700; color: var(--brand); }
+#dok .dok-report-done { display: none; margin-top: 16px; font-weight: 700; color: var(--brand-deep); }
 #dok .dok-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
 #dok .dok-report-submit[disabled] { opacity: 0.55; cursor: progress; }
 #dok .dok-report-error {
   display: none; margin-top: 14px; font-size: 14.5px; font-weight: 600;
-  color: #ffb4ad;
+  color: var(--alert);
 }
-#dok .dok-report-note a { color: #fff; text-decoration: underline; }
-#dok .dok-report-note { font-size: 12.5px; color: rgba(255,255,255,0.55); }
+#dok .dok-report-note { font-size: 12.5px; color: var(--ink-soft); line-height: 1.7; }
+#dok .dok-report-note a { color: var(--ink); text-decoration: underline; }
 
 /* ── Footer CTA ── */
-#dok .dok-bottom-cta {
-  text-align: center;
-  padding: 88px 24px;
-}
-#dok .dok-bottom-cta h2 {
-  font-family: 'GmarketSans', sans-serif;
-  font-weight: 700; font-size: clamp(24px, 3.4vw, 34px);
-  margin-bottom: 16px; word-break: keep-all;
-}
-#dok .dok-bottom-cta p { color: var(--ink-soft); margin-bottom: 30px; word-break: keep-all; }
-#dok .dok-bottom-cta .dok-btn-donate {
-  display: inline-block;
-  font-family: 'GmarketSans', sans-serif;
-  font-weight: 700; font-size: 16px; color: #fff;
-  background: var(--brand); text-decoration: none;
-  padding: 18px 38px; border-radius: 14px;
-  box-shadow: 0 6px 20px rgba(0,175,236,0.35);
-  transition: transform 0.15s, background 0.15s;
-}
-#dok .dok-bottom-cta .dok-btn-donate:hover { background: var(--brand-deep); transform: translateY(-2px); }
-
-#dok footer { border-top: 1px solid var(--line); padding: 36px 24px; }
-#dok .dok-footer-inner {
-  max-width: 1080px; margin: 0 auto;
-  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 20px;
-  font-size: 13px; color: var(--ink-soft);
-}
-#dok .dok-footer-inner a { color: var(--brand-deep); text-decoration: none; }
-#dok .dok-footer-inner a:hover { text-decoration: underline; }
+/* 2026-09-02: '이 감시가 계속되도록' 후원 칸과 한 줄짜리 푸터를 홈페이지 공통
+   하단(#ah-foot)으로 갈아 끼우면서, 그 둘만 쓰던 규칙을 걷어냈습니다. */
 
 @media (max-width: 820px) {
       #dok .dok-section { padding: 60px 20px; }
   #dok .dok-topbar nav .dok-nav-link { display: none; }
 }
+/* hidden 을 붙인 것은 무조건 숨깁니다.
+   브라우저 기본 규칙은 [hidden]{display:none} 하나뿐이라, 우리가 클래스에
+   display 를 주면 우선순위에서 밀려 hidden 이 무시됩니다. 실제로 대비책
+   제보 폼이 그렇게 화면에 그대로 나왔습니다(2026-09-02). */
+#dok [hidden] { display: none !important; }
+
 #dok :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+/* ▼▼ 역대 수상 요약 팝업 — dok-history.html 에서 옮겨 온 것 ▼▼ */
+/* 맨 오른쪽 '요약 →' 칸. 표 전체가 눌린다는 것을 알려 줍니다.
+   .is-clickable 이 없으면(스크립트가 막히면) 아예 숨어서 헛되이 꾀지 않습니다. */
+#dok .dok-all-table .dok-go {
+  white-space: nowrap; text-align: right;
+  font-size: 12.5px; font-weight: 700; color: var(--brand-deep);
+  opacity: 0; transition: opacity 0.13s;
+}
+#dok .dok-all-table:not(.is-clickable) .dok-go { display: none; }
+#dok .dok-all-table.is-clickable tbody tr:hover .dok-go,
+#dok .dok-all-table.is-clickable tbody tr:focus-visible .dok-go { opacity: 1; }
+/* 눈에는 안 보이지만 읽어 주는 기계에는 들리는 글자 */
+#dok .dok-sr {
+  position: absolute; width: 1px; height: 1px;
+  padding: 0; margin: -1px; overflow: hidden;
+  clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;
+}
+#dok .dok-hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+/* ═══════════════════════════════════════════════════════════════════
+   수상 내역 팝업 (2026-08-27)
+
+   지도 옆 목록이나 아래 역대 표에서 한 줄을 누르면, 그 회차가 어떤
+   사업이었고 그 뒤에 무슨 일이 있었는지 보여 줍니다.
+
+   요약 글은 이 파일 아래쪽 스크립트의 DOK_SUMMARY 한 곳에 모여 있습니다.
+   요약이 없는 회차도 팝업은 열리고, "요약 준비 중"이라고 알려 줍니다.
+   ─ 팝업이 안 뜨더라도(스크립트가 막히면) 목록과 표는 그대로 다 읽힙니다.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── 누를 수 있다는 표시 ──
+   목록과 표에 마우스를 올리면 색이 바뀌고 오른쪽에 화살표가 나옵니다.
+   이 표시들은 스크립트가 .is-clickable 을 붙여야 켜집니다.
+   그래서 팝업이 안 되는 환경에서는 '누르라'고 꾀지 않습니다. */
+#dok .dok-map-list.is-clickable li,
+#dok .dok-all-table.is-clickable tbody tr {
+  cursor: pointer;
+  transition: background 0.13s;
+}
+#dok .dok-map-list.is-clickable li { position: relative; padding-right: 22px; }
+#dok .dok-map-list.is-clickable li::after {
+  content: "→";
+  position: absolute; right: 4px; top: 50%; transform: translateY(-50%);
+  color: var(--brand-deep); opacity: 0; transition: opacity 0.13s, right 0.13s;
+}
+#dok .dok-map-list.is-clickable li:hover,
+#dok .dok-map-list.is-clickable li:focus-visible { background: var(--brand-tint); }
+#dok .dok-map-list.is-clickable li:hover::after { opacity: 1; right: 0; }
+#dok .dok-all-table.is-clickable tbody tr:hover td { background: var(--brand-tint); }
+#dok .dok-all-table.is-clickable tbody tr:focus-visible td { background: var(--brand-tint); }
+
+/* '요약 보기' 꼬리표 — 40회 전부 요약이 있으므로 예전의 '요약 있음' 점은 뗐습니다.
+   점이 모든 줄에 찍히면 아무것도 가리키지 못합니다.
+   대신 누르면 읽을 게 나온다는 것을 글자로 말해 줍니다. */
+#dok .dok-map-list.is-clickable .dok-map-open {
+  display: inline-flex; align-items: center; gap: 3px;
+  margin-top: 7px;
+  font-size: 11.5px; font-weight: 700; color: var(--brand-deep);
+  background: var(--brand-tint);
+  border-radius: 999px; padding: 3px 9px;
+}
+#dok .dok-map-list.is-clickable li:hover .dok-map-open { background: #fff; }
+
+/* ── 팝업 ── */
+#dok .dok-modal {
+  position: fixed; inset: 0; z-index: 200;
+  display: none;
+  align-items: center; justify-content: center;
+  padding: 24px;
+}
+#dok .dok-modal.open { display: flex; }
+#dok .dok-modal-back {
+  position: absolute; inset: 0;
+  background: rgba(6, 35, 48, 0.55);
+  animation: dok-fade 0.18s ease-out;
+}
+#dok .dok-modal-box {
+  position: relative;
+  width: min(680px, 100%);
+  max-height: min(86vh, 820px);
+  display: flex; flex-direction: column;
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(6, 35, 48, 0.34);
+  animation: dok-rise 0.2s cubic-bezier(0.2, 0.7, 0.3, 1);
+  overflow: hidden;
+}
+@keyframes dok-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes dok-rise {
+  from { opacity: 0; transform: translateY(14px) scale(0.985) }
+  to   { opacity: 1; transform: none }
+}
+
+/* 머리 — 회차·수상자·사업명 */
+#dok .dok-modal-hd {
+  flex: none;
+  padding: 26px 28px 20px;
+  border-bottom: 1px solid var(--line);
+  background: var(--cream);
+}
+#dok .dok-modal-no {
+  display: inline-block;
+  background: var(--alert); color: #fff;
+  border-radius: 999px; padding: 3px 12px;
+  font-size: 12.5px; font-weight: 800;
+}
+#dok .dok-modal-when { margin-left: 8px; font-size: 12.5px; font-weight: 700; color: var(--cream-ink); }
+#dok .dok-modal-hd h3 {
+  font-family: 'GmarketSans', sans-serif;
+  font-size: clamp(19px, 2.4vw, 24px); font-weight: 700;
+  line-height: 1.38; letter-spacing: -0.02em;
+  margin-top: 12px; word-break: keep-all;
+}
+#dok .dok-modal-who { margin-top: 7px; font-size: 14px; font-weight: 700; color: var(--cream-ink); }
+
+/* 본문 — 여기만 스크롤됩니다. 머리와 발은 늘 보입니다. */
+#dok .dok-modal-body {
+  flex: 1 1 auto; overflow-y: auto;
+  padding: 24px 28px 26px;
+  font-size: 15px; line-height: 1.78; word-break: keep-all;
+}
+#dok .dok-modal-body .lead {
+  font-size: 16px; font-weight: 700; line-height: 1.65;
+  padding-left: 14px; border-left: 3px solid var(--brand);
+  margin-bottom: 20px;
+}
+#dok .dok-modal-body h4 {
+  font-size: 14px; font-weight: 800; color: var(--brand-deep);
+  margin: 22px 0 8px;
+}
+#dok .dok-modal-body h4:first-child { margin-top: 0; }
+#dok .dok-modal-body p + p { margin-top: 12px; }
+#dok .dok-modal-body ul { margin: 10px 0 0; padding: 0; list-style: none; }
+#dok .dok-modal-body li {
+  position: relative; padding-left: 15px; margin-top: 7px;
+  font-size: 14.5px; line-height: 1.7;
+}
+#dok .dok-modal-body li::before {
+  content: ""; position: absolute; left: 0; top: 10px;
+  width: 5px; height: 5px; border-radius: 50%; background: var(--brand);
+}
+/* 숫자 한 줄 — B/C 0.17 처럼 이 사업을 한마디로 말해 주는 값 */
+#dok .dok-modal-fig {
+  display: flex; flex-wrap: wrap; gap: 10px;
+  margin: 0 0 22px;
+}
+#dok .dok-modal-fig div {
+  flex: 1 1 190px;
+  border: 1px solid var(--cream-line); border-left: 3px solid var(--alert);
+  border-radius: 12px;
+  background: var(--cream);
+  padding: 13px 15px;
+}
+#dok .dok-modal-fig b {
+  display: block;
+  font-family: 'GmarketSans', sans-serif;
+  /* 값이 '약 2조 8,309억 원' 처럼 길어질 수 있어 글자 크기를 화면에 맞춥니다.
+     keep-all 이 있어야 '8,309억' 이 숫자와 단위로 쪼개지지 않습니다. */
+  font-size: clamp(17px, 2.4vw, 21px); font-weight: 700;
+  color: var(--alert); line-height: 1.28; word-break: keep-all;
+}
+#dok .dok-modal-fig span {
+  display: block; margin-top: 5px;
+  font-size: 12px; font-weight: 600; color: var(--cream-ink); word-break: keep-all;
+}
+#dok .dok-modal-fig span:empty { display: none; }
+
+/* 요약이 아직 없는 회차 */
+#dok .dok-modal-none {
+  text-align: center; padding: 26px 10px;
+  color: var(--ink-soft); font-size: 14.5px; line-height: 1.75;
+}
+#dok .dok-modal-none b { display: block; color: var(--ink); font-size: 15.5px; margin-bottom: 7px; }
+
+/* 발 — 앞뒤 회차로 넘기기 + 닫기 */
+#dok .dok-modal-ft {
+  flex: none;
+  display: flex; align-items: center; gap: 8px;
+  padding: 14px 28px; border-top: 1px solid var(--line);
+  background: #f7fbfd;
+}
+#dok .dok-modal-ft button {
+  border: 1px solid var(--line); background: #fff; color: var(--ink-soft);
+  border-radius: 999px; padding: 8px 15px;
+  font-family: inherit; font-size: 13px; font-weight: 700;
+  cursor: pointer; transition: 0.14s;
+}
+#dok .dok-modal-ft button:hover:not(:disabled) { border-color: var(--brand); color: var(--brand-deep); }
+#dok .dok-modal-ft button:disabled { opacity: 0.36; cursor: default; }
+#dok .dok-modal-ft .dok-modal-close {
+  margin-left: auto; background: var(--ink); border-color: var(--ink); color: #fff;
+}
+#dok .dok-modal-ft .dok-modal-close:hover { background: #000; border-color: #000; color: #fff; }
+#dok .dok-modal-src { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 20px; }
+#dok .dok-modal-src a {
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: 6px 13px; font-size: 12.5px; font-weight: 600; color: var(--ink-soft);
+  text-decoration: none;
+}
+#dok .dok-modal-src a:hover { border-color: var(--brand); color: var(--brand-deep); }
+
+/* 오른쪽 위 ✕ — 좁은 화면에서 발이 안 보여도 닫을 수 있게 */
+#dok .dok-modal-x {
+  position: absolute; top: 14px; right: 14px; z-index: 2;
+  width: 34px; height: 34px; border-radius: 50%;
+  border: 1px solid var(--cream-line); background: rgba(255,255,255,0.86);
+  color: var(--cream-ink); font-size: 15px; line-height: 1; cursor: pointer;
+}
+#dok .dok-modal-x:hover { background: #fff; color: var(--ink); }
+
+@media (max-width: 560px) {
+  #dok .dok-modal { padding: 0; align-items: flex-end; }
+  /* 좁은 화면에서는 아래에서 올라오는 판으로 — 손이 닿는 곳에 닫기가 있습니다. */
+  #dok .dok-modal-box { max-height: 92vh; border-radius: 16px 16px 0 0; }
+  #dok .dok-modal-hd { padding: 22px 20px 18px; }
+  #dok .dok-modal-body { padding: 20px 20px 22px; }
+  #dok .dok-modal-ft { padding: 12px 20px calc(12px + env(safe-area-inset-bottom, 0px)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #dok .dok-modal-back, #dok .dok-modal-box { animation: none; }
+}
+/* ▲▲ 역대 수상 요약 팝업 끝 ▲▲ */
 </style>
 
 <!-- ⚠️ GA4 측정 ID 발급 후 교체 -->
@@ -1176,11 +1407,6 @@ html { scroll-behavior: smooth; }
         <span class="dok-red">밑빠진 독상</span>을<br>
         수여합니다
       </h1>
-      <p>
-        아무리 부어도 채워지지 않는 독처럼, 밑빠진 예산 사업에 시민이 직접 주는 상.
-        2000년 하남국제환경박람회부터 2025년 서울시 한강 리버버스까지,
-        예산낭비의 기록을 이어오고 있습니다.
-      </p>
       <div class="dok-hero-actions">
         <a class="dok-btn-main" href="#dok-campaigns">진행 중인 감시 참여하기</a>
         <a class="dok-btn-line" href="#dok-report">예산낭비 제보하기</a>
@@ -1190,11 +1416,9 @@ html { scroll-behavior: smooth; }
 </section>
 
 <!-- ── 히어로 아래 지표 ──
-     ⚠️ 가운데 '감시한 세금' 금액은 아직 확인되지 않은 값입니다.
-     40회까지 수상한 사업들의 사업비를 합쳐 실제 값으로 바꿔야 합니다.
-     근거 없이 큰 숫자를 걸면 이 상의 신뢰가 깎이는 자리라, 뜻을 좁혀
-     "수상 사업 사업비 합계"로 정의해 두었습니다.
-     양옆 두 숫자(40회·26년)는 사이트의 기존 내용과 맞는 실제 값입니다. -->
+     셋 다 실제 값입니다(2026-09-02). 가운데 '들여다본 예산'을 어떻게 세었는지는
+     그 칸 바로 위 주석에 적어 두었습니다. 근거 없이 큰 숫자를 걸면 이 상의
+     신뢰가 깎이는 자리라, 무엇을 더했는지 화면에도 밑줄로 밝힙니다. -->
 <section class="dok-stats">
   <div class="dok-stats-inner">
 
@@ -1204,14 +1428,32 @@ html { scroll-behavior: smooth; }
       <div class="dok-stat-sub">2000년 8월 제1회부터</div>
     </div>
 
+    <!-- ═══ 들여다본 예산 — 17조 5,824억 원 (2026-09-02) ═══
+         예전에 있던 '1,000억 원'은 근거를 못 찾아 내렸던 값입니다. 지금 값은
+         역대 수상 요약(DOK_SUMMARY)의 금액 카드를 40회 전부 훑어 더한 것입니다.
+
+           · 사업비가 적힌 19회        6조 2,210억 원
+           · 사업비가 없어 예산낭비액·낭비우려액을 쓴 15회  11조 3,614억 원
+           ─────────────────────────────────────────
+             34개 사업 합계            17조 5,824억 원  → 17.6조
+
+         ⚠️ '사업비'라고 쓰지 않는 이유 — 34회 중 15회는 사업 전체 규모가 아니라
+            새어나간 액수(예산낭비액)이고, 30회는 아직 확정 아닌 '낭비우려액'입니다.
+            그래서 '들여다본 예산'이라고 적고 밑줄에 무엇을 더했는지 밝힙니다.
+         ⚠️ 나머지 6회(2·33·34·35·36·39회)는 공적자금 투입액·직급보조비 예산처럼
+            성격이 또 달라 넣지 않았습니다. 넣으면 30조 8,712억이 됩니다.
+         ⚠️ 41회가 더해지면 이 값도 다시 더해야 합니다. 자동으로 안 따라옵니다. -->
     <div class="dok-stat-item is-lead">
-      <div class="dok-stat-num"><span class="dok-count" data-to="1000">0</span><span class="dok-stat-unit">억 원</span></div>
-      <div class="dok-stat-label">밑빠진 독을 감시한 세금</div>
-      <div class="dok-stat-sub">역대 수상 사업의 사업비 합계</div>
+      <div class="dok-stat-num"><span class="dok-count" data-to="175824">0</span><span class="dok-stat-unit">억 원</span></div>
+      <div class="dok-stat-label">들여다본 예산</div>
+      <div class="dok-stat-sub">34개 수상 사업의 사업비 · 예산낭비액 합계</div>
     </div>
 
     <div class="dok-stat-item">
-      <div class="dok-stat-num"><span class="dok-count" data-to="26">0</span><span class="dok-stat-unit">년</span></div>
+      <!-- 1999년 9월 9일 창립 기준입니다(2026년이면 27년째).
+           2000년 8월 제1회 밑빠진 독상부터 세면 26년이라 값이 다릅니다 —
+           이 칸은 시민행동의 햇수이므로 창립 기준을 씁니다. -->
+      <div class="dok-stat-num"><span class="dok-count" data-to="27">0</span><span class="dok-stat-unit">년</span></div>
       <div class="dok-stat-label">이어온 예산감시</div>
       <div class="dok-stat-sub">정부·기업 지원 없이</div>
     </div>
@@ -1220,12 +1462,7 @@ html { scroll-behavior: smooth; }
 </section>
 
 <section class="dok-section" id="dok-campaigns">
-  <div class="dok-section-tag">WATCH</div>
   <h2>지금 지켜보고 있는 예산</h2>
-  <p class="dok-lead">
-    밑빠진 독상은 상을 주고 끝나지 않습니다. 수상 이후에도 사업 중단, 주민소송,
-    법령·조례 개정으로 이어지는 감시 활동을 계속합니다.
-  </p>
 
   <!-- 아래 사업 목록은 전부 예시(더미) 데이터입니다. 실제 사업으로 교체할 것 -->
   <span class="dok-vote-notice">아래 사업은 예시 데이터입니다 — 실제 내용으로 교체 예정</span>
@@ -1320,7 +1557,6 @@ html { scroll-behavior: smooth; }
   <div class="dok-join-inner">
 
     <div class="dok-join-head" id="dok-join-head">
-      <div class="dok-join-tag">JOIN</div>
       <h3 id="dok-join-title">이 감시에 참여하기</h3>
       <p class="dok-join-sub" id="dok-join-sub"></p>
       <button type="button" class="dok-join-close" id="dok-join-close" aria-label="닫기">✕</button>
@@ -1390,42 +1626,44 @@ html { scroll-behavior: smooth; }
 <dialog class="dok-report-modal" id="dok-report-modal" aria-labelledby="dok-report-modal-title">
   <div class="dok-report-modal-inner">
     <div class="dok-report-modal-head">
-      <div class="dok-report-modal-tag">REPORT</div>
       <h3 id="dok-report-modal-title">예산낭비 제보하기</h3>
       <p class="dok-report-modal-sub" id="dok-report-modal-sub"></p>
-      <p class="dok-deadline-modal" id="dok-deadline-modal"></p>
       <button type="button" class="dok-report-modal-close" id="dok-report-modal-close" aria-label="닫기">✕</button>
     </div>
 
     <form class="dok-report-form dok-report-form-modal" id="dok-report-form-modal">
-      <label for="dok-mrp-detail">무엇을 보셨나요? <span class="dok-or">내용이나 사진 중 하나는 꼭 필요합니다</span></label>
-      <textarea id="dok-mrp-detail" data-f="detail" placeholder="사업 이름은 몰라도 됩니다. 어디에 무엇이 있고 왜 이상한지, 보신 대로 적어주세요. 예: 우리 동네 하천에 다리를 새로 놨는데 건너편에 아무것도 없어서 아무도 안 다닙니다."></textarea>
+      <!-- 먼저 보이는 것은 내용과 사진 둘뿐입니다.
+           지역·기관·이메일은 '더 적기'를 눌러야 펼쳐집니다(2026-09-02 사용자 결정).
+           칸을 지운 것이 아니라 접어 둔 것이라, 접힌 채로 보내도 값은 그대로 갑니다. -->
+      <label for="dok-mrp-detail">무엇을 보셨나요?</label>
+      <textarea id="dok-mrp-detail" data-f="detail" placeholder="사업 이름은 몰라도 됩니다. 어디에 무엇이 있고 왜 이상한지 보신 대로 적어주세요."></textarea>
 
-      <label for="dok-mrp-sido">지역</label>
-      <select id="dok-mrp-sido" data-f="sido">
-        <option value="">지역을 고르세요 (중앙부처면 비워두세요)</option>
-      </select>
-      <label for="dok-mrp-region">기관·세부 지역</label>
-      <input type="text" id="dok-mrp-region" data-f="region" placeholder="예: ○○구청, 행정안전부 등">
-      
-
-      <label class="dok-photo-label">사진 (선택 — 3장까지)</label>
+      <label class="dok-photo-label" for="dok-mrp-photos">사진 (선택 · 3장까지)</label>
       <div class="dok-photo-box">
         <label class="dok-photo-pick" for="dok-mrp-photos">
           <span class="dok-photo-icon" aria-hidden="true">＋</span>
           <span>사진 고르기</span>
-          <span class="dok-photo-hint">찍어둔 사진이 있으면 글보다 확실합니다</span>
         </label>
         <input type="file" id="dok-mrp-photos" data-f="photos" accept="image/*" multiple hidden>
         <div class="dok-photo-list" data-f="photolist"></div>
-        <p class="dok-photo-warn">
-          사람 얼굴이나 차량 번호가 찍힌 사진은 피해주세요. 사진은 공개되지 않고
-          예산감시 활동 확인용으로만 씁니다.
-        </p>
+        <p class="dok-photo-warn">사람 얼굴·차량 번호가 찍힌 사진은 피해주세요. 사진은 공개하지 않습니다.</p>
       </div>
 
-      <label for="dok-mrp-email">회신 받을 이메일 (선택 — 추첨 당첨 안내도 이 주소로 갑니다)</label>
-      <input type="email" id="dok-mrp-email" data-f="email" placeholder="확인 후 진행 상황을 알려드립니다">
+      <div class="dok-more-head">
+        <button type="button" class="dok-more-btn" data-f="morebtn" aria-expanded="false">＋ 지역 · 기관 · 회신 이메일 더 적기</button>
+        <span class="dok-more-hint">모르면 안 적어도 됩니다</span>
+      </div>
+      <div class="dok-more" data-f="more" hidden>
+        <label for="dok-mrp-sido">지역</label>
+        <div class="dok-report-row">
+          <select id="dok-mrp-sido" data-f="sido">
+            <option value="">시·도 (중앙부처면 비워두세요)</option>
+          </select>
+          <input type="text" id="dok-mrp-region" data-f="region" placeholder="○○구청 · 행정안전부 등">
+        </div>
+        <label for="dok-mrp-email">회신 이메일 (선택)</label>
+        <input type="email" id="dok-mrp-email" data-f="email" placeholder="확인 후 진행 상황을 알려드립니다">
+      </div>
 
       <div class="dok-hp" aria-hidden="true">
         <label for="dok-mrp-website">이 칸은 비워두세요</label>
@@ -1435,11 +1673,7 @@ html { scroll-behavior: smooth; }
       <button type="submit" class="dok-report-submit" data-f="submit">제보 보내기</button>
       <p class="dok-report-done" data-f="done">제보가 접수되었습니다. 소중한 제보 감사합니다.</p>
       <p class="dok-report-error" data-f="error" role="alert"></p>
-      <p class="dok-report-note">
-        🎟️ 제보하신 분들 중 추첨을 통해 5분에게 후원의 밤 초대권을 드립니다.
-        제보 내용은 예산감시 활동 목적으로만 쓰이며 제보자 정보는 공개되지 않습니다.
-        자세한 내용은 <a href="privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a>을 확인해 주세요.
-      </p>
+      <p class="dok-report-note">제보는 예산감시 목적으로만 쓰고 제보자 정보는 공개하지 않습니다. <a href="privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a></p>
     </form>
   </div>
 </dialog>
@@ -1535,7 +1769,6 @@ html { scroll-behavior: smooth; }
   <div class="dok-fold-body" id="dok-vote-fold-body">
 <div class="dok-vote" id="dok-vote">
   <div class="dok-section">
-    <div class="dok-section-tag">VOTE</div>
     <h2>제41회 밑빠진 독상,<br>어떤 사업이 받아야 할까요?</h2>
     <!-- ⚠️ 아래 후보는 전부 예시(더미) 데이터입니다. 실제 후보 확정 시 교체 -->
     <span class="dok-vote-notice">아래 후보는 예시 데이터입니다 — 실제 후보 확정 후 교체 예정</span>
@@ -1589,12 +1822,7 @@ html { scroll-behavior: smooth; }
 </div>
 
 <section class="dok-section" id="dok-map">
-  <div class="dok-section-tag">MAP</div>
   <h2>우리 동네 밑빠진 독</h2>
-  <p class="dok-lead">
-    밑빠진 독상이 어디에 수여됐는지, 지금 어느 지역에서 제보가 들어오고 있는지
-    지도에서 확인하세요. 지도나 아래 목록에서 지역을 누르면 그곳의 기록이 보입니다.
-  </p>
 
   <div class="dok-map-modes">
     <button type="button" class="dok-map-mode" data-mode="awards" aria-pressed="true">밑빠진 독상</button>
@@ -1618,13 +1846,7 @@ html { scroll-behavior: smooth; }
 
 
 <section class="dok-section" id="dok-history">
-  <div class="dok-section-tag">HISTORY</div>
   <h2>밑빠진 독상이 지목해온 것들</h2>
-  <p class="dok-lead">
-    2000년 8월 제1회부터 2025년 3월 제40회까지, 중앙정부·지자체·공공기관을 가리지 않고
-    예산낭비 사례를 기록해 왔습니다. 수상에 그치지 않고 사업 중단, 주민소송, 법령·조례 개정으로
-    이어지는 후속 활동을 함께 진행합니다.
-  </p>
 
   <!-- ── 활동가·후원자 이야기 ──
        수상 목록은 아래 전체 표와 지도에 이미 두 번 나오므로, 이 자리는
@@ -1804,52 +2026,54 @@ html { scroll-behavior: smooth; }
 
 <div class="dok-report" id="dok-report">
   <div class="dok-section">
-    <div class="dok-section-tag">REPORT</div>
     <h2>당신의 제보가<br>제41회 밑빠진 독상이 됩니다</h2>
     <p class="dok-lead">
-      제40회 밑빠진 독상 후보였던 영월 봉래산 명소화 사업도 회원의 제보에서 시작되었습니다.
-      우리 동네에서 새고 있는 세금, 알려주세요.
+      함께하는 시민행동은 당신이 좌절했던 예산 문제, 당신이 분노하며 바로본
+      예산 낭비 사례를 함께 추적하고 대안을 찾습니다.
     </p>
 
+    <!-- ⚠️ 화면에 보이는 것은 아래 큰 버튼 하나입니다. 누르면 제보 팝업이 열립니다
+         (지도의 '이 지역 제보하기'가 쓰는 그 팝업입니다 — 폼은 한 벌뿐입니다).
+         2026-09-02 사용자 결정: 폼을 펼쳐 두니 넓은 화면에서 '제보하기'가
+         스크롤해야 보였습니다. -->
+    <button type="button" class="dok-report-open" id="dok-report-open">제보하기 →</button>
 
-    <!-- 마감. wrangler.toml 의 REPORT_DEADLINE 과 같은 날짜로 맞춰 주세요.
-         화면에 박혀 있는 값이라 차수가 바뀌면 여기도 고쳐야 합니다. -->
-    <p class="dok-deadline" id="dok-deadline"
-       data-date="2026-09-15" data-label="하반기 1차 제보 마감"></p>
+    <!-- 2026-09-02 사용자 지시로 마감 안내와 후원의 밤 추첨을 뺐습니다.
+         · 마감: 실제로는 상시 접수라 마감이 없습니다.
+         · 추첨: 나중에 할 서비스입니다.
+         되살리려면 git 에서 이 커밋 이전 판을 보세요. wrangler.toml 의
+         REPORT_DEADLINE 값은 건드리지 않았습니다. -->
 
-    <p class="dok-report-gift">
-      🎟️ 제보하신 분들 중 추첨을 통해서 <b>5분</b>에게
-      함께하는 시민행동 <b>후원의 밤 초대권</b>을 드립니다.
-    </p>
 
-    <form class="dok-report-form" id="dok-report-form">
-      <label for="dok-rp-detail">무엇을 보셨나요? <span class="dok-or">내용이나 사진 중 하나는 꼭 필요합니다</span></label>
-      <textarea id="dok-rp-detail" data-f="detail" placeholder="사업 이름은 몰라도 됩니다. 어디에 무엇이 있고 왜 이상한지, 보신 대로 적어주세요. 예: 우리 동네 하천에 다리를 새로 놨는데 건너편에 아무것도 없어서 아무도 안 다닙니다."></textarea>
+    <!-- ── 대비책 폼 ──
+         <dialog> 를 모르는 브라우저에서는 팝업이 안 열립니다. 그때 이 폼이
+         제자리에서 펼쳐집니다(openReportModal 을 보세요). 평소에는 숨어 있습니다.
+         칸 구성은 팝업 폼과 같습니다. -->
+    <form class="dok-report-form" id="dok-report-form" hidden>
+      <label for="dok-rp-detail">무엇을 보셨나요?</label>
+      <textarea id="dok-rp-detail" data-f="detail" placeholder="사업 이름은 몰라도 됩니다. 어디에 무엇이 있고 왜 이상한지 보신 대로 적어주세요."></textarea>
 
+      <!-- 지역 두 칸은 넓은 화면에서 한 줄에 놓습니다. -->
       <label for="dok-rp-sido">지역</label>
-      <select id="dok-rp-sido" data-f="sido">
-        <option value="">지역을 고르세요 (중앙부처면 비워두세요)</option>
-      </select>
-      <label for="dok-rp-region">기관·세부 지역</label>
-      <input type="text" id="dok-rp-region" data-f="region" placeholder="예: ○○구청, 행정안전부 등">
-      
+      <div class="dok-report-row">
+        <select id="dok-rp-sido" data-f="sido">
+          <option value="">시·도 (중앙부처면 비워두세요)</option>
+        </select>
+        <input type="text" id="dok-rp-region" data-f="region" placeholder="○○구청 · 행정안전부 등">
+      </div>
 
-      <label class="dok-photo-label">사진 (선택 — 3장까지)</label>
+      <label class="dok-photo-label" for="dok-rp-photos">사진 (선택 · 3장까지)</label>
       <div class="dok-photo-box">
         <label class="dok-photo-pick" for="dok-rp-photos">
           <span class="dok-photo-icon" aria-hidden="true">＋</span>
           <span>사진 고르기</span>
-          <span class="dok-photo-hint">찍어둔 사진이 있으면 글보다 확실합니다</span>
         </label>
         <input type="file" id="dok-rp-photos" data-f="photos" accept="image/*" multiple hidden>
         <div class="dok-photo-list" data-f="photolist"></div>
-        <p class="dok-photo-warn">
-          사람 얼굴이나 차량 번호가 찍힌 사진은 피해주세요. 사진은 공개되지 않고
-          예산감시 활동 확인용으로만 씁니다.
-        </p>
+        <p class="dok-photo-warn">사람 얼굴·차량 번호가 찍힌 사진은 피해주세요. 사진은 공개하지 않습니다.</p>
       </div>
 
-      <label for="dok-rp-email">회신 받을 이메일 (선택 — 추첨 당첨 안내도 이 주소로 갑니다)</label>
+      <label for="dok-rp-email">회신 이메일 (선택)</label>
       <input type="email" id="dok-rp-email" data-f="email" placeholder="확인 후 진행 상황을 알려드립니다">
 
       <!-- 봇 잡이. 사람에게는 보이지 않는 칸이라 채워져 오면 봇으로 본다. -->
@@ -1861,7 +2085,7 @@ html { scroll-behavior: smooth; }
       <button type="submit" class="dok-report-submit" id="dok-report-submit" data-f="submit">제보 보내기</button>
       <p class="dok-report-done" id="dok-report-done" data-f="done">제보가 접수되었습니다. 소중한 제보 감사합니다.</p>
       <p class="dok-report-error" id="dok-report-error" data-f="error" role="alert"></p>
-      <p class="dok-report-note">제보 내용은 예산감시 활동 목적으로만 사용되며, 제보자 정보는 공개되지 않습니다. 자세한 내용은 <a href="privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a>을 확인해 주세요.</p>
+      <p class="dok-report-note">제보는 예산감시 목적으로만 쓰고 제보자 정보는 공개하지 않습니다. <a href="privacy.html" target="_blank" rel="noopener">개인정보 처리방침</a></p>
     </form>
 
     <!-- ── 이렇게 제보가 쓰입니다 ──
@@ -1894,28 +2118,218 @@ html { scroll-behavior: smooth; }
   </div>
 </div>
 
-<section class="dok-bottom-cta">
-  <h2>이 감시가 계속되도록</h2>
-  <p>밑빠진 독상은 정부·기업 지원 없이 시민의 후원으로 26년째 이어지고 있습니다.</p>
-  <a class="dok-btn-donate" href="https://action.or.kr" target="_blank" rel="noopener">후원으로 함께하기 →</a>
-</section>
+<!-- ── 맨 아래 ──
+     2026-09-02 사용자 지시로 홈페이지(action.or.kr) 공통 하단과 같은 것으로 바꿨습니다.
+     여기 있던 '이 감시가 계속되도록' 후원 칸과 한 줄짜리 푸터는 아래 후원 띠와
+     푸터가 대신합니다.
+     ⚠️ 아래 덩이는 tools/port-footer.py 가 개편 저장소의
+        tools/parts/footer.html 을 읽어 채웁니다. 손으로 고치면 다음에 구울 때
+        사라집니다. 하단을 고칠 일이 있으면 그 원본을 고치고 다시 도세요. -->
+<!-- DOK:FOOTER START — tools/port-footer.py 가 채웁니다. 손으로 고치지 마세요. -->
+<!-- ═══════════════════════════════════════════════════════════════════
+     캠페이너스 공통 맨 아래 — 후원 띠 + 푸터
 
-<footer>
-  <div class="dok-footer-inner">
+     ★ 이 파일 전체를 캠페이너스 코드 위젯 하나에 붙이고, 그 위젯이 든 섹션을
+        '섹션 반복'으로 설정합니다. 그러면 모든 페이지 하단에 한 번씩 나타납니다.
+     ★ 각 페이지의 index.html · activity-*.html 등에 이 코드를 다시 넣지 마세요.
+        페이지 코드와 반복 하단에 둘 다 있으면 같은 하단이 두 번 보입니다.
+     ★ 하단을 고칠 때는 이 파일과 캠페이너스 반복 섹션 한 곳만 고칩니다.
+
+     2026-08-31 신설. 사용자 지시:
+       · 활동의 '알려 주실 것이 있나요' 칸은 의미가 없어 삭제
+       · 그 자리에 홈 맨 아래 화면을 그대로 넣어 통일
+       · 그 위에 후원하기 알약과 띠를 둔다
+
+     범위가 #ah-foot 으로 따로인 이유:
+       화면마다 뿌리 이름이 달라(#act, #iss, #lib, #pb) 뿌리에 기대면 CSS 가
+       안 먹습니다. 그래서 색·글꼴을 자기 안에 다시 정의합니다.
+       값은 DESIGN.md 와 같습니다 — 홈(#action-home-v2)의 푸터와 한 글자도 다르지 않습니다.
+
+     2026-09-01 사용자 결정: 하단은 페이지별 코드에서 완전히 분리합니다.
+     로컬·GitHub 검토본은 preview.py · build-static.py 가 이 파일을 화면 끝에 붙이고,
+     실제 캠페이너스는 반복 섹션이 붙입니다.
+     ═══════════════════════════════════════════════════════════════════ -->
+<style>
+
+  #ah-foot,#ah-foot *{box-sizing:border-box}
+  #ah-foot{
+    --brand:#00afec;          /* 시민행동 하늘색 */
+    --brand-deep:#0087b8;     /* 흰 바탕 위 글자에 쓰는 진한 쪽 */
+    --ink:#0d1c26;--ink-soft:#47606f;--line:#dde7ec;
+
+    /* 캠페이너스에서는 좁은 칸을 비집고 나오려고 음수 여백을 썼지만,
+       이 사이트는 문서 폭이 이미 전체라 그냥 두면 가로 스크롤만 생깁니다. */
+
+    background:#fff;color:var(--ink);line-height:1.6;
+    font-family:'Pretendard Variable',Pretendard,'Noto Sans KR',-apple-system,sans-serif;
+    word-break:keep-all;-webkit-font-smoothing:antialiased
+  }
+  #ah-foot a{color:inherit;text-decoration:none}
+  #ah-foot h2,#ah-foot h3,#ah-foot p{margin:0}
+  #ah-foot .wrap{width:min(1120px,calc(100% - 48px));margin:0 auto}
+
+  /* ───────── 후원 띠 ─────────
+     홈의 CTA 와 같은 부품입니다(브랜드 색 바탕 + 흰 알약). 홈은 두 칸이지만
+     여기는 한 칸으로 길게 놓습니다 — 활동 화면 맨 아래는 갈래가 하나뿐입니다. */
+  #ah-foot .give{background:var(--brand);color:#fff}
+  #ah-foot .give-in{
+    display:flex;align-items:center;justify-content:space-between;gap:clamp(20px,3vw,48px);
+    flex-wrap:wrap;padding:clamp(36px,4.4vw,60px) 0
+  }
+  #ah-foot .give h2{
+    font-family:GmarketSans,sans-serif;font-weight:700;color:#fff;
+    font-size:clamp(20px,2.2vw,31px);line-height:1.35;letter-spacing:-.02em
+  }
+  #ah-foot .give p{margin-top:10px;font-size:14.5px;color:rgba(255,255,255,.9)}
+  #ah-foot .give a{
+    flex:none;background:#fff;color:var(--ink);border-radius:999px;
+    padding:15px 30px;font-weight:700;font-size:16px;transition:transform .15s
+  }
+  #ah-foot .give a:hover{transform:translateY(-2px)}
+
+  /* ───────── 푸터 ─────────
+     레퍼런스: 서울환경연합 — 왼쪽에 단체 정보, 오른쪽에 세로 버튼 목록 두 줄,
+     맨 아래 약관 작은 버튼. 홈의 것을 그대로 옮긴 것입니다. */
+  #ah-foot .ft{border-top:4px solid var(--brand);padding:clamp(40px,4.5vw,64px) 0 30px;font-size:14px;color:var(--ink-soft)}
+  #ah-foot .ft-grid{display:grid;grid-template-columns:minmax(0,1.6fr) repeat(2,minmax(0,.7fr));gap:clamp(28px,4vw,64px)}
+  #ah-foot .ft-brand{font-size:18px;font-weight:800;color:var(--ink);margin-bottom:20px}
+  /* 항목 이름과 값을 두 칸으로 맞춰 세우는 부분입니다. */
+  #ah-foot .ft-org dl{display:grid;grid-template-columns:auto 1fr;gap:8px 20px;margin:0}
+  #ah-foot .ft-org dt{font-weight:700;color:var(--ink);white-space:nowrap}
+  #ah-foot .ft-org dd{margin:0;line-height:1.6}
+  #ah-foot .ft-org a:hover{color:var(--brand-deep)}
+  #ah-foot .ft-col h3{font-size:15px;font-weight:800;color:var(--ink);margin-bottom:14px}
+  /* 테두리가 겹쳐 한 줄로 보이도록 아래쪽 여백을 -1px 줍니다. */
+  #ah-foot .ft-btns{display:grid}
+  #ah-foot .ft-btns a{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    border:1px solid var(--line);margin-bottom:-1px;padding:12px 16px;
+    font-size:14px;font-weight:700;color:var(--ink);background:#fff
+  }
+  #ah-foot .ft-btns a:hover{border-color:var(--brand);color:var(--brand-deep);position:relative;z-index:1}
+  /* 오른쪽 아이콘. 글꼴 문자(N · f · X …)로 그리면 기기마다 다른 글꼴이 잡혀
+     모양·굵기가 제각각이고, 없는 글꼴이면 네모로 깨집니다. 그래서 SVG 를
+     여기에 직접 그려 넣습니다 — 바깥 파일도, 아이콘 글꼴도 부르지 않습니다.
+     색은 currentColor 라 아래 hover 규칙 하나로 글자와 함께 따라 변합니다. */
+  /* 산하 센터는 이름 대신 로고를 넣습니다 — 로고 안에 이미 이름이 있어
+     글자를 같이 두면 한 줄에 이름이 두 번 나옵니다. 그림이 안 뜨면 alt 의
+     센터 이름이 그대로 보입니다. 주소는 지금 홈페이지가 쓰는 그 파일입니다
+     (https 라 섞임 경고가 뜨지 않습니다). 세 로고는 비율이 서로 달라
+     높이만 맞추면 가로가 긴 것만 커 보입니다. 높이와 폭에 각각 한계를 줘
+     넣은 네모 안에 알아서 들어가게 합니다. */
+  #ah-foot .ft-btns .ft-logo{flex:none;display:block;height:auto;width:auto;
+    max-height:34px;max-width:118px}
+  /* ⚠️ 캠페이너스 미리보기에서 로고 둘레에 노란 바탕이 깔렸습니다(2026-09-02).
+     imweb 쪽 전역 CSS 가 img 에 바탕색을 주는 것입니다 — 로고 파일이 투명한
+     PNG 라 그 색이 글자 사이로 그대로 비칩니다. 우리 코드에는 그런 규칙이
+     없으므로, 남의 규칙을 덮는 것 말고는 방법이 없어 !important 를 씁니다
+     (공통 상단이 #doz_header 를 숨길 때 쓰는 것과 같은 이유입니다).
+     테두리·그림자·여백까지 같이 지웁니다 — 무엇을 입혔는지 볼 수 없어서입니다. */
+  #ah-foot .ft-btns a .ft-logo,
+  #ah-foot .ft-btns a img{
+    background:none!important;background-color:transparent!important;
+    border:0!important;outline:0!important;box-shadow:none!important;
+    padding:0!important;border-radius:0!important;filter:none!important
+  }
+  /* 배지·말풍선을 가짜 요소로 붙이는 경우도 있어 함께 막습니다. */
+  #ah-foot .ft-btns a .ft-logo::before,
+  #ah-foot .ft-btns a .ft-logo::after{content:none!important;display:none!important}
+  #ah-foot .ft-btns .mark{flex:none;display:flex;align-items:center;color:var(--ink-soft)}
+  #ah-foot .ft-btns .mark svg{width:17px;height:17px;display:block;fill:currentColor}
+  #ah-foot .ft-btns a:hover .mark{color:var(--brand-deep)}
+  #ah-foot .ft-policy{display:flex;flex-wrap:wrap;gap:6px;margin-top:22px}
+  #ah-foot .ft-policy a{border:1px solid var(--line);padding:7px 12px;font-size:12.5px;font-weight:700;color:var(--ink-soft)}
+  #ah-foot .ft-policy a:hover{border-color:var(--brand);color:var(--brand-deep)}
+  #ah-foot .ft-copy{margin-top:clamp(30px,3.5vw,48px);font-size:13px}
+
+  @media(max-width:1100px){
+    #ah-foot .ft-grid{grid-template-columns:1fr 1fr}
+    #ah-foot .ft-org{grid-column:1/-1}
+  }
+  @media(max-width:820px){
+    #ah-foot .wrap{width:min(100% - 36px,1120px)}
+    #ah-foot .give-in{padding:clamp(30px,4vw,44px) 0}
+    #ah-foot .ft-grid{grid-template-columns:1fr}
+    #ah-foot .ft-org dl{grid-template-columns:1fr}
+    #ah-foot .ft-org dt{margin-top:6px}
+    /* 오른쪽 아래 떠 있는 후원 버튼에 가리지 않게 아래를 비웁니다. */
+    #ah-foot .ft{padding-bottom:104px}
+  }
+  @media(max-width:430px){
+    #ah-foot .wrap{width:min(100% - 28px,1120px)}
+    #ah-foot .give a{width:100%;text-align:center}
+  }
+</style>
+
+<div id="ah-foot">
+
+  <!-- ───────── 후원 띠 ───────── -->
+  <section class="give"><div class="wrap"><div class="give-in">
     <div>
-      <strong>함께하는 시민행동</strong> ·
-      <a href="https://action.or.kr" target="_blank" rel="noopener">action.or.kr</a>
+      <h2>당신이 낸 세금, 누가 지켜보고 있을까요?</h2>
+      <p>시민행동은 정부와 기업의 돈을 감시합니다. 그 일은 시민의 후원으로만 굴러갑니다.</p>
     </div>
-    <div><a href="privacy.html">개인정보 처리방침</a> · © 2026</div>
-  </div>
-</footer>
+    <a href="https://mrmweb.hsit.co.kr/v2/Member/MemberJoin.aspx?action=join&amp;server=GdGrmt6XtgAAdxPdh65AQQ==" target="_blank" rel="noopener">후원으로 함께하기 →</a>
+  </div></div></section>
+
+  <!-- ───────── 푸터 ───────── -->
+  <footer class="ft"><div class="wrap">
+    <div class="ft-grid">
+
+      <div class="ft-org">
+        <div class="ft-brand">함께하는 시민행동</div>
+        <dl>
+          <dt>대표</dt><dd>김주일</dd>
+          <dt>고유번호</dt><dd>101-82-60646</dd>
+          <dt>주소</dt><dd>(03969) 서울 마포구 월드컵로26길 39 시민공간 나루 5층</dd>
+          <dt>전화</dt><dd><a href="tel:02-921-4709">02-921-4709</a></dd>
+          <dt>이메일</dt><dd><a href="mailto:action@action.or.kr">action@action.or.kr</a></dd>
+          <dt>후원계좌</dt><dd>신한 325-01-167213</dd>
+        </dl>
+      </div>
+
+      <div class="ft-col">
+        <h3>소셜미디어</h3>
+        <div class="ft-btns">
+          <a href="https://blog.naver.com/together_action" target="_blank" rel="noopener">네이버 블로그 <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect width="24" height="24" rx="4"/><path fill="#fff" d="M7.4 6.9h3.5l2.8 4.4V6.9h3.1v10.2h-3.5l-2.8-4.4v4.4H7.4Z"/></svg></span></a>
+          <a href="https://www.youtube.com/user/actionCANvideo" target="_blank" rel="noopener">유튜브 <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect x="1" y="4" width="22" height="16" rx="5"/><path fill="#fff" d="M10 8.4 16.2 12 10 15.6Z"/></svg></span></a>
+          <a href="https://www.instagram.com/action.together.1999/" target="_blank" rel="noopener">인스타그램 <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect width="24" height="24" rx="6"/><circle cx="12" cy="12" r="4.1" fill="none" stroke="#fff" stroke-width="2"/><circle cx="17.5" cy="6.5" r="1.4" fill="#fff"/></svg></span></a>
+          <a href="https://www.facebook.com/withAction/" target="_blank" rel="noopener">페이스북 <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><circle cx="12" cy="12" r="10"/><path fill="#fff" d="M13.6 20.6V12.9h2.5l.4-3h-2.9V7.9c0-.8.3-1.2 1.4-1.2h1.6V3.9h-2.5c-2.7 0-3.7 1.6-3.7 3.8v2.2H8.2v3h2.2v7.7Z"/></svg></span></a>
+          <a href="https://twitter.com/actioncan" target="_blank" rel="noopener">트위터 <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false"><rect width="24" height="24" rx="5"/><path fill="#fff" d="M6.4 5.2 10.9 11 6.1 18.8h2l3.7-6 4.2 6h4.2l-4.9-6.9 4.7-6.7h-2.1l-3.5 5.1-3.8-5.1Z"/></svg></span></a>
+        </div>
+      </div>
+
+      <!-- ⚠️ 좋은기업센터는 화면에 적힌 주소(csr.action.or.kr)와 실제 연결되는 주소
+           (csrcenter.cafe24.com)가 다릅니다. 현재 홈에 걸린 링크를 그대로 가져온 것이라
+           어느 쪽이 맞는지 확인이 필요합니다. -->
+      <div class="ft-col">
+        <h3>관련 페이지</h3>
+        <div class="ft-btns">
+          <a href="http://www.goodbudget.kr" target="_blank" rel="noopener"><img class="ft-logo" src="https://cdn.imweb.me/thumbnail/20230216/c6bdf8489c62b.jpeg" alt="좋은예산센터" loading="lazy" decoding="async"> <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V7A1.5 1.5 0 0 1 6 5.5h5.5"/><path d="M15 3.5h5.5V9"/><path d="M11.2 12.8 20.2 3.8"/></svg></span></a>
+          <a href="http://csrcenter.cafe24.com" target="_blank" rel="noopener"><img class="ft-logo" src="https://cdn.imweb.me/thumbnail/20230216/3a2115a51c49e.jpg" alt="좋은기업센터" loading="lazy" decoding="async"> <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V7A1.5 1.5 0 0 1 6 5.5h5.5"/><path d="M15 3.5h5.5V9"/><path d="M11.2 12.8 20.2 3.8"/></svg></span></a>
+          <a href="http://www.privacy.or.kr" target="_blank" rel="noopener"><img class="ft-logo" src="https://cdn.imweb.me/thumbnail/20230216/d3611c220acbd.png" alt="정보인권센터" loading="lazy" decoding="async"> <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V7A1.5 1.5 0 0 1 6 5.5h5.5"/><path d="M15 3.5h5.5V9"/><path d="M11.2 12.8 20.2 3.8"/></svg></span></a>
+          <a href="https://donate.action.or.kr/" target="_blank" rel="noopener">후원 안내 <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V7A1.5 1.5 0 0 1 6 5.5h5.5"/><path d="M15 3.5h5.5V9"/><path d="M11.2 12.8 20.2 3.8"/></svg></span></a>
+        </div>
+        <div class="ft-policy">
+          <a href="https://action.or.kr/34">이용약관</a>
+          <a href="https://action.or.kr/37">단체 규약</a>
+          <a href="privacy.html">개인정보처리방침</a>
+        </div>
+      </div>
+
+    </div>
+    <div class="ft-copy">© 함께하는 시민행동. All Rights Reserved.</div>
+  </div></footer>
+
+</div>
+<!-- DOK:FOOTER END -->
 
 
 <!-- 따라다니는 후원 바. 히어로를 지나야 올라오고, 닫으면 이 방문 동안은 안 뜬다. -->
 <div class="dok-donate-bar" id="dok-donate-bar">
   <span class="dok-donate-text">
-    <span class="dok-donate-long">밑빠진 독상은 <b>정부·기업 지원 없이</b> 시민 후원으로 26년째 이어집니다</span>
-    <span class="dok-donate-short">시민 후원으로 <b>26년째</b></span>
+    <span class="dok-donate-long">밑빠진 독상은 <b>정부·기업 지원 없이</b> 시민 후원으로 27년째 이어집니다</span>
+    <span class="dok-donate-short">시민 후원으로 <b>27년째</b></span>
   </span>
   <a class="dok-donate-btn" href="https://action.or.kr" target="_blank" rel="noopener" id="dok-donate-btn">
     후원으로 함께하기
@@ -1966,8 +2380,8 @@ const DOK_INTAKE_OFF_MSG = '접수 창구를 준비하고 있습니다. 곧 열�
   const hide = (el) => { if (el) el.style.display = 'none'; };
 
   if (!DOK_SHOW_SAMPLE) {
-    // 첫 화면 지표 가운데 칸 — 확인 안 된 '1,000억 원'
-    hide(document.querySelector('.dok-stat-item.is-lead'));
+    // 첫 화면 지표 가운데 칸은 2026-09-02 에 실제 값(들여다본 예산 17.6조)으로
+    // 바뀌었습니다. 더 이상 감추지 않습니다 — 근거는 그 칸 위 주석에 있습니다.
     // 투표(예시 후보 5건)는 접힌 채로도 펼치면 보이므로 통째로 감춥니다
     hide(document.getElementById('dok-vote-fold'));
     // '이렇게 제보가 쓰입니다' 예시 제보
@@ -2154,6 +2568,24 @@ items.forEach(item => {
     });
   }
 
+  /* 「월간 좋은예산」이 다룬 사례. 수상작과 성격이 달라 목록을 따로 둡니다
+     (수상 기록에 섞으면 '몇 회 수상'이 흐려집니다). 자료를 못 읽었으면 빈 문자열. */
+  function caseList(code) {
+    const cs = window.dokCasesOf ? window.dokCasesOf(code) : [];
+    if (!cs.length) return '';
+    return '<div class="dok-map-cases">' +
+      '<div class="dok-map-cases-t">월간 좋은예산이 다룬 사례</div>' +
+      '<ul class="dok-map-list dok-map-list-case">' + cs.map((c) =>
+        `<li data-case="${esc(c.id)}" tabindex="0">
+          <div class="dok-map-round">${esc(c.ym.replace('-', '. '))}</div>
+          <div class="dok-map-proj">${esc(c.title)}</div>
+          <div class="dok-map-who">${esc(c.who || '')}</div>
+        </li>`).join('') + '</ul></div>';
+  }
+
+  // 사례 파일이 지도보다 늦게 도착하면 옆 칸을 다시 그립니다.
+  window.addEventListener('dok:cases', () => { renderSide(); renderOffmap(); });
+
   function renderSide() {
     if (!selected) {
       const totalAwards = awards.filter((a) => a.scope === 'local').length;
@@ -2164,7 +2596,8 @@ items.forEach(item => {
           `<div class="dok-map-stat"><b>${totalAwards}</b><span>지역에 수여된 독상</span></div>` +
           `<div class="dok-map-stat"><b>${Object.values(reportCounts).reduce((x, y) => x + y, 0)}</b><span>시민 제보</span></div>` +
         '</div>' +
-        '<button type="button" class="dok-map-report-cta">예산낭비 제보하기 →</button>';
+        '<button type="button" class="dok-map-report-cta">예산낭비 제보하기 →</button>' +
+        caseList('');
 
       const cta0 = side.querySelector('.dok-map-report-cta');
       if (cta0) cta0.addEventListener('click', () => {
@@ -2188,12 +2621,13 @@ items.forEach(item => {
       '</div>' +
       (list.length
         ? '<ul class="dok-map-list">' + list.map((a) =>
-            `<li>
+            `<li data-round="${a.round}" tabindex="0">
               <div class="dok-map-round">제${a.round}회 · ${esc(a.date)}</div>
               <div class="dok-map-proj">${esc(a.project)}</div>
               <div class="dok-map-who">${esc(a.awardee)}</div>
             </li>`).join('') + '</ul>'
         : '<p class="dok-map-none">아직 이 지역에 수여된 밑빠진 독상은 없습니다. 새고 있는 예산을 알고 계신가요?</p>') +
+      caseList(selected) +
       `<button type="button" class="dok-map-report-cta">이 지역 예산낭비 제보하기 →</button>`;
 
     wirePanelBar();
@@ -2658,6 +3092,20 @@ items.forEach(item => {
 function setupReportForm(form) {
   if (!form) return;
   const f = (name) => form.querySelector(`[data-f="${name}"]`);
+
+  // '더 적기' — 지역·기관·이메일을 접어 둔다. 접힌 채로 보내도 값은 그대로 간다
+  // (hidden 은 보이지 않게만 할 뿐 disabled 가 아니다).
+  const moreBtn = f('morebtn'), moreBox = f('more');
+  if (moreBtn && moreBox) {
+    moreBtn.addEventListener('click', () => {
+      const open = moreBox.hidden;
+      moreBox.hidden = !open;
+      moreBtn.setAttribute('aria-expanded', String(open));
+      moreBtn.textContent = open
+        ? '− 지역 · 기관 · 회신 이메일 접기'
+        : '＋ 지역 · 기관 · 회신 이메일 더 적기';
+    });
+  }
   const btn = f('submit'), done = f('done'), error = f('error');
 
   // ── 사진 고르기 ──
@@ -2786,12 +3234,28 @@ function setupReportForm(form) {
 setupReportForm(document.getElementById('dok-report-form'));
 setupReportForm(document.getElementById('dok-report-form-modal'));
 
+// 섹션의 큰 '제보하기' 버튼. 지역을 고르지 않은 채로 팝업을 연다.
+(function () {
+  const open = document.getElementById('dok-report-open');
+  if (open) open.addEventListener('click', () => {
+    track('report_open', { from: 'section' });
+    openReportModal('', '');
+  });
+})();
+
 // ── 제보 팝업 열고 닫기 ──
 const reportModal = document.getElementById('dok-report-modal');
 let reportModalLastFocus = null;
 
 function openReportModal(sidoCode, sidoName) {
-  if (!reportModal || !reportModal.showModal) {   // <dialog>를 모르는 브라우저
+  if (!reportModal || !reportModal.showModal) {
+    // <dialog> 를 모르는 브라우저. 섹션에 숨겨 둔 대비책 폼을 제자리에서 펼친다.
+    const inline = document.getElementById('dok-report-form');
+    if (inline) {
+      inline.hidden = false;
+      const sel = inline.querySelector('[data-f="sido"]');
+      if (sel) sel.value = sidoCode || '';
+    }
     location.hash = '#dok-report';
     return;
   }
@@ -2856,34 +3320,8 @@ if (reportModal) {
 })();
 
 // ── 제보 마감 안내 ──
-// 제보는 상시로 받습니다. 이 날짜는 "이번 차수로 묶이는 마지막 날"입니다.
-(function () {
-  const el = document.getElementById('dok-deadline');
-  if (!el) return;
-
-  const label = el.dataset.label || '제보 마감';
-  const end = new Date(el.dataset.date + 'T23:59:59+09:00');
-  const now = new Date();
-  const days = Math.ceil((end - now) / 86400000);
-
-  const fmt = `${end.getMonth() + 1}월 ${end.getDate()}일`;
-
-  if (days > 0) {
-    el.innerHTML =
-      `<span class="dok-dday">D-${days}</span>` +
-      `<span><b>${label}</b>까지 ${fmt}. 이후에 주신 제보는 다음 차수로 넘어갑니다.</span>`;
-  } else {
-    el.innerHTML =
-      `<span><b>${label}</b>은 지났습니다. 제보는 계속 받고 있고, 지금 주시는 제보는 다음 차수에 반영됩니다.</span>`;
-  }
-
-  const m = document.getElementById('dok-deadline-modal');
-  if (m) {
-    m.textContent = days > 0
-      ? `${label}까지 D-${days} (${fmt})`
-      : `${label}은 지났습니다 — 다음 차수로 반영됩니다`;
-  }
-})();
+// 2026-09-02 사용자 지시로 걷어냈습니다. 상시 접수라 마감이 없습니다.
+// (D-day 를 세고 팝업 머리에도 적던 코드가 여기 있었습니다.)
 
 // ── 지표 숫자 올리기 ──
 // 화면에 들어왔을 때 한 번만 0에서 목표까지 올린다.
@@ -2892,11 +3330,16 @@ if (reportModal) {
   if (!nums.length) return;
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const fmt = (n) => n.toLocaleString('ko-KR');
+  // data-dec="1" 을 붙이면 소수점 한 자리까지 셉니다(17.6조 처럼).
+  // 없으면 예전처럼 정수입니다.
+  const fmt = (n, dec) => n.toLocaleString('ko-KR', {
+    minimumFractionDigits: dec, maximumFractionDigits: dec
+  });
 
   function run(el) {
     const to = Number(el.dataset.to || 0);
-    if (reduced) { el.textContent = fmt(to); return; }
+    const dec = Number(el.dataset.dec || 0);
+    if (reduced) { el.textContent = fmt(to, dec); return; }
 
     const dur = 1400;
     const t0 = performance.now();
@@ -2904,9 +3347,10 @@ if (reportModal) {
       const t = Math.min(1, (now - t0) / dur);
       // 처음엔 빠르게, 끝에서 부드럽게 멈춘다
       const eased = 1 - Math.pow(1 - t, 3);
-      el.textContent = fmt(Math.round(to * eased));
+      const p = Math.pow(10, dec);
+      el.textContent = fmt(Math.round(to * eased * p) / p, dec);
       if (t < 1) requestAnimationFrame(step);
-      else el.textContent = fmt(to);
+      else el.textContent = fmt(to, dec);
     }
     requestAnimationFrame(step);
   }
@@ -3024,8 +3468,6 @@ toggleBtn.addEventListener('click', () => {
     ['.dok-camp-grid > *',                'up',    55],
     ['.dok-map-figure',                   'left',   0],
     ['.dok-map-side',                     'right',  0],
-    ['.dok-bottom-cta > *',               'up',    80],
-    ['.dok-footer-inner > *',             'up',    60],
   ];
 
   // 움직이면 안 되는 것들. 모달은 열릴 때 스스로 나타나고,
@@ -3082,6 +3524,992 @@ toggleBtn.addEventListener('click', () => {
     t = setTimeout(scan, 60);
   }).observe(root, { childList: true, subtree: true });
 })();
+
+/* ▼▼ 역대 수상 요약 팝업 — dok-history.html 에서 옮겨 온 것 ▼▼ */
+/* 개편 저장소 action-home-renewal/dok-history.html 의 DOK_SUMMARY 와 팝업을
+   그대로 옮겨 온 것입니다. 사용자 결정(2026-09-02)으로 두 곳에서 관리합니다.
+   ⚠️ 요약을 고칠 때는 **두 파일을 다 고쳐야 합니다.** 한쪽만 고치면 어긋납니다.
+      옮기는 일은 scratchpad 의 port_summary.py 가 대신할 수 있습니다.
+
+   이 파일의 역대 수상 표는 40줄이 HTML 에 손으로 적혀 있습니다(개편 쪽은
+   awards.json 으로 그립니다). 그래서 표를 다시 그리지 않고, 이미 있는 줄에
+   회차 번호와 '요약 →' 칸만 덧붙입니다 — tools/build-awards.py 가 이 표를
+   읽으므로 줄 자체는 건드리지 않는 편이 안전합니다. */
+(function () {
+  var esc = function (v) {
+    return String(v == null ? '' : v).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  };
+
+  var DOK_SUMMARY = {
+
+    1: {
+      figs: [
+        ['235억 8,100만 원', '사업비']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '하남시가 주최하고 (재)환경진흥회가 주관해 1999년 9월부터 41일 동안 개최한 국제환경박람회. 총 관람객은 약 90만6천 명이었지만 ' +
+              '유료관람객은 약 23만6천 명에 그치면서 대규모 적자가 발생함.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '당초 118억 원이던 사업비가 235억 원대로 늘어났고, 박람회와 적자보전을 위해 국·도·시비 등 공공예산 약 186억5천만 원이 ' +
+              '투입됨. 방만한 운영과 부실한 회계·정산, 각종 계약과 비리 의혹이 제기됐으며 법적으로 적자보전 책임이 명확하지 않은 재단의 채무를 ' +
+              '하남시가 시민 세금으로 충당한 점을 비판함. 일부 국·도비의 목적 외 사용 의혹과 책임규명 부족도 문제로 지적함.']
+      ]
+    },
+
+    2: {
+      figs: [
+        ['12조 3천억 원', '공적자금 투입액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '외환위기 이후 부실화된 제일은행의 정상화와 매각을 위해 정부가 막대한 공적자금을 투입한 사례. 선정 당시까지 약 12조3천억 원이 ' +
+              '투입됐고, 2002년까지 5조 원 이상이 추가 투입될 예정이었음.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '뉴브리지캐피탈과 체결한 제일은행 매각계약의 내용을 공개하지 않은 채 정부가 국민에게 불리한 조건으로 매각을 진행했다는 점을 지적함. 당시 ' +
+              '투입액보다 추가로 5조 원 이상이 들어가 총 규모가 약 17조 원에 이를 것으로 예상됐음. 부실경영과 감독 실패의 책임자에 대한 제재가 ' +
+              '미흡했고, 막대한 공적자금을 투입하면서도 구체적인 회수계획을 마련하지 못했다고 비판함.']
+      ]
+    },
+
+    3: {
+      figs: [
+        ['448억 원', '사업비']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '익산시가 왕궁면에 보석박물관을 건립하고 주변에 보석테마공원을 조성하려 한 사업. 600억 원 상당의 보석을 기증받기로 했다는 약속을 ' +
+              '전제로 박물관 건립에 230억 원, 테마공원에 약 218억 원을 투입할 계획이었음.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '기증받을 보석의 목록이나 가치에 대한 사전감정조차 하지 않은 채 기증각서만 믿고 대규모 사업을 시작했다고 지적함. 실제 기증품은 전시 ' +
+              '가치가 기대에 미치지 못했고 전문기관의 타당성 조사도 거치지 않았음. 국·도비 확보계획도 제대로 실현되지 않아 대부분을 익산시 재정으로 ' +
+              '부담하게 됐으며, 박물관 사업의 문제를 해결한다는 이유로 다시 테마공원과 화석전시관을 확대 추진하는 방식도 추가 낭비로 비판함.']
+      ]
+    },
+
+    4: {
+      figs: [
+        ['550억 원', '사업비']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '상암 월드컵경기장 인근에 높이 약 200m의 거대한 원형 기념조형물을 건설하려 한 새천년 기념사업. 내부에 에스컬레이터와 약 2천 개의 ' +
+              '계단 등을 설치해 서울을 대표하는 상징물로 만들 계획이었음.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '국비·지방비·기금 외에 국민모금과 일본인 관광객 모금, 민자유치 등을 전제로 한 재원조달계획의 현실성이 낮다고 지적함. 실제 최종 ' +
+              '사업비와 완공 후 운영·유지관리비도 충분히 산정되지 않았음. 거대한 조형물 자체의 필요성과 문화적 가치에 대한 사회적 공감대가 부족한데도 ' +
+              '시민과 전문가의 충분한 의견수렴 없이 사업을 추진했다고 비판함.']
+      ]
+    },
+
+    5: {
+      figs: [
+        ['약 24조 원', '공적자금 규모'],
+        ['약 8조 3,043억 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '금융감독위원회가 한빛·서울·평화·광주·제주·경남은행 등 6개 부실은행에 공적자금을 투입한 뒤 기존 주식의 가치를 없애는 완전감자를 결정한 ' +
+              '사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '정부가 여러 차례 감자가 없다는 취지의 입장을 밝혀놓고 돌연 완전감자를 실시해 정책의 신뢰성과 예측 가능성을 무너뜨렸다고 지적함. 기존 ' +
+              '정부출자 지분 약 8조3천억 원의 가치가 사실상 사라졌고 정부 발표를 믿었던 소액주주들도 손실을 입음. 부실은행 경영진과 감독기관의 ' +
+              '책임규명은 부족했으며, 추가 투입될 공적자금의 회수방안도 제대로 제시하지 못했다고 비판함.']
+      ]
+    },
+
+    6: {
+      figs: [
+        ['약 199억 원', '사업비'],
+        ['54억 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '청원군이 초정약수를 활용해 숙박·목욕·체육시설 등을 갖춘 대규모 관광시설을 민자유치 방식으로 건설한 사업. 시설의 기부채납 가액을 ' +
+              '기준으로 약 199억 원 규모였으며 청원군도 30억 원을 직접 투자함.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '사업타당성 검토와 공개경쟁 없이 사업능력이 충분히 검증되지 않은 민간업체를 선정했다고 지적함. 약 222억 원을 들여 감정가 145억 원 ' +
+              '수준의 시설을 건설하는 등 공사비가 과도했고 운영적자와 소송도 이어짐. 보고서는 당시 54억 원을 낭비액으로 보고 추가로 약 33억 원의 ' +
+              '낭비 가능성을 산정했으며, 별도로 소송·회원권·공사대금 등을 모두 떠안을 경우 청원군의 전체 부담이 약 299억 원까지 늘 수 있다고 ' +
+              '우려함.']
+      ]
+    },
+
+    7: {
+      figs: [
+        ['6,220억 원', '사업비·예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '시화지구 방조제를 건설해 간척지와 담수호를 조성하고 농경지·공단·도시용지 등을 개발하려 한 대규모 국책사업. 방조제 완공 이후 심각한 ' +
+              '수질오염이 발생하면서 정부는 결국 시화호 담수화 계획을 포기함.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '하수처리시설이나 주변 도시개발계획, 농지·공장용지 수요에 대한 충분한 검토 없이 사업을 추진했다고 지적함. 담수화 실패가 현실화된 뒤에도 ' +
+              '관련 기관들이 서로 책임을 떠넘겼으며 정책실패에 대한 명확한 책임규명도 없었음. 수질개선을 위해 다시 막대한 추가 예산이 필요해지는 등 ' +
+              '잘못된 초기계획이 지속적인 재정부담을 만들었다고 비판함.']
+      ]
+    },
+
+    8: {
+      figs: [
+        ['50억 4,400만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '부산시 출자회사인 부산관광개발㈜이 부산 관광 활성화를 위해 중고 유람선 테즈락호를 구입·수리해 운항한 사업. 약 40억 원을 들여 선박을 ' +
+              '마련한 뒤 3년여 운영했지만 지속적인 적자가 발생해 매각함.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '충분한 사업타당성 검토 없이 유람선을 구입했고 감사원과 전문가·시민단체의 운항 중단 또는 민영화 요구에도 운영을 계속했다고 지적함. ' +
+              '구입·수리비에 운영적자까지 발생한 뒤 선박을 13억9천만 원에 매각해 시민행동은 총 50억4,400만 원을 낭비액으로 계산함. 부산시가 ' +
+              '회사 채무에 대한 재정부담을 떠안으면서도 사업운영의 책임성과 통제는 부족했다고 비판함.']
+      ]
+    },
+
+    9: {
+      figs: [
+        ['550억 5,200만 원', '사업비'],
+        ['15억 6,400만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '행정자치부가 2002년 월드컵을 앞두고 전국적으로 무궁화를 식재하고 월드컵 기간에 맞춰 일부 꽃의 개화시기를 인위적으로 조절하려 한 ' +
+              '사업.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '정상 개화기가 아닌 5~6월에 꽃을 피우기 위해 저가 묘목 한 그루에 평균 약 17만 원의 개화조절비를 투입하려 한 것을 대표적인 전시성 ' +
+              '사업으로 지적함. 짧은 기간에 사업을 확대하면서 중국산 무궁화 수입과 각종 비리 의혹까지 발생함. 시민행동은 개화조절사업에 이미 약 ' +
+              '15억6천만 원이 낭비됐으며, 장기 관리계획과 사업의 실효성이 확보되지 않을 경우 전체 사업비 역시 낭비될 가능성이 있다고 평가함.']
+      ]
+    },
+
+    10: {
+      figs: [
+        ['3조 489억 원', '사업비'],
+        ['1조 1,385억 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '농림부가 군산·김제·부안 일대 갯벌에 방조제를 건설해 농지와 담수호 등을 조성하기 위해 1991년부터 추진한 대규모 간척사업.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '경제적 타당성이 충분히 확보되지 않은 상태에서 사업을 시작했고 당초 약 1조3천억 원 수준이던 사업비가 계속 증가했다고 지적함. 농림부는 ' +
+              '사업비를 약 3조 원으로 보고 있었지만 감사원은 약 5조9,530억 원까지 필요할 것으로 추정함. 시민행동은 이미 투입된 1조1,385억 ' +
+              '원을 낭비액으로 판단하고, 기존 투입비가 아깝다는 이유로 사업을 계속할 경우 최소 5조 원 이상의 추가 낭비와 대규모 환경훼손이 발생할 ' +
+              '수 있다고 비판함.']
+      ]
+    },
+
+    11: {
+      figs: [
+        ['1,219억 원', '사업비'],
+        ['83억 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '건설교통부가 전북 김제시 일원에 2006년 개항을 목표로 새로운 공항을 건설하려 한 사업. 총사업비 1,219억 원을 투입해 활주로와 ' +
+              '관련 시설을 조성할 계획이었음.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '불과 27㎞ 거리에 군산공항이 있고 기존 공항 이용률도 낮은 상황에서 별도의 신공항을 건설할 경제적 필요성이 부족하다고 지적함. 군산공항 ' +
+              '활용 등 대안을 제대로 검토하지 않았으며 호남고속철도 등 향후 교통여건 변화도 충분히 반영하지 않았음. 당시까지 83억 원을 집행했고 ' +
+              '시민행동은 이를 낭비액으로 판단했으며, 사업이 계속될 경우 나머지 1,136억 원도 낭비될 우려가 있다고 평가함.']
+      ]
+    },
+
+    12: {
+      figs: [
+        ['719억 7,200만 원', '사업비'],
+        ['463억 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '속초시가 청초호를 매립해 숙박·상업시설 등을 조성하고 토지를 분양해 관광 활성화와 재정수익을 얻으려 한 사업. 상당한 사업재원을 지방채 ' +
+              '등 차입금으로 마련함.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '분양실적이 저조한데도 대규모 차입을 통해 사업을 계속해 속초시 재정을 악화시켰다고 지적함. 차입원금과 장래 이자를 합하면 부담액이 ' +
+              '1,205억 원에 달했으며, 분양되지 않은 시 소유 토지를 다시 일반회계 예산으로 사들이려 한 회계처리도 비판함. 시민행동은 당시 이미 ' +
+              '463억 원의 낭비가 발생했고 추가로 554억 원의 낭비가 우려돼 사업 실패 시 최대 약 1,017억 원의 손실 가능성이 있다고 평가함.']
+      ]
+    },
+
+    13: {
+      figs: [
+        ['61억 2,000만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '2002년 부산아시아경기대회를 준비하면서 조직위원회가 아시아올림픽평의회(OCA) 및 마케팅업체와 체결한 대회 수익금 배분계약을 문제 삼은 ' +
+              '사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', 'OCA 헌장보다 조직위원회에 불리한 수익배분조건을 받아들여 정상적인 기준보다 대회수익을 적게 받게 됐다고 지적함. 당시 분석한 수입금 ' +
+              '511억 원을 기준으로 조직위원회 몫은 헌장 적용 시보다 61억2천만 원 줄어드는 것으로 계산됨. 조직위가 OCA의 계약위반 문제에 ' +
+              '적절히 대응하지 못했고 추가로 2천만 달러의 이행보증금을 예치하는 등 불리한 협약을 맺었으며, 관련 자료 공개 요구에도 소극적이었다고 ' +
+              '비판함.']
+      ]
+    },
+
+    14: {
+      figs: [
+        ['11억 3,000만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '국회가 표결시간 단축과 의정활동의 공개성·책임성을 높이기 위해 1997년 본회의장에 설치한 전자투표장치.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '설치 이후 약 4년 동안 본회의 표결 92건 중 전자투표를 사용한 경우가 12건, 약 13%에 불과했다고 지적함. 국회법상 전자투표가 ' +
+              '가능한 경우만 따져도 이용률이 낮아 고가의 장비를 사실상 장식용으로 방치했다고 평가함. 설치비 9억1천만 원에 보수비 2억2천만 원까지 ' +
+              '추가돼 시민행동은 총 11억3천만 원을 낭비액으로 산정함.']
+      ]
+    },
+
+    15: {
+      figs: [
+        ['198억 9,000만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '한국과학재단이 퇴직 전문인력을 대학 등에 초빙해 경험과 지식을 활용하도록 지원한 ‘전문경력인사 초빙활용 지원제도’를 대상으로 한 사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '과학기술 진흥을 위한 재단 사업인데도 실제 지원자 가운데 과학분야 인력 비중이 낮고 퇴직 고위공무원·군인 등이 상당수를 차지해 사실상 ' +
+              '퇴직자 재취업 지원제도로 변질됐다고 지적함. 적은 활동시간에 비해 연간 지원액이 많았고 대상자 선정과 사업성과 평가도 불투명했음. ' +
+              '문제제기가 이어지는 상황에서도 관련 예산이 지속적으로 확대된 점도 비판함.']
+      ]
+    },
+
+    16: {
+      figs: [
+        ['32억 6,272만 9,220원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '근로복지공단이 사업소득 지급자료를 정해진 기한 안에 세무당국에 제출하지 않아 거액의 가산세와 가산금을 부담하게 된 사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '단순한 행정업무 미처리로 30억 원이 넘는 가산세가 발생했고 담당부서가 이를 즉시 기관장에게 보고하지 않아 사태를 악화시켰다고 지적함. ' +
+              '문제를 뒤늦게 처리하는 과정에서 추가 가산금까지 발생했고 결국 근로자 복지에 사용돼야 할 공단 재정에서 이를 납부함. 내부보고와 ' +
+              '감사·통제체계가 제대로 작동하지 않았으며 관련자에게 손실을 물어 돌려받는 조치도 필요하다고 평가함.']
+      ]
+    },
+
+    17: {
+      figs: [
+        ['111억 8,100만 원', '사업비'],
+        ['85억 3,900만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '환경부와 지방자치단체들이 음식물쓰레기를 현장에서 감량하거나 퇴비·사료로 재활용하기 위해 전국에 감량기기를 보급한 사업. 조사 당시 총 ' +
+              '952대가 설치돼 있었음.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '충분한 기술검증과 시범운영 없이 시설 보급부터 확대해 952대 가운데 정상 가동 중인 기기는 203대에 불과했다고 지적함. 고장과 ' +
+              '악취·소음, 낮은 처리효율, 생산된 퇴비·사료의 품질과 판로 문제 등이 반복됐음. 시민행동은 폐기되거나 가동이 중단된 749대에 투입된 ' +
+              '약 85억4천만 원을 예산낭비액으로 산정하고, 장비 설치 중심의 정책 자체를 재검토해야 한다고 평가함.']
+      ]
+    },
+
+    18: {
+      figs: [
+        ['493억 5,400만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '산업자원부가 기업들로부터 징수한 기술료를 이용해 한국산업기술재단의 설립·운영비, 건물매입비와 사업비 등을 지원한 사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '기술개발에 재투자돼야 할 기술료를 국회와 예산당국의 정상적인 재정통제 없이 특정 민간재단에 지원했다고 지적함. 연구개발사업처럼 수요조사와 ' +
+              '객관적 평가절차도 충분히 거치지 않았으며 재단 수입의 대부분이 정부지원에 의존했음. 연구개발과 직접 관련성이 낮은 건물매입과 기관운영에도 ' +
+              '돈이 사용돼 기술료가 사실상 부처의 별도 재원처럼 사용됐다고 비판함.']
+      ]
+    },
+
+    19: {
+      figs: [
+        ['1억 1,720만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '14개 지방자치단체가 미스코리아 지역예선과 지역 미인대회의 행사비 등을 예산으로 지원한 사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '여성의 외모를 획일적인 기준으로 평가하고 외모지상주의와 성상품화를 조장한다는 사회적 비판을 받는 민간행사에 세금을 지원하는 것은 공공성이 ' +
+              '부족하다고 지적함. 방송 중단과 사회적 관심 감소에도 일부 지자체가 관행적으로 행사비와 장소 등을 지원했음. 특정 민간행사에 대한 반복적 ' +
+              '지원이라는 점에서 다른 사회단체와의 형평성 문제도 제기함.']
+      ]
+    },
+
+    20: {
+      figs: [
+        ['45억 4,900만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '한국전력이 여름철 전력피크를 낮추기 위해 원격제어장치를 부착한 가정용 에어컨 구매비를 지원한 사업.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '전력소비를 줄이기 위한 사업이 오히려 전기를 많이 소비하는 에어컨 구매를 보조하는 모순이 있다고 지적함. 사업 도입 후 수년 동안 핵심 ' +
+              '기능인 원격제어가 사실상 활용되지 않아 전력수요 절감효과도 거의 없었음. 에어컨을 구매할 수 있는 상대적 고소득층에게 혜택이 집중되는 ' +
+              '반면 비용은 전체 전력사용자가 부담하는 형평성 문제도 제기함.']
+      ]
+    },
+
+    21: {
+      figs: [
+        ['502억 8,900만 원', '사업비·예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '교육부가 전국 학교와 교육청의 행정정보를 통합하기 위해 기존 학교별 C/S 시스템을 대체하는 전국단위 교육행정정보시스템을 구축한 사업.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '이미 1997~2001년 약 1,470억 원을 들여 기존 C/S 시스템을 구축해 놓고 이를 충분히 활용하지 않은 채 다시 새로운 시스템을 ' +
+              '추진한 중복투자라고 지적함. 교육부 자체 검토에서도 기존 시스템 연계가 가능하다는 의견이 있었음. 학생·학부모·교사의 방대한 개인정보를 ' +
+              '중앙집중적으로 관리하면서 개인정보 침해와 보안 문제도 제기됐으며, 시민행동은 신규 시스템에 투입되는 502억8,900만 원 자체를 낭비로 ' +
+              '판단함.']
+      ]
+    },
+
+    22: {
+      figs: [
+        ['1조 9,667억 원', '기금 조성액'],
+        ['459억 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '산업은행 등 22개 금융기관이 기업구조조정을 지원하기 위해 4개의 기업구조조정기금을 조성하고 외국계 운용회사에 운용을 맡긴 사업.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '당초 구조조정 목적과 관계없는 기업이나 대기업 등에 투자하면서 손실 위험을 키웠다고 지적함. 외국계 운용회사에 막대한 수수료를 ' +
+              '지급하면서도 투자실패에 대한 책임은 충분히 물을 수 없는 계약구조였으며 시민행동은 성과보수 가운데 459억 원을 낭비액으로 산정함. ' +
+              '부실자산 등을 포함한 추가 손실 우려액도 2,878억 원으로 추정했으며 산업은행과 금융감독원의 관리·감독 역시 부실했다고 평가함.']
+      ]
+    },
+
+    23: {
+      figs: [
+        ['약 245억 원', '사업비'],
+        ['4억 1,926만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '고양시가 일산 호수공원에 음악과 조명을 결합한 대형 분수대를 건설한 사업. 1999~2003년 추진됐으며 총사업비는 약 245억 ' +
+              '원이었음.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '주요 분수의 연간 가동시간이 약 150시간에 불과하고 겨울에는 사실상 사용할 수 없어 투자비에 비해 활용도가 지나치게 낮다고 지적함. 한 ' +
+              '해 고양시 문화예산보다 많은 돈을 하나의 시설에 투입하고 운영비도 지나치게 낮게 산정했다고 평가함. 시민행동은 당시까지 약 4억2천만 ' +
+              '원이 낭비됐고 사업이 계속될 경우 약 241억 원이 추가로 낭비될 수 있다고 보았으며, 시민 의견수렴과 호수공원 장기계획도 부족했다고 ' +
+              '비판함.']
+      ]
+    },
+
+    24: {
+      figs: [
+        ['1조 8,429억 원', '사업비']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '인천 서구에서 서울 강서구 일대까지 약 18㎞의 운하와 관련 터미널·갑문 등을 건설하려 한 민자사업. 2001~2012년 추진계획으로 ' +
+              '총사업비는 약 1조8,429억 원이었음.'],
+        ['h', '무엇이 문제였나'],
+        ['p', 'KDI 재검토에서 경제적 타당성이 부족하다는 결과가 나왔는데도 사업을 계속 추진하려 했다고 지적함. 민간사업자의 수익성을 보장하기 위한 ' +
+              '정부지원 약 9,674억 원과 주변 도로 건설비 약 1조2,604억 원 등 계획 외의 막대한 공공부담 가능성이 있었음. 시민행동은 이를 ' +
+              '종합해 약 2조6,656억 원의 낭비가 우려된다고 계산했으며, 환경훼손과 매립지 감소 등 사회적 비용도 제대로 반영되지 않았다고 비판함.']
+      ]
+    },
+
+    25: {
+      figs: [
+        ['209억 원', '사업비'],
+        ['68억 9,900만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '서울시가 마포구 성미산에 2만5천 톤 규모의 배수지를 설치해 성산·망원·연남동 등 주변 지역에 수돗물을 공급하려 한 사업.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '이미 수돗물이 안정적으로 공급되는 지역에서 잘못된 수요예측을 바탕으로 새로운 배수지를 건설하는 것은 중복투자라고 지적함. 서울시의 상수도 ' +
+              '수요 자체가 감소하는 상황을 정책에 충분히 반영하지 못했고 성미산의 생태환경도 훼손하게 됐음. 당시 이미 토지보상·설계·감리 등에 약 ' +
+              '69억 원이 사용됐으며 시민행동은 남은 약 140억 원도 낭비될 가능성이 있다고 판단함.']
+      ]
+    },
+
+    26: {
+      figs: [
+        ['191억 원', '출자자본금'],
+        ['66억 8,000만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '농축산물 유통구조 개선과 농민 판로확보를 위해 충청남도·천안시·농협 등이 공동 출자해 천안에 설립한 대규모 농축산물 물류센터.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '충분한 사업타당성 검토 없이 관 주도로 사업을 시작해 개장 첫해부터 적자가 발생하고 4년간 누적손실이 약 247억 원에 이르렀다고 ' +
+              '지적함. 부채도 약 440억 원까지 늘었으며 대표이사의 80억 원 자금 유용 등 내부 경영관리와 충남도의 감독도 부실했음. 시민행동은 ' +
+              '충남도 출자금 66억8천만 원을 낭비액으로 산정하고 국고 시설비와 부채 등을 포함해 최대 796억 원의 추가 손실 가능성을 우려함.']
+      ]
+    },
+
+    27: {
+      figs: [
+        ['522억 6,600만 원', '전체 건립비'],
+        ['375억 8,900만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '39개 지방자치단체가 새마을운동단체의 재정자립과 활동기반 마련을 이유로 새마을회관 건립비를 지원한 사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '이미 다른 사회단체에 비해 많은 정액·임의보조금을 받던 새마을단체에 명확한 기준도 없이 회관 건립비까지 지원한 것은 특혜와 형평성 ' +
+              '문제라고 지적함. 조사대상 회관 건립비의 평균 71.9%를 지방정부 등이 부담했고 일부 회관은 임대수익사업 등에 사용돼 지원 목적에서도 ' +
+              '벗어났음. 같은 방식이 다른 지자체까지 확대될 경우 약 1,331억8천만 원이 추가로 낭비될 수 있다고 우려함.']
+      ]
+    },
+
+    28: {
+      figs: [
+        ['1,099억 원', '분석대상 국고보조금'],
+        ['381억 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '정당의 보호·육성을 위해 지급되는 국고보조금 가운데 한나라당·민주당·자민련의 회계보고와 증빙자료를 분석한 사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '2002년 3개 정당에 지급된 국고보조금 가운데 세법상 정상적인 증빙으로 인정하기 어려운 금액이 381억 원, 약 34.7%에 달했다고 ' +
+              '지적함. 자체영수증, 수령자를 확인할 수 없는 명세서 등 회계처리가 매우 부실했고 정상적인 증빙을 갖춘 지출에서도 용도를 확인하기 어려운 ' +
+              '경우가 많았음. 시민행동은 같은 기준을 과거 자료에 적용하면 16대 국회 기간 부실회계 규모가 약 900억 원에 이를 것으로 추정했으며, ' +
+              '보조금 확대 시 추가 낭비 가능성도 우려함.']
+      ]
+    },
+
+    29: {
+      figs: [
+        ['84억 2,000만 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '원주시가 시유지를 제공하고 ㈜대우가 복합건물을 지어 기부채납한 뒤 20년 동안 무상사용하도록 한 민자사업. 착공 후 분양부진 등으로 ' +
+              '공사가 중단되고 장기간 소송으로 이어짐.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '지방의회 의결을 거쳐야 하는 사업임에도 이를 거치지 않아 협약 자체가 무효가 됐고 결국 원주시가 소송에서 패소했다고 지적함. 공사지연에 ' +
+              '따른 손해배상 규정도 계약서에 두지 않았으며 사업타당성과 유사사례에 대한 전문적 검토도 부족했음. 시민행동은 대우 측 반환금 52억2천만 ' +
+              '원과 지방채 이자 약 32억 원을 합쳐 84억2천만 원을 낭비액으로 계산했고 이후에도 매년 약 4억 원의 이자손실이 발생할 것으로 ' +
+              '우려함.']
+      ]
+    },
+
+    30: {
+      figs: [
+        ['약 2조 8,309억 원', '낭비우려액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '일본인·일제기관 명의로 남아 있거나 소유자불명, 관리청 미지정 등으로 국가의 권리보전조치가 제대로 이뤄지지 않은 국유지 관리문제를 지적한 ' +
+              '사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '광복 후 수십 년이 지났는데도 일본인과 귀속·청산법인 명의의 토지 약 91.6㎢가 남아 있었고, 관리청 미지정·소유자불명 재산 등을 모두 ' +
+              '합하면 관리부실 토지가 약 550.33㎢에 달했다고 지적함. 장기 무단점유에 따른 국가 소유권 상실과 국가재산 가치 훼손 위험이 있었음. ' +
+              '국회와 감사원이 반복적으로 문제를 지적했는데도 관리체계를 개선하지 않았고 일부 지자체가 권리보전 실적을 축소·누락해 보고하는 등 ' +
+              '총괄관리도 부실했다고 평가함.']
+      ]
+    },
+
+    31: {
+      figs: [
+        ['90억 800만 원', '사업비'],
+        ['최소 90억 원', '예산낭비액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '서울시가 하수슬러지를 건조해 시멘트 원료 등으로 재활용하기 위해 건설한 하루 200톤 규모의 처리시설. 2002년 가동을 시작했지만 약 ' +
+              '두 달 만에 고장과 악취 문제로 중단됨.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '가동 두 달 만에 심각한 기기고장이 발생해 설계·시공상 결함 가능성이 있었지만 독립적인 진상조사를 제대로 하지 않았다고 지적함. 서울시는 ' +
+              '시공사의 설명과 보완계획에 의존했고 주민 민원에도 근본적인 해결책을 제시하지 못했음. 시설이 약 3년 동안 방치되는 동안 처리하지 못한 ' +
+              '슬러지가 계속 해양투기됐으며 새로운 처리기술을 개발·검증한다는 사업 목적도 달성하지 못했다고 평가함.']
+      ]
+    },
+
+    32: {
+      figs: [
+        ['58억 원', '사업비']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '광명시가 하루 100톤의 음식물쓰레기를 처리하기 위해 건설한 시설. 당초 예산 69억 원 가운데 58억 원을 사용했지만 준공 예정일을 ' +
+              '지나도록 정상적인 처리가 불가능해 가동하지 못함.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '특정 업체만 적용할 수 있는 공법을 충분한 검증 없이 채택하고 다른 업체들의 문제제기와 전문적인 검토를 외면했다고 지적함. ' +
+              '설계·시공·감리와 광명시의 관리감독 전 과정에서 문제가 발생했지만 시공사에 대한 책임추궁도 제대로 이뤄지지 않았음. 시설을 사용하지 ' +
+              '못하면서 민간업체에 음식물쓰레기를 맡겨 이미 약 20억 원이 추가 지출됐고 정상화 전까지 매달 약 2억 원이 더 소요될 상황이었다고 ' +
+              '비판함.']
+      ]
+    },
+
+    33: {
+      figs: [
+        ['1,852만 원', '확인된 허위출장비']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '한국건설기술연구원의 내부고발을 계기로 실제 출장을 가지 않거나 동행자 수를 부풀려 출장비를 지급받는 공공기관의 허위출장 관행을 지적한 ' +
+              '사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '실제로 가지 않은 출장을 신청하거나 출장인원을 부풀려 받은 돈을 개인물품 구입이나 비자금 등에 사용한 사례가 확인됐다고 지적함. 건기연 ' +
+              '자체감사에서도 한 부서의 19개월 동안 1,852만 원의 허위출장비가 확인됐지만 기관 전체에 대한 확대조사는 하지 않았음. 실제 지출액과 ' +
+              '관계없이 출장비를 정액으로 지급하고 사후 영수증을 확인하지 않는 여비규정 자체가 허위출장을 쉽게 만드는 구조적 원인이라고 평가함.']
+      ]
+    },
+
+    34: {
+      figs: [
+        ['약 9,090억 원', '직급보조비 예산'],
+        ['연간 2,000억 원 이상', '세수 누락 추정']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '대통령부터 일반 공무원까지 직급에 따라 매달 정액으로 지급하는 직급보조비를 정부가 근로소득으로 과세하지 않은 관행을 지적한 사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '직급보조비는 사실상 정기적으로 지급되는 고정급여이며 소득세법상 비과세 실비변상 급여에 포함되지 않는데도 공무원에게만 과세하지 않았다고 ' +
+              '지적함. 동일 성격의 민간 직급수당에는 세금이 부과돼 조세형평성 문제도 있었음. 국가공무원만 연간 약 1,400억 원, 지방공무원까지 ' +
+              '포함하면 연간 2천억 원 이상의 세금이 누락되는 것으로 추정했지만 관계부처들은 책임 있는 판단을 서로 미뤘다고 비판함.']
+      ]
+    },
+
+    35: {
+      figs: [
+        ['약 400억 원', '2008년 집행액']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '스포츠토토와 경륜·경정 사업의 수익금 일부를 적립해 문화체육관광부 장관이 정하는 문화·체육 분야 공익사업에 지원한 재원.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '일반 예산이나 기금과 달리 국회의 사전심의를 거치지 않은 채 부처 내부기준만으로 수백억 원을 사용할 수 있는 구조를 문제로 지적함. ' +
+              '지원대상에 맞추기 위해 내부기준을 변경하거나 국회 예산심의에서 삭감된 사업에 적립금을 지원한 사례도 있었음. 집행 이후 결산과 사후관리도 ' +
+              '부실했으며, 국회와 감사원의 반복적인 지적에도 충분한 재정통제 장치가 마련되지 않았다고 비판함.']
+      ]
+    },
+
+    36: {
+      figs: [
+        ['106억 원', '2010년 연로회원 지원예산']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '대한민국헌정회가 만 65세 이상 전직 국회의원에게 최소한의 생활보장과 복리향상을 명목으로 매월 지원금을 지급한 제도.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '국가예산으로 개인에게 지원금을 지급하면서도 구체적인 대상과 지급기준을 법률이 아닌 헌정회의 내부규정으로 정하고 있다고 지적함. 규정 ' +
+              '변경으로 재직기간이 매우 짧거나 일정한 유죄전력이 있는 전직 의원까지 지원대상에 포함될 수 있었음. 최소 생활보장이 목적임에도 개인의 ' +
+              '재산과 소득 수준을 고려하는 기준이 없어 경제적으로 여유 있는 전직 의원에게도 같은 지원금을 지급하는 구조를 비판함.']
+      ]
+    },
+
+    37: {
+      figs: [
+        ['150억 원', '사업비']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '진주시가 음식물류 폐기물을 퇴비화하고 음폐수를 바이오가스화해 에너지를 생산하기 위해 2009년부터 건설해 2013년 완공한 시설. ' +
+              '퇴비화시설과 음폐수 바이오가스화시설을 함께 운영하는 사업임.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '음폐수 바이오가스화시설에 대해 법에서 요구하는 설치검사를 받지 않은 상태에서 가동했고 성능시험도 실제 시설용량보다 훨씬 적은 폐기물만 ' +
+              '투입해 진행했다고 지적함. 바이오가스의 메탄 함량도 설계기준에 미달했지만 준공 처리됐으며 실제 전력생산량도 예상치에 크게 미치지 못함. ' +
+              '가스유량계 고장과 악취 문제 등을 제대로 관리하지 못하고 위탁업체에 대한 운영지표 점검도 부실해 설치에서 운영까지 진주시의 관리·감독 ' +
+              '책임이 부족했다고 평가함.']
+      ]
+    },
+
+    38: {
+      figs: [
+        ['33억 6,254만 7,330원', '사업비']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '양구군이 2016~2018년 3년 동안 지역 곳곳에 공공조형물 113개를 설치한 사업들을 대상으로 한 사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '재정자립도가 6.96%에 불과한 양구군이 비슷한 재정여건의 지방자치단체들보다 훨씬 많은 공공조형물을 설치하고 예산을 투입했다고 지적함. ' +
+              '국민권익위원회가 공공조형물 건립·관리 조례 제정을 권고했지만 이를 이행하지 않아 객관적인 사전심의와 사후관리 체계도 마련되지 않았음. ' +
+              '일부 조형물은 양구군이 제출한 현황자료에서 누락되는 등 기본적인 설치현황 관리마저 부실했다고 평가함.']
+      ]
+    },
+
+    39: {
+      figs: [
+        ['약 292억 원', '분석대상 특수활동비']
+      ],
+      body: [
+        ['h', '어떤 사업이었나'],
+        ['p', '함께하는 시민행동 등 시민단체가 정보공개청구와 행정소송을 통해 확보한 2017년 5월~2019년 9월 검찰 특수활동비 집행자료를 분석한 ' +
+              '사례.'],
+        ['h', '무엇이 문제였나'],
+        ['p', '검찰총장 몫으로 배정된 약 136억 원은 구체적인 사용처가 확인되지 않은 채 대부분 현금으로 사용돼 사실상 ‘현금 저수지’처럼 운용됐다는 ' +
+              '의혹을 제기함. 일부 검찰청에서는 음식점 식사비, 상품권, 기프티콘 등 특수활동비 목적과 맞지 않는 지출도 확인됐음. 법원의 정보공개 ' +
+              '판결 이후에도 일부 기간의 증빙자료가 적법한 절차 없이 폐기된 사실이 드러났으며 검찰이 관련 자료를 계속 충분히 공개하지 않은 점도 ' +
+              '비판함.']
+      ]
+    },
+
+    40: {
+      lead: '경제성이 있다며 시작한 사업이, 감사원이 다시 계산하자 B/C 0.17 로 나왔습니다.',
+      figs: [
+        ['0.17', '감사원 재산정 B/C<br>(서울시 제시 2.82)'],
+        ['120건', '행정안전부 합동점검<br>지적사항'],
+        ['1,750억', '2025년 말까지<br>투입된 사업비']
+      ],
+      body: [
+        ['p', '2025년 3월 4일, 함께하는 시민행동은 서울시 한강버스(한강 리버버스) 사업을 ' +
+              '제40회 밑빠진 독상 수여 대상으로 발표했습니다. 선정 사유는 네 가지였습니다.'],
+        ['ul', [
+          '이미 실패한 한강 수상택시 사례',
+          '사업 타당성 평가 과정과 결과의 왜곡',
+          '과도한 사업비로 인한 서울시 재정 부담',
+          '선박의 안전 문제와 한강의 환경 파괴'
+        ]],
+
+        ['h', '수상 이후 — 운항 중단과 안전 문제'],
+        ['p', '서울시는 반대에도 사업을 강행해 2025년 9월 18일 첫 정식운항에 들어갔습니다. ' +
+              '그러나 열흘 만에 네 차례 기술적 문제가 발생해 승객 탑승을 중단했고, ' +
+              '11월에는 잠실 인근에서 바닥걸림 사고가 났습니다.'],
+        ['p', '11월 21일부터 26일까지 행정안전부 주관으로 실시된 안전관리 실태 합동점검에서 ' +
+              '120건이 지적됐습니다(규정위반 28건, 유지관리 미흡 39건, 개선권고 53건). ' +
+              '서울시는 이듬해 2월까지 96건을 조치한 뒤 2026년 3월 전 구간 운항을 재개했습니다.'],
+
+        ['h', '감사원 감사 — 애초에 추진할 만한 사업이었나'],
+        ['p', '국회 요구(2024년 11월 29일)에 따른 감사원 감사에서 총사업비 산정 · 선박 속도 · ' +
+              '경제성 분석 지침 위반 세 건에 처분요구와 통보가 이뤄졌습니다. ' +
+              '시민사회가 사업 시작 전부터 제기한 문제가 상당 부분 사실로 확인된 것입니다.'],
+        ['p', '서울시는 투자심사에서 총사업비를 자신이 직접 부담하는 선착장 하부시설 조성비 ' +
+              '212억 원만으로 제시했고, 경제성 분석에서도 민간 부담분을 뺐습니다. ' +
+              '그렇게 나온 B/C 값이 1차 2.82, 2차 1.71이었습니다. ' +
+              '감사원이 민간 부담 상부시설비와 선박 도입·운영비까지 넣어 다시 계산하자 ' +
+              '1차 기준 0.42, 2차 기준 0.22, 2024년 12월 23일 사업비 기준 0.17로 떨어졌습니다.'],
+        ['p', '대중교통이라는 명분도 흔들렸습니다. 마곡–잠실 급행 54분은 평균 17노트를 전제로 한 ' +
+              '값이었지만, 감사보고서상 선박별 만재상태 예상속도는 12~16노트였고 ' +
+              '한국해양교통안전공단 시뮬레이션에서는 급행 운항시간이 64~85분으로 나왔습니다.'],
+
+        ['h', '지금 — 완전자본잠식'],
+        ['p', '2025년 말 기준 (주)한강버스의 자본총계는 약 -61.3억 원으로 완전자본잠식 상태이고, ' +
+              '당기순손실은 142.4억 원입니다. 현금성 자산이 약 2,643만 원인 데 비해 ' +
+              '유동부채는 약 717억 원입니다. 회계법인도 "계속기업으로서의 존속능력에 ' +
+              '유의적 의문을 제기할 만한 중요한 불확실성"이 있다고 봤습니다.'],
+        ['p', '투입된 공적자금은 (주)한강버스를 통한 1,523억 원과 서울시 선착장 조성비 227억 원 등 ' +
+              '약 1,750억 원이며, 그 상당수는 SH공사를 통해 조달됐습니다. ' +
+              '잘못된 사업을 추진한 지방자치단체장에게 책임을 물을 방법이 마땅치 않다는 것이 ' +
+              '이 사건이 남긴 가장 큰 숙제입니다.'],
+
+        ['p', '<i>※ 이 요약은 뉴스레터 「밑빠진 독상 — 시민의 세금은 어떻게 새고 있나」 ' +
+              'vol.1 · vol.2 를 줄인 것입니다.</i>']
+      ],
+      src: [
+        ['보류 중인 한강 개발 사업', 'https://action.or.kr/57/?idx=171787220&bmode=view'],
+        ['한강버스 좌초 긴급 토론회', 'https://action.or.kr/27/?idx=168760009&bmode=view'],
+        ['감사원 감사 결과 원문', 'https://www.bai.go.kr/bai/result/branch/detail?srno=3289']
+      ]
+    }
+
+  };
+
+  /* 표에 적힌 40줄에서 회차 정보를 읽어 옵니다. 화면에 보이는 것과
+     팝업이 여는 것이 어긋날 수 없습니다 — 같은 줄에서 나왔으니까요. */
+  var awards = [];
+
+  function readTable() {
+    var table = document.querySelector('#dok .dok-all-table');
+    if (!table) return null;
+
+    var head = table.querySelector('thead tr');
+    if (head && head.children.length === 4) {
+      var th = document.createElement('th');
+      th.innerHTML = '<span class="dok-sr">요약 열기</span>';
+      head.appendChild(th);
+    }
+
+    [].forEach.call(table.querySelectorAll('tbody tr'), function (tr) {
+      var td = tr.children;
+      if (td.length < 4) return;
+      var round = parseInt((td[0].textContent || '').replace(/[^0-9]/g, ''), 10);
+      if (!round) return;
+      awards.push({
+        round: round,
+        date: (td[1].textContent || '').trim(),
+        awardee: (td[2].textContent || '').trim(),
+        project: (td[3].textContent || '').trim()
+      });
+      tr.dataset.round = round;
+      tr.setAttribute('tabindex', '0');
+      if (td.length === 4) {
+        var go = document.createElement('td');
+        go.className = 'dok-go';
+        go.setAttribute('aria-hidden', 'true');
+        go.textContent = '요약 →';
+        tr.appendChild(go);
+      }
+    });
+    return awards.length ? table : null;
+  }
+
+  var modal, modalBody, modalHd, btnPrev, btnNext, lastFocus = null, curRound = null;
+
+  function renderBody(a) {
+    return renderSummary(DOK_SUMMARY[a.round]);
+  }
+
+  /* 요약 한 덩이를 화면 조각으로. 수상작(DOK_SUMMARY)과 사례(cases.json)가
+     같은 칸(lead·figs·body·src)을 쓰므로 그리는 코드도 하나입니다. */
+  function renderSummary(s) {
+    if (!s) {
+      return '<div class="dok-modal-none">' +
+        '<b>요약을 준비하고 있습니다</b>' +
+        '이 회차의 자세한 경과는 아직 정리되지 않았습니다.<br>' +
+        '수상 사실과 대상 사업은 위에 있는 그대로입니다.' +
+        '</div>';
+    }
+
+    var out = '';
+    if (s.lead) out += '<p class="lead">' + s.lead + '</p>';
+
+    if (s.figs && s.figs.length) {
+      out += '<div class="dok-modal-fig">' + s.figs.map(function (f) {
+        return '<div><b>' + f[0] + '</b><span>' + f[1] + '</span></div>';
+      }).join('') + '</div>';
+    }
+
+    (s.body || []).forEach(function (blk) {
+      var kind = blk[0], val = blk[1];
+      if (kind === 'h') out += '<h4>' + val + '</h4>';
+      else if (kind === 'p') out += '<p>' + val + '</p>';
+      else if (kind === 'ul') {
+        out += '<ul>' + val.map(function (li) { return '<li>' + li + '</li>'; }).join('') + '</ul>';
+      }
+    });
+
+    if (s.src && s.src.length) {
+      out += '<div class="dok-modal-src">' + s.src.map(function (l) {
+        var ext = /^https?:/.test(l[1]) ? ' target="_blank" rel="noopener"' : '';
+        return '<a href="' + l[1] + '"' + ext + '>' + l[0] + ' →</a>';
+      }).join('') + '</div>';
+    }
+    return out;
+  }
+
+  function byRound(n) {
+    for (var i = 0; i < awards.length; i++) {
+      if (awards[i].round === n) return awards[i];
+    }
+    return null;
+  }
+
+  function openModal(round) {
+    var a = byRound(round);
+    if (!a || !modal) return;
+    curRound = round;
+
+    modalHd.innerHTML =
+      '<span class="dok-modal-no">제' + esc(a.round) + '회</span>' +
+      '<span class="dok-modal-when">' + esc(a.date) + '</span>' +
+      '<h3>' + esc(a.project) + '</h3>' +
+      '<div class="dok-modal-who">' + esc(a.awardee) + '</div>';
+    modalBody.innerHTML = renderBody(a);
+    modalBody.scrollTop = 0;
+
+    // 앞뒤 회차 — 없는 쪽은 눌리지 않게 흐려 둡니다.
+    var rounds = awards.map(function (x) { return x.round; }).sort(function (p, q) { return p - q; });
+    var at = rounds.indexOf(round);
+    btnPrev.disabled = at <= 0;
+    btnNext.disabled = at < 0 || at >= rounds.length - 1;
+    btnPrev.dataset.go = at > 0 ? rounds[at - 1] : '';
+    btnNext.dataset.go = (at >= 0 && at < rounds.length - 1) ? rounds[at + 1] : '';
+
+    if (!modal.classList.contains('open')) {
+      lastFocus = document.activeElement;
+      modal.classList.add('open');
+      // 뒤 화면이 같이 스크롤되지 않게 잠급니다. 닫을 때 원래대로 돌립니다.
+      document.body.style.overflow = 'hidden';
+    }
+    modal.querySelector('.dok-modal-x').focus();
+    markHash(round);
+  }
+
+  function closeModal() {
+    if (!modal || !modal.classList.contains('open')) return;
+    modal.classList.remove('open');
+    document.body.style.overflow = '';
+    curRound = null;
+    markHash(null);
+    if (lastFocus && lastFocus.focus) lastFocus.focus();
+    lastFocus = null;
+  }
+
+  function buildModal() {
+    var root = document.getElementById('dok');
+    if (!root || document.getElementById('dok-modal')) return;
+
+    var el = document.createElement('div');
+    el.className = 'dok-modal';
+    el.id = 'dok-modal';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.setAttribute('aria-labelledby', 'dok-modal-hd');
+    el.innerHTML =
+      '<div class="dok-modal-back" data-close></div>' +
+      '<div class="dok-modal-box">' +
+        '<button type="button" class="dok-modal-x" data-close aria-label="닫기">✕</button>' +
+        '<div class="dok-modal-hd" id="dok-modal-hd"></div>' +
+        '<div class="dok-modal-body" id="dok-modal-body" tabindex="0"></div>' +
+        '<div class="dok-modal-ft">' +
+          '<button type="button" class="dok-modal-prev">← 이전 회차</button>' +
+          '<button type="button" class="dok-modal-next">다음 회차 →</button>' +
+          '<button type="button" class="dok-modal-close" data-close>닫기</button>' +
+        '</div>' +
+      '</div>';
+    root.appendChild(el);
+
+    modal = el;
+    modalHd = el.querySelector('#dok-modal-hd');
+    modalBody = el.querySelector('#dok-modal-body');
+    btnPrev = el.querySelector('.dok-modal-prev');
+    btnNext = el.querySelector('.dok-modal-next');
+
+    el.addEventListener('click', function (e) {
+      if (e.target.closest('[data-close]')) { closeModal(); return; }
+      var nav = e.target.closest('.dok-modal-prev, .dok-modal-next');
+      if (nav && nav.dataset.go) openModal(parseInt(nav.dataset.go, 10));
+    });
+
+    document.addEventListener('keydown', function (e) {
+      if (!modal.classList.contains('open')) return;
+      if (e.key === 'Escape') { closeModal(); return; }
+      // ← → 로도 회차를 넘길 수 있게. 본문을 읽는 중에는 방해하지 않습니다.
+      if (e.key === 'ArrowLeft' && !btnPrev.disabled && btnPrev.dataset.go) {
+        openModal(parseInt(btnPrev.dataset.go, 10));
+      } else if (e.key === 'ArrowRight' && !btnNext.disabled && btnNext.dataset.go) {
+        openModal(parseInt(btnNext.dataset.go, 10));
+      }
+    });
+  }
+
+  /* 목록·표에 '누를 수 있음'을 켜고 클릭을 받습니다.
+     목록은 지역을 고를 때마다 다시 그려지므로, 한 번 걸어 두고 위임으로 받습니다. */
+  function wireOpeners() {
+    buildModal();
+
+    // 지도 옆 목록 — 다시 그려져도 계속 동작하도록 바깥 칸에 걸어 둡니다.
+    ['dok-map-side', 'dok-map-offmap'].forEach(function (id) {
+      var box = document.getElementById(id);
+      if (!box) return;
+      box.addEventListener('click', function (e) {
+        var li = e.target.closest('.dok-map-list li');
+        if (li && li.dataset.round) openModal(parseInt(li.dataset.round, 10));
+      });
+      box.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var li = e.target.closest('.dok-map-list li');
+        if (li && li.dataset.round) { e.preventDefault(); openModal(parseInt(li.dataset.round, 10)); }
+      });
+    });
+
+    // 역대 표
+    var table = document.querySelector('#dok .dok-all-table');
+    if (table) {
+      table.classList.add('is-clickable');
+      table.addEventListener('click', function (e) {
+        var tr = e.target.closest('tbody tr');
+        if (tr && tr.dataset.round) openModal(parseInt(tr.dataset.round, 10));
+      });
+      table.addEventListener('keydown', function (e) {
+        if (e.key !== 'Enter' && e.key !== ' ') return;
+        var tr = e.target.closest('tbody tr');
+        if (tr && tr.dataset.round) { e.preventDefault(); openModal(parseInt(tr.dataset.round, 10)); }
+      });
+    }
+  }
+  /* ── 주소로 회차 열기 ──
+     주소 끝에 #dok-12 를 붙이면 제12회 요약이 열린 채로 시작합니다.
+     한 회차를 그대로 링크로 보낼 수 있게 하려고 둔 것입니다
+     ("40회 요약 좀 봐" 하고 주소만 건네면 됩니다).
+     팝업을 열고 닫을 때 주소도 같이 바꿉니다 — 뒤로 가기로 닫힙니다. */
+  function openFromHash() {
+    var m = /^#dok-(\d+)$/.exec(location.hash || '');
+    if (m) openModal(parseInt(m[1], 10));
+  }
+  window.addEventListener('hashchange', function () {
+    var m = /^#dok-(\d+)$/.exec(location.hash || '');
+    var want = m ? parseInt(m[1], 10) : null;
+    // 이미 그 회차가 열려 있으면 아무것도 하지 않습니다.
+    // 우리가 주소를 바꿔서 난 hashchange 를 되받아 다시 여는 것을 막습니다.
+    if (want === curRound) return;
+    if (want) openModal(want);
+    else closeModal();
+  });
+
+  // 팝업 상태를 주소에 적어 둡니다. 뒤로 가기로 닫히고, 링크로 다시 열립니다.
+  function markHash(round) {
+    try {
+      if (round) {
+        if (location.hash !== '#dok-' + round) location.hash = 'dok-' + round;
+      } else if (location.hash) {
+        history.replaceState(null, '', location.pathname + location.search);
+      }
+    } catch (e) { /* 주소를 못 바꿔도 팝업은 그대로 돕니다 */ }
+  }
+  /* ── 「월간 좋은예산」 사례 ──
+     밑빠진 독상 수상작이 아니라, 좋은예산센터 월간지가 다룬 예산낭비 사례입니다.
+     회차가 없으므로 awards 에 섞지 않고 따로 둡니다(수상 기록을 흐리지 않게).
+     지도 옆 목록에서 누르면 같은 팝업으로 열립니다. */
+  var CASES = {};
+
+  function openCase(id) {
+    var c = CASES[id];
+    if (!c || !modal) return;
+    curRound = null;
+    modalHd.innerHTML =
+      '<span class="dok-modal-no">월간 좋은예산</span>' +
+      '<span class="dok-modal-when">' + esc(c.ym.replace('-', '. ')) + '</span>' +
+      '<h3>' + esc(c.title) + '</h3>' +
+      '<div class="dok-modal-who">' + esc(c.who || '') + '</div>';
+    modalBody.innerHTML = renderSummary(c);
+    modalBody.scrollTop = 0;
+    /* 앞뒤 회차는 수상작 사이를 오가는 것이라 사례에는 뜻이 없습니다. */
+    btnPrev.disabled = true; btnNext.disabled = true;
+    btnPrev.dataset.go = ''; btnNext.dataset.go = '';
+    if (!modal.classList.contains('open')) {
+      lastFocus = document.activeElement;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    modal.querySelector('.dok-modal-x').focus();
+  }
+  window.dokOpenCase = openCase;
+
+  /* 지도가 지역별로 사례를 물어봅니다. 없으면 빈 배열입니다. */
+  window.dokCasesOf = function (code) {
+    var out = [];
+    for (var id in CASES) {
+      var c = CASES[id];
+      if (code ? (c.sido || []).indexOf(code) >= 0 : !(c.sido || []).length) out.push(c);
+    }
+    return out.sort(function (a, b) { return a.ym < b.ym ? 1 : -1; });
+  };
+
+  fetch('data/cases.json')
+    .then(function (r) { return r.json(); })
+    .then(function (d) {
+      (d.cases || []).forEach(function (c) { CASES[c.id] = c; });
+      /* 지도가 이미 그려졌을 수 있으니 다시 그려 달라고 알립니다. */
+      window.dispatchEvent(new CustomEvent('dok:cases'));
+    })
+    .catch(function () { /* 못 읽어도 나머지 화면은 그대로 돕니다 */ });
+
+  if (readTable()) {
+    wireOpeners();
+    openFromHash();
+  }
+
+  /* 지도 옆 목록의 사례 줄을 받습니다. 목록은 다시 그려지므로 위임으로 겁니다. */
+  ['dok-map-side', 'dok-map-offmap'].forEach(function (id) {
+    var box = document.getElementById(id);
+    if (!box) return;
+    box.addEventListener('click', function (e) {
+      var li = e.target.closest('[data-case]');
+      if (li) openCase(li.dataset.case);
+    });
+    box.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      var li = e.target.closest('[data-case]');
+      if (li) { e.preventDefault(); openCase(li.dataset.case); }
+    });
+  });
+})();
+/* ▲▲ 역대 수상 요약 팝업 끝 ▲▲ */
 </script>
 
 </body>
