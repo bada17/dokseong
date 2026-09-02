@@ -1146,6 +1146,7 @@ html { scroll-behavior: smooth; }
 #dok [hidden] { display: none !important; }
 
 #dok :focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }
+
 /* ▼▼ 역대 수상 요약 팝업 — dok-history.html 에서 옮겨 온 것 ▼▼ */
 /* 맨 오른쪽 '요약 →' 칸. 표 전체가 눌린다는 것을 알려 줍니다.
    .is-clickable 이 없으면(스크립트가 막히면) 아예 숨어서 헛되이 꾀지 않습니다. */
@@ -3525,6 +3526,8 @@ toggleBtn.addEventListener('click', () => {
   }).observe(root, { childList: true, subtree: true });
 })();
 
+
+
 /* ▼▼ 역대 수상 요약 팝업 — dok-history.html 에서 옮겨 온 것 ▼▼ */
 /* 개편 저장소 action-home-renewal/dok-history.html 의 DOK_SUMMARY 와 팝업을
    그대로 옮겨 온 것입니다. 사용자 결정(2026-09-02)으로 두 곳에서 관리합니다.
@@ -4240,12 +4243,7 @@ toggleBtn.addEventListener('click', () => {
   var modal, modalBody, modalHd, btnPrev, btnNext, lastFocus = null, curRound = null;
 
   function renderBody(a) {
-    return renderSummary(DOK_SUMMARY[a.round]);
-  }
-
-  /* 요약 한 덩이를 화면 조각으로. 수상작(DOK_SUMMARY)과 사례(cases.json)가
-     같은 칸(lead·figs·body·src)을 쓰므로 그리는 코드도 하나입니다. */
-  function renderSummary(s) {
+    var s = DOK_SUMMARY[a.round];
     if (!s) {
       return '<div class="dok-modal-none">' +
         '<b>요약을 준비하고 있습니다</b>' +
@@ -4441,73 +4439,10 @@ toggleBtn.addEventListener('click', () => {
       }
     } catch (e) { /* 주소를 못 바꿔도 팝업은 그대로 돕니다 */ }
   }
-  /* ── 「월간 좋은예산」 사례 ──
-     밑빠진 독상 수상작이 아니라, 좋은예산센터 월간지가 다룬 예산낭비 사례입니다.
-     회차가 없으므로 awards 에 섞지 않고 따로 둡니다(수상 기록을 흐리지 않게).
-     지도 옆 목록에서 누르면 같은 팝업으로 열립니다. */
-  var CASES = {};
-
-  function openCase(id) {
-    var c = CASES[id];
-    if (!c || !modal) return;
-    curRound = null;
-    modalHd.innerHTML =
-      '<span class="dok-modal-no">월간 좋은예산</span>' +
-      '<span class="dok-modal-when">' + esc(c.ym.replace('-', '. ')) + '</span>' +
-      '<h3>' + esc(c.title) + '</h3>' +
-      '<div class="dok-modal-who">' + esc(c.who || '') + '</div>';
-    modalBody.innerHTML = renderSummary(c);
-    modalBody.scrollTop = 0;
-    /* 앞뒤 회차는 수상작 사이를 오가는 것이라 사례에는 뜻이 없습니다. */
-    btnPrev.disabled = true; btnNext.disabled = true;
-    btnPrev.dataset.go = ''; btnNext.dataset.go = '';
-    if (!modal.classList.contains('open')) {
-      lastFocus = document.activeElement;
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    }
-    modal.querySelector('.dok-modal-x').focus();
-  }
-  window.dokOpenCase = openCase;
-
-  /* 지도가 지역별로 사례를 물어봅니다. 없으면 빈 배열입니다. */
-  window.dokCasesOf = function (code) {
-    var out = [];
-    for (var id in CASES) {
-      var c = CASES[id];
-      if (code ? (c.sido || []).indexOf(code) >= 0 : !(c.sido || []).length) out.push(c);
-    }
-    return out.sort(function (a, b) { return a.ym < b.ym ? 1 : -1; });
-  };
-
-  fetch('data/cases.json')
-    .then(function (r) { return r.json(); })
-    .then(function (d) {
-      (d.cases || []).forEach(function (c) { CASES[c.id] = c; });
-      /* 지도가 이미 그려졌을 수 있으니 다시 그려 달라고 알립니다. */
-      window.dispatchEvent(new CustomEvent('dok:cases'));
-    })
-    .catch(function () { /* 못 읽어도 나머지 화면은 그대로 돕니다 */ });
-
   if (readTable()) {
     wireOpeners();
     openFromHash();
   }
-
-  /* 지도 옆 목록의 사례 줄을 받습니다. 목록은 다시 그려지므로 위임으로 겁니다. */
-  ['dok-map-side', 'dok-map-offmap'].forEach(function (id) {
-    var box = document.getElementById(id);
-    if (!box) return;
-    box.addEventListener('click', function (e) {
-      var li = e.target.closest('[data-case]');
-      if (li) openCase(li.dataset.case);
-    });
-    box.addEventListener('keydown', function (e) {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      var li = e.target.closest('[data-case]');
-      if (li) { e.preventDefault(); openCase(li.dataset.case); }
-    });
-  });
 })();
 /* ▲▲ 역대 수상 요약 팝업 끝 ▲▲ */
 </script>
