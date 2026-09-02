@@ -2187,7 +2187,7 @@ items.forEach(item => {
       }).join('');
 
     svg.querySelectorAll('.dok-map-area').forEach((el) => {
-      el.addEventListener('click', () => select(el.dataset.code));
+      el.addEventListener('click', () => select(el.dataset.code, 'map'));
     });
     fitMapText();
   }
@@ -2222,7 +2222,10 @@ items.forEach(item => {
   if ('ResizeObserver' in window) new ResizeObserver(fitMapText).observe(svg);
   else window.addEventListener('resize', fitMapText);
 
-  function select(code) {
+  // from — 'map'(지도 도형) 또는 'chip'(이름 알약).
+  // 둘이 같은 일을 하지만 어느 쪽을 실제로 누르는지 알아야 무엇을 키울지 정할 수 있다.
+  // 2026-09-02 이전에는 둘 다 같은 이벤트를 보내 구분이 안 됐다.
+  function select(code, from) {
     selected = selected === code ? null : code;
     paint();
     renderSide();
@@ -2233,7 +2236,7 @@ items.forEach(item => {
         side.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
       }
     }
-    track('map_select_sido', { sido: code });
+    track('map_select_sido', { sido: code, from: from || 'map' });
   }
 
   function drawChips() {
@@ -2243,7 +2246,7 @@ items.forEach(item => {
       `<button type="button" class="dok-map-chip" data-code="${a.code}" aria-pressed="false">` +
       `<span>${esc(a.short || a.name)}</span><span class="dok-chip-n"></span></button>`).join('');
     box.querySelectorAll('.dok-map-chip').forEach((el) => {
-      el.addEventListener('click', () => select(el.dataset.code));
+      el.addEventListener('click', () => select(el.dataset.code, 'chip'));
     });
   }
 
