@@ -179,6 +179,8 @@ html { scroll-behavior: smooth; }
   text-anchor: middle; pointer-events: none; paint-order: stroke;
   stroke: #fff; stroke-width: 4px; stroke-linejoin: round;
 }
+/* 2026-09-03 부터 스크립트가 이 클래스를 붙이지 않습니다(이름은 전부 같은 색).
+   되살리려면 paint() 의 classList.remove('is-light') 를 toggle 로 되돌리세요. */
 #dok .dok-map-label.is-light { fill: #fff; stroke: none; }
 /* 이름을 도형 밖으로 뺀 지역(세종)을 잇는 가는 선.
    non-scaling-stroke 라 지도가 작아져도 굵기는 화면에서 그대로다. */
@@ -245,11 +247,18 @@ html { scroll-behavior: smooth; }
   margin-top: 26px; padding: 18px 20px; border: 1px dashed var(--line);
   border-radius: 12px; font-size: 14px; color: var(--ink-soft); word-break: keep-all;
 }
-#dok .dok-map-offmap b { color: var(--ink); }
+/* 2026-09-03: 버튼이 알약이 되면서 문구와 한 줄에 붙어 버렸습니다. 줄을 나눕니다. */
+#dok .dok-map-offmap b { display: block; color: var(--ink); font-size: 15px; }
+/* 2026-09-03 사용자 지시로 밑줄 글자에서 알약 버튼으로 바꾸고 키웠습니다.
+   모서리는 같은 화면의 '제보하기' 버튼(.dok-map-report-cta)과 맞췄습니다. */
 #dok .dok-map-offmap button {
-  margin-top: 6px; min-height: 44px; font-size: 14px; font-weight: 700; cursor: pointer;
-  background: none; border: 0; color: var(--brand-deep); text-decoration: underline; padding: 0;
+  display: inline-flex; align-items: center; justify-content: center;
+  margin-top: 14px; min-height: 52px; padding: 0 26px; border-radius: 999px;
+  font-family: 'GmarketSans', sans-serif; font-size: 16px; font-weight: 700;
+  color: #fff; background: var(--brand-deep); border: 0;
+  text-decoration: none; cursor: pointer; transition: background .15s;
 }
+#dok .dok-map-offmap button:hover { background: var(--ink); }
 @media (max-width: 860px) {
   #dok .dok-map-wrap { grid-template-columns: 1fr; gap: 24px; }
   #dok .dok-map-side { position: static; padding: 22px 20px; }
@@ -257,7 +266,7 @@ html { scroll-behavior: smooth; }
   #dok .dok-map-label { font-size: var(--dok-map-label, 30px); }
   #dok .dok-map-dot { font-size: var(--dok-map-dot, 24px); }
   #dok .dok-map-mode { min-height: 44px; padding: 0 18px; }
-  #dok .dok-map-offmap button { min-height: 44px; }
+  #dok .dok-map-offmap button { min-height: 52px; width: 100%; }
   #dok .dok-map-stat b { font-size: 30px; }
   #dok .dok-map-list { max-height: 60vh; }
 }
@@ -393,6 +402,18 @@ html { scroll-behavior: smooth; }
 #dok .dok-camp-modal-close:hover { background: var(--line); }
 
 #dok .dok-camp-modal-body { padding: 24px 28px 28px; overflow-y: auto; }
+/* 보고서 본문 중간에 넣는 사진. 결과보고서처럼 보여줄 것이 쌓인 글에 씁니다
+   (2026-09-03). 맨 위 대표 사진과 달리 비율을 자르지 않습니다 — 문서 캡처나
+   세로 사진이 들어올 수 있기 때문입니다. */
+#dok .dok-camp-modal-figure { margin: 20px 0; }
+#dok .dok-camp-modal-figure img {
+  width: 100%; height: auto; display: block;
+  border-radius: 12px; background: #eef3f6;
+}
+#dok .dok-camp-modal-figure figcaption {
+  margin-top: 8px; font-size: 13px; line-height: 1.6;
+  color: var(--ink-soft); word-break: keep-all;
+}
 #dok .dok-camp-modal-body h4 {
   font-size: 16px; margin: 24px 0 8px; color: var(--brand-deep); word-break: keep-all;
 }
@@ -605,6 +626,23 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-join-detail b { color: var(--ink); }
 
+/* 참여하면 무엇을 받는지 (2026-09-03).
+   ⚠️ 여기 적은 것은 약속입니다. 지킬 수 있는 것만 적으세요 —
+      주간 보고서를 적어 두고 한 번 거르면 그때부터 믿지 않습니다.
+   사업마다 다르게 적으려면 campaigns.json 의 join_promise 에 적습니다. */
+#dok .dok-join-promise {
+  margin-top: 16px; padding: 14px 16px;
+  background: var(--brand-tint); border-radius: 12px;
+}
+#dok .dok-join-promise li {
+  position: relative; padding-left: 18px; font-size: 14px; line-height: 1.65;
+  color: var(--ink); word-break: keep-all; list-style: none;
+}
+#dok .dok-join-promise li + li { margin-top: 6px; }
+#dok .dok-join-promise li::before {
+  content: '✓'; position: absolute; left: 0; top: 0;
+  font-weight: 700; color: var(--brand-deep);
+}
 #dok .dok-join-submit {
   width: 100%; margin-top: 22px; min-height: 52px;
   font-family: 'GmarketSans', sans-serif; font-size: 16px; font-weight: 700;
@@ -824,7 +862,9 @@ html { scroll-behavior: smooth; }
   display: flex; align-items: center; gap: 10px;
   font-weight: 700; font-size: 15px; text-decoration: none;
 }
-#dok .dok-topbar .dok-org img { height: 26px; display: block; }
+/* width 를 함께 지정하지 않으면 원본 폭(1920px)이 그대로 남아 로고가
+   화면 끝까지 늘어납니다. 2026-09-03 에 실제로 그렇게 났습니다. */
+#dok .dok-topbar .dok-org img { height: 26px; width: auto; display: block; }
 #dok .dok-topbar nav { display: flex; gap: 8px; align-items: center; }
 #dok .dok-topbar .dok-nav-link {
   font-size: 13.5px; font-weight: 600; color: var(--ink-soft);
@@ -1021,6 +1061,36 @@ html { scroll-behavior: smooth; }
 #dok .dok-story-body > * + * { margin-top: 12px; }
 #dok .dok-story-body a { color: var(--brand-deep); }
 
+/* ── 후원자 소감 ──
+   2026-09-03 사용자 요청으로 "어떤 모양인지 보려고" 먼저 만든 칸입니다.
+   ⚠️ 지금 들어 있는 문구는 전부 예시이며 실제 후원자의 말이 아닙니다.
+      그래서 카드마다 '예시' 딱지가 붙습니다. 실제 소감으로 바꾸기 전까지
+      딱지를 떼지 마세요 — 지어낸 말을 사실처럼 두지 않는다는 규칙입니다. */
+#dok .dok-voice-wrap { margin-top: 44px; }
+#dok .dok-voice-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px; margin-top: 22px; align-items: start;
+}
+#dok .dok-voice-card {
+  position: relative; padding: 30px 24px 22px;
+  border: 1px solid var(--line); border-radius: 16px;
+  background: var(--brand-tint);
+}
+#dok .dok-voice-card::before {
+  content: '\201C'; position: absolute; top: 10px; left: 18px;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 52px; line-height: 1; color: var(--brand); opacity: .4;
+}
+#dok .dok-voice-q {
+  position: relative; font-size: 15.5px; line-height: 1.75;
+  color: var(--ink); word-break: keep-all;
+}
+#dok .dok-voice-by {
+  margin-top: 16px; font-size: 13px; font-weight: 700; color: var(--brand-deep);
+}
+#dok .dok-voice-by span { font-weight: 400; color: var(--ink-soft); }
+
 #dok .dok-all-toggle {
   margin-top: 40px;
   font-family: 'GmarketSans', sans-serif;
@@ -1051,6 +1121,16 @@ html { scroll-behavior: smooth; }
 #dok .dok-all-table tr:last-child td { border-bottom: none; }
 #dok .dok-all-table tr:nth-child(even) td { background: #f7fbfd; }
 #dok .dok-all-table .dok-no { font-weight: 700; color: var(--brand-deep); white-space: nowrap; }
+/* 2026-09-03: 표 아래에 「월간 좋은예산」 사례를 이어 붙였습니다.
+   수상 회차가 아니므로 구분선을 두고, 회차 칸에는 출처를 적습니다. */
+#dok .dok-all-table .dok-case-sep td {
+  padding: 16px; background: var(--brand-tint) !important;
+  font-weight: 700; font-size: 13.5px; color: var(--brand-deep);
+  border-top: 2px solid var(--brand); word-break: keep-all;
+}
+#dok .dok-all-table.is-clickable tbody tr.dok-case-sep { cursor: default; }
+#dok .dok-all-table.is-clickable tbody tr.dok-case-sep:hover td { background: var(--brand-tint) !important; }
+#dok .dok-all-table .dok-case-row .dok-no { color: var(--ink-soft); font-size: 13px; }
 
 /* ── Report form ── */
 /* ── 제보 ──
@@ -1060,7 +1140,8 @@ html { scroll-behavior: smooth; }
       파란 '제보하기' 버튼과 이어지고, 투표 칸이 이미 쓰는 색입니다. */
 #dok .dok-report { background: var(--brand-tint); color: var(--ink); }
 #dok .dok-report .dok-section-tag { color: var(--brand-deep); }
-#dok .dok-report .dok-lead { color: var(--ink-soft); }
+/* 2026-09-03 사용자 지시로 조금 키웠습니다(공용 .dok-lead 는 16.5px). */
+#dok .dok-report .dok-lead { color: var(--ink-soft); font-size: 18.5px; }
 
 
 /* 한눈에 들어와야 하는 버튼. 폼을 펼쳐 두면 넓은 화면에서 '제보하기'가
@@ -1406,8 +1487,12 @@ html { scroll-behavior: smooth; }
 <div id="dok">
 
 <header class="dok-topbar">
+  <!-- 로고는 시민행동 홈페이지(아임웹)가 쓰는 그 파일을 그대로 부릅니다.
+       맨 아래 푸터의 자매기관 로고 셋도 같은 방식입니다. 절대주소라 나중에
+       캠페이너스 안에 붙여넣어도 그대로 보입니다. -->
   <a class="dok-org" href="https://action.or.kr" target="_blank" rel="noopener">
-    함께하는 시민행동
+    <img src="https://cdn.imweb.me/upload/S20210826b814397ca4e6d/2a859fe4ace59.png"
+         alt="함께하는 시민행동" decoding="async">
   </a>
   <nav>
     <a class="dok-nav-link" href="#dok-campaigns">예산감시 사업</a>
@@ -1489,10 +1574,10 @@ html { scroll-behavior: smooth; }
 
   <div class="dok-camp-tabs" role="tablist">
     <button type="button" class="dok-camp-tab" role="tab" data-status="ongoing" aria-selected="true">
-      진행 중인 예산감시 사업<span class="dok-camp-count" data-count="ongoing"></span>
+      진행 중인 예산감시<span class="dok-camp-count" data-count="ongoing"></span>
     </button>
     <button type="button" class="dok-camp-tab" role="tab" data-status="closed" aria-selected="false">
-      종료된 예산감시 사업<span class="dok-camp-count" data-count="closed"></span>
+      종료된 예산감시<span class="dok-camp-count" data-count="closed"></span>
     </button>
   </div>
 
@@ -1579,6 +1664,9 @@ html { scroll-behavior: smooth; }
     <div class="dok-join-head" id="dok-join-head">
       <h3 id="dok-join-title">이 감시에 참여하기</h3>
       <p class="dok-join-sub" id="dok-join-sub"></p>
+      <!-- 참여하면 무엇을 받는지. campaigns.json 의 join_promise 에서 채웁니다.
+           그 칸이 없으면 아래 기본 문구가 들어갑니다(스크립트 JOIN_PROMISE). -->
+      <ul class="dok-join-promise" id="dok-join-promise"></ul>
       <button type="button" class="dok-join-close" id="dok-join-close" aria-label="닫기">✕</button>
     </div>
 
@@ -1866,7 +1954,7 @@ html { scroll-behavior: smooth; }
 
 
 <section class="dok-section" id="dok-history">
-  <h2>밑빠진 독상이 지목해온 것들</h2>
+  <h2>밑빠진 독상을 메운 사람들</h2>
 
   <!-- ── 활동가·후원자 이야기 ──
        수상 목록은 아래 전체 표와 지도에 이미 두 번 나오므로, 이 자리는
@@ -1878,10 +1966,43 @@ html { scroll-behavior: smooth; }
        채우는 법은 README 의 '이야기 채우는 법' 을 보세요.
        아래 두 줄(소제목·설명)도 그냥 고쳐 쓰시면 됩니다. -->
   <div class="dok-story-wrap" id="dok-story-wrap" hidden>
-    <h3 class="dok-story-head">상을 주는 사람들</h3>
-    <p class="dok-story-sub">밑빠진 독상을 만들어 온 활동가들의 글입니다.</p>
+    <h3 class="dok-story-head">밑빠진 독을 메우던 활동가</h3>
     <div class="dok-story-grid" id="dok-story-grid"></div>
   </div>
+
+  <!-- ── 후원자 소감 (아직 자리만) ──
+       2026-09-03 사용자 요청으로 모양부터 보려고 만든 칸입니다.
+       ⚠️ 아래 문구는 전부 예시이며 실제 후원자의 말이 아닙니다.
+       · 실제 소감을 받으면 아래 JSON 을 갈아 끼우고 "sample" 을 지우세요
+         (딱지가 함께 사라집니다).
+       · 통째로 감추려면 스크립트 위쪽 DOK_SHOW_VOICES 를 false 로. -->
+  <div class="dok-voice-wrap" id="dok-voice-wrap" hidden>
+    <h3 class="dok-story-head">독을 함께 메우는 시민들</h3>
+    <div class="dok-voice-grid" id="dok-voice-grid"></div>
+  </div>
+
+  <script type="application/json" id="dok-voice-data">
+  [
+    {
+      "quote": "세금이 어디로 새는지 아무도 안 알려줘서 답답했습니다. 매달 만 원이 그걸 캐내는 데 쓰인다면 아깝지 않습니다.",
+      "name": "김○○",
+      "since": "2019년부터 후원",
+      "sample": true
+    },
+    {
+      "quote": "우리 동네 사업이 밑빠진 독상을 받는 걸 보고 후원을 시작했습니다. 누가 보고 있다는 것만으로도 달라지더군요.",
+      "name": "이○○",
+      "since": "2023년부터 후원",
+      "sample": true
+    },
+    {
+      "quote": "큰돈은 못 냅니다. 그래도 스무 해 넘게 같은 일을 해온 단체가 남아 있어야 한다고 생각했습니다.",
+      "name": "박○○",
+      "since": "2015년부터 후원",
+      "sample": true
+    }
+  ]
+  </script>
 
   <button type="button" class="dok-all-toggle" id="dok-all-toggle">역대 수상 내역 전체 보기 (1~40회) ▾</button>
   <div class="dok-all-table-wrap" id="dok-all-table">
@@ -2048,8 +2169,8 @@ html { scroll-behavior: smooth; }
   <div class="dok-section">
     <h2>당신의 제보가<br>제41회 밑빠진 독상이 됩니다</h2>
     <p class="dok-lead">
-      함께하는 시민행동은 당신이 좌절했던 예산 문제, 당신이 분노하며 바로본
-      예산 낭비 사례를 함께 추적하고 대안을 찾습니다.
+      함께하는 시민행동은 당신이 좌절했던 예산 문제, 당신이 분노하던
+      예산 낭비를 함께 추적하고 대안을 찾습니다.
     </p>
 
     <!-- ⚠️ 화면에 보이는 것은 아래 큰 버튼 하나입니다. 누르면 제보 팝업이 열립니다
@@ -2377,6 +2498,19 @@ html { scroll-behavior: smooth; }
 //     · 첫 화면 지표의 '1,000억 원' (검증 안 된 값. 40회·26년은 실제 값이라 남습니다)
 const DOK_SHOW_SAMPLE = false;
 
+// 후원자 소감 칸을 화면에 낼지. 2026-09-03 에 모양만 먼저 만든 칸입니다.
+//  ⚠️ 지금 들어 있는 문구는 예시라 카드마다 '예시' 딱지가 붙습니다.
+//     실제 소감을 받기 전에 딱지를 떼지 마세요.
+const DOK_SHOW_VOICES = true;
+
+// 예산감시 사업 목록을 어디에서 읽을지 (2026-09-03).
+//  · 이 파일만 고치면 사업 카드가 바뀝니다. 코드는 건드릴 필요가 없습니다.
+//  · 못 읽으면 아래 #dok-campaign-data 의 예시로 되돌아갑니다(화면이 비지 않습니다).
+//  ⚠️ 나중에 캠페이너스 안에 붙여넣으면 상대주소('data/…')는 404 가 납니다.
+//     그때는 아래 주석처럼 GitHub 절대주소로 바꾸세요 — 어디에 붙여넣어도 읽힙니다.
+//     'https://raw.githubusercontent.com/bada17/dokseong/main/public/data/campaigns.json'
+const DOK_CAMPAIGN_URL = 'data/campaigns.json';
+
 // 폼이 받은 것을 어디로 보낼지.
 //   'disabled' — 보내지 않습니다. 버튼이 잠기고 안내만 뜹니다(개인정보가 나가지 않음).
 //   'link'     — 우리 폼 대신 url 의 바깥 접수처로 보냅니다(캠페이너스 입력폼 · 도너스).
@@ -2557,7 +2691,10 @@ items.forEach(item => {
       el.classList.toggle('is-on', selected === a.code);
 
       const label = svg.querySelector(`.dok-map-label[data-code="${a.code}"]`);
-      if (label) label.classList.toggle('is-light', t > 0.55);
+      // 2026-09-03 사용자 지시: 진하게 칠해진 지역만 흰 글씨가 되어 서울 하나만
+      // 튀어 보였습니다. 이름은 전부 같은 검은색으로 둡니다 — 흰 테두리
+      // (paint-order: stroke)가 있어 진한 칠 위에서도 읽힙니다.
+      if (label) label.classList.remove('is-light');
       const dot = svg.querySelector(`.dok-map-dot[data-code="${a.code}"]`);
       if (dot) dot.textContent = n ? n : '';
 
@@ -2599,7 +2736,7 @@ items.forEach(item => {
       '</div>' +
       '<ul class="dok-map-list dok-map-list-case">' + cs.map((c) =>
         `<li data-case="${esc(c.id)}" tabindex="0">
-          <div class="dok-map-round">${esc(c.ym.replace('-', '. '))}</div>
+          <div class="dok-map-round">월간 좋은예산 · ${esc(c.ym.replace('-0', '. ').replace('-', '. '))}</div>
           <div class="dok-map-proj">${esc(c.title)}</div>
           <div class="dok-map-who">${esc(c.who || '')}</div>
         </li>`).join('') + '</ul></div>';
@@ -2618,8 +2755,8 @@ items.forEach(item => {
           `<div class="dok-map-stat"><b>${totalAwards}</b><span>지역에 수여된 독상</span></div>` +
           `<div class="dok-map-stat"><b>${Object.values(reportCounts).reduce((x, y) => x + y, 0)}</b><span>시민 제보</span></div>` +
         '</div>' +
-        '<button type="button" class="dok-map-report-cta">예산낭비 제보하기 →</button>' +
-        caseList('');
+        // 2026-09-03: 월간 좋은예산 사례는 전부 중앙정부 칸으로 옮겼습니다.
+        '<button type="button" class="dok-map-report-cta">예산낭비 제보하기 →</button>';
 
       const cta0 = side.querySelector('.dok-map-report-cta');
       if (cta0) cta0.addEventListener('click', () => {
@@ -2665,12 +2802,10 @@ items.forEach(item => {
     const central = awards.filter((a) => a.scope === 'central');
     const multi   = awards.filter((a) => a.scope === 'multi');
     const unknown = awards.filter((a) => a.scope === 'unknown');
+    // 2026-09-03 사용자 지시로 갈래별 건수와 '절반 이상은…' 문장을 지웠습니다.
     off.innerHTML =
-      `<b>지도에 찍히지 않는 ${central.length + multi.length + unknown.length}건</b><br>` +
-      `중앙정부·공공기관 ${central.length}건, 여러 지자체에 걸친 사업 ${multi.length}건` +
-      (unknown.length ? `, 지역 확인이 필요한 ${unknown.length}건` : '') +
-      '. 밑빠진 독상의 절반 이상은 특정 지역이 아니라 중앙정부를 향했습니다.' +
-      '<br><button type="button" id="dok-map-central">중앙정부 수상 내역 보기</button>';
+      `<b>중앙정부, 공공기관 사업 ${central.length + multi.length + unknown.length}건</b>` +
+      '<button type="button" id="dok-map-central">중앙정부 수상 내역 보기</button>';
 
     document.getElementById('dok-map-central').addEventListener('click', () => {
       selected = null;
@@ -2685,7 +2820,8 @@ items.forEach(item => {
             <div class="dok-map-round">제${a.round}회 · ${esc(a.date)}</div>
             <div class="dok-map-proj">${esc(a.project)}</div>
             <div class="dok-map-who">${esc(a.awardee)}</div>
-          </li>`).join('') + '</ul>';
+          </li>`).join('') + '</ul>' +
+        caseList('');
       wirePanelBar();
       // 모바일에서는 목록이 지도 아래에 있어 열린 것을 모른다
       if (window.matchMedia('(max-width: 860px)').matches) {
@@ -2847,6 +2983,16 @@ items.forEach(item => {
 
   const LABEL = { ongoing: '진행 중', closed: '종료' };
 
+  /* 참여 팝업의 기본 약속. 사업마다 다르게 하려면 campaigns.json 에
+     "join_promise": ["…", "…"] 를 적으면 이 자리를 대신합니다.
+     ⚠️ 늘리기 전에 지킬 수 있는지 먼저 보세요. 주간 보고서·오프라인 모임처럼
+        사람 손이 드는 것은 한 사업에서 해보고 나서 적는 편이 낫습니다. */
+  const JOIN_PROMISE = [
+    '이 감시의 결과가 나오면 공개 전에 이메일로 먼저 알려드립니다.',
+    '서명이나 의견 제출이 급할 때 문자로 알려드립니다.',
+    '이 사업이 밑빠진 독상을 받으면 함께 알려드립니다.',
+  ];
+
   // 사진이 있으면 사진, 없으면 자리표시자.
   // 깨진 이미지가 뜨는 것보다 빈 자리가 보이는 편이 낫다.
   function thumb(c, cls) {
@@ -2896,11 +3042,28 @@ items.forEach(item => {
     document.getElementById('dok-camp-modal-title').textContent = c.title;
     document.getElementById('dok-camp-modal-lead').textContent = c.summary || '';
 
+    /* 보고서 본문은 두 곳에서 옵니다.
+       1) JSON 의 "body" — [["h","소제목"],["p","문단"]] 꼴. 바깥 파일로 관리할 때 씁니다.
+       2) 없으면 아래 #dok-camp-bodies 안의 <article data-camp="아이디"> (예전 방식).
+       JSON 쪽은 글자를 그대로 넣습니다(HTML 태그를 넣어도 글자로 보입니다). */
     const src = c.id && document.querySelector(`#dok-camp-bodies [data-camp="${c.id}"]`);
     const body = document.getElementById('dok-camp-modal-body');
-    body.innerHTML = src
-      ? src.innerHTML
-      : '<p class="dok-camp-modal-empty">아직 정리된 내용이 없습니다. 준비되는 대로 이곳에 올립니다.</p>';
+    body.innerHTML = Array.isArray(c.body) && c.body.length
+      ? c.body.map((b) => {
+          // ["h","소제목"] · ["p","문단"] · ["img","주소","설명"]
+          if (b[0] === 'h') return `<h4>${esc(b[1])}</h4>`;
+          if (b[0] === 'img') {
+            if (!b[1]) return '';   // 주소가 비면 빈 사진 자리를 만들지 않습니다
+            return '<figure class="dok-camp-modal-figure">'
+              + `<img src="${esc(b[1])}" alt="${esc(b[2] || '')}" loading="lazy" decoding="async">`
+              + (b[2] ? `<figcaption>${esc(b[2])}</figcaption>` : '')
+              + '</figure>';
+          }
+          return `<p>${esc(b[1])}</p>`;
+        }).join('')
+      : src
+        ? src.innerHTML
+        : '<p class="dok-camp-modal-empty">아직 정리된 내용이 없습니다. 준비되는 대로 이곳에 올립니다.</p>';
     if (c.outcome) {
       body.insertAdjacentHTML('beforeend',
         `<div class="dok-camp-modal-outcome">${esc(c.outcome)}</div>`);
@@ -2989,10 +3152,16 @@ items.forEach(item => {
   let joinLastFocus = null;
   let joinCounts = {};
 
+  /* 참여자 수는 이 숫자를 넘어야 화면에 나옵니다 (2026-09-03 사용자 결정).
+     '12명이 함께하고 있습니다'는 오히려 참여를 막습니다 —
+     사람이 모일 때까지 저절로 숨어 있다가, 넘으면 그때부터 나옵니다.
+     사람이 매번 켜고 끌 필요가 없게 하려고 기준값으로 두었습니다. */
+  const DOK_JOIN_COUNT_MIN = 100;
+
   function paintCounts() {
     document.querySelectorAll('.dok-camp-count').forEach((el) => {
       const n = joinCounts[el.dataset.count];
-      if (n) {
+      if (n >= DOK_JOIN_COUNT_MIN) {
         el.textContent = `✊ ${n.toLocaleString()}명이 함께하고 있습니다`;
         el.classList.add('is-on');
       } else {
@@ -3010,6 +3179,17 @@ items.forEach(item => {
     document.getElementById('dok-join-title').textContent = c.title;
     document.getElementById('dok-join-sub').textContent =
       '이 감시에 이름을 더하면, 진행 상황과 결과를 알려드립니다.';
+
+    /* 참여하면 무엇을 받는지. 사업마다 다르면 campaigns.json 에 적고,
+       없으면 아래 기본 세 줄이 들어갑니다. 지킬 수 있는 것만 적어야 합니다. */
+    const promise = Array.isArray(c.join_promise) && c.join_promise.length
+      ? c.join_promise
+      : JOIN_PROMISE;
+    const pbox = document.getElementById('dok-join-promise');
+    if (pbox) {
+      pbox.innerHTML = promise.map((t) => `<li>${esc(t)}</li>`).join('');
+      pbox.style.display = promise.length ? '' : 'none';
+    }
 
     joinForm.reset();
     joinForm.style.display = '';
@@ -3078,7 +3258,8 @@ items.forEach(item => {
           joinCounts[joinTarget.id] = out.total || 0;
           paintCounts();
           document.getElementById('dok-join-total').textContent =
-            out.total ? `지금까지 ${out.total.toLocaleString()}명이 함께하고 있습니다` : '';
+            out.total >= DOK_JOIN_COUNT_MIN
+              ? `지금까지 ${out.total.toLocaleString()}명이 함께하고 있습니다` : '';
           joinForm.style.display = 'none';
           document.getElementById('dok-join-head').style.display = 'none';
           joinDone.classList.add('is-on');
@@ -3106,6 +3287,26 @@ items.forEach(item => {
   }
 
   render('ongoing');
+
+  /* ── 사업 목록을 바깥 파일에서 읽어 옵니다 (2026-09-03) ──
+     DOK_CAMPAIGN_URL 의 JSON 이 있으면 그것으로 갈아 끼웁니다.
+     파일이 없거나 문법이 틀리면 아무 일도 일어나지 않습니다 —
+     쉼표 하나 때문에 페이지가 죽지 않게 하려는 것입니다. */
+  function setCampaigns(list) {
+    if (!Array.isArray(list) || !list.length) return;
+    campaigns = list;
+    // 탭 옆 숫자는 건드리지 않습니다 — 그 자리는 '몇 명이 함께하고 있습니다'가
+    // 쓰는 칸이고, render() 끝의 paintCounts() 가 매번 다시 씁니다.
+    const on = tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0];
+    render(on.dataset.status);
+  }
+
+  if (typeof DOK_CAMPAIGN_URL === 'string' && DOK_CAMPAIGN_URL) {
+    fetch(DOK_CAMPAIGN_URL)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => setCampaigns(Array.isArray(d) ? d : (d && d.campaigns)))
+      .catch((e) => console.error('사업 목록을 읽지 못했습니다 (' + DOK_CAMPAIGN_URL + ')', e));
+  }
 })();
 
 // ── 시민 제보 ──
@@ -3402,6 +3603,42 @@ if (reportModal) {
   });
 })();
 
+// ── 후원자 소감 ──
+// 활동가 글과 같은 방식(JSON 한 곳)이지만 본문이 없어 더 단순합니다.
+// 항목에 "sample": true 가 있으면 '예시' 딱지가 붙습니다.
+(function () {
+  const wrap = document.getElementById('dok-voice-wrap');
+  const grid = document.getElementById('dok-voice-grid');
+  const src  = document.getElementById('dok-voice-data');
+  if (!wrap || !grid || !src) return;
+  if (typeof DOK_SHOW_VOICES !== 'undefined' && !DOK_SHOW_VOICES) return;
+
+  const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
+    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+  let voices = [];
+  try {
+    voices = JSON.parse(src.textContent) || [];
+  } catch (e) {
+    // 쉼표 하나 때문에 페이지 전체가 멈추면 안 됩니다
+    console.error('후원자 소감을 읽지 못했습니다 (dok-voice-data)', e);
+    return;
+  }
+  // 소감이 하나도 없으면 빈 칸을 내보내지 않습니다 (활동가 글과 같은 규칙)
+  if (!Array.isArray(voices) || !voices.length) return;
+
+  grid.innerHTML = voices.map((v) =>
+    '<figure class="dok-voice-card">' +
+      '<blockquote class="dok-voice-q">' + esc(v.quote) + '</blockquote>' +
+      '<figcaption class="dok-voice-by">' + esc(v.name || '') +
+        (v.since ? ' <span>· ' + esc(v.since) + '</span>' : '') +
+        (v.sample ? ' <span class="dok-draft">예시</span>' : '') +
+      '</figcaption>' +
+    '</figure>').join('');
+
+  wrap.hidden = false;
+})();
+
 // ── 전체 수상 내역 토글 ──
 const toggleBtn = document.getElementById('dok-all-toggle');
 toggleBtn.addEventListener('click', () => {
@@ -3487,6 +3724,7 @@ toggleBtn.addEventListener('click', () => {
     ['.dok-stats-inner > .dok-stat-item', 'up',    90],
     ['.dok-section > *',                  'up',    70],
     ['.dok-story-grid > *',               'up',    55],
+    ['.dok-voice-grid > *',               'up',    55],
     ['.dok-camp-grid > *',                'up',    55],
     ['.dok-map-figure',                   'left',   0],
     ['.dok-map-side',                     'right',  0],
@@ -3583,6 +3821,40 @@ toggleBtn.addEventListener('click', () => {
       window.dokModal.render(c));
   };
 
+  var ymText = function (ym) {
+    return String(ym || '').replace('-0', '. ').replace('-', '. ') + '.';
+  };
+
+  /* 역대 수상 내역 표 아래에 사례를 이어 붙입니다 (2026-09-03 사용자 지시).
+     회차 숫자가 없는 줄이라 위쪽 readTable() 이 건너뜁니다 —
+     '몇 회 수상' 집계는 그대로 40회입니다. */
+  function fillTable() {
+    var tb = document.querySelector('#dok .dok-all-table tbody');
+    if (!tb || tb.querySelector('.dok-case-row')) return;
+    var list = [];
+    for (var id in CASES) list.push(CASES[id]);
+    if (!list.length) return;
+    list.sort(function (a, b) { return a.ym < b.ym ? 1 : -1; });
+
+    var cols = document.querySelectorAll('#dok .dok-all-table thead th').length || 4;
+    var html = '<tr class="dok-case-sep"><td colspan="' + cols + '">' +
+      '「월간 좋은예산」이 다룬 예산낭비 사례 ' + list.length + '건' +
+      (window.dokCasesDraft ? ' <span class="dok-draft">검수 전 초안</span>' : '') +
+      '</td></tr>';
+
+    html += list.map(function (c) {
+      return '<tr class="dok-case-row" data-case="' + esc(c.id) + '" tabindex="0">' +
+        '<td class="dok-no">월간<br>좋은예산</td>' +
+        '<td>' + esc(ymText(c.ym)) + '</td>' +
+        '<td>' + esc(c.who || '') + '</td>' +
+        '<td>' + esc(c.title) + '</td>' +
+        (cols > 4 ? '<td class="dok-go" aria-hidden="true">요약 →</td>' : '') +
+        '</tr>';
+    }).join('');
+
+    tb.insertAdjacentHTML('beforeend', html);
+  }
+
   /* 지도가 지역별로 물어봅니다. 중앙정부 사례는 code 가 빈 값일 때 옵니다. */
   window.dokCasesOf = function (code) {
     var out = [];
@@ -3600,11 +3872,12 @@ toggleBtn.addEventListener('click', () => {
          그 파일에서 draft 를 false 로 바꾸세요 — 딱지가 함께 사라집니다. */
       window.dokCasesDraft = d.draft !== false;
       (d.cases || []).forEach(function (c) { CASES[c.id] = c; });
+      fillTable();
       window.dispatchEvent(new CustomEvent('dok:cases'));
     })
     .catch(function () { /* 못 읽어도 나머지 화면은 그대로 돕니다 */ });
 
-  ['dok-map-side', 'dok-map-offmap'].forEach(function (id) {
+  ['dok-map-side', 'dok-map-offmap', 'dok-all-table'].forEach(function (id) {
     var box = document.getElementById(id);
     if (!box) return;
     box.addEventListener('click', function (e) {
