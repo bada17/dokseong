@@ -271,6 +271,117 @@ html { scroll-behavior: smooth; }
   #dok .dok-map-list { max-height: 60vh; }
 }
 
+/* ═══ 지도 칸을 다시 짰습니다 (2026-09-03) ═══
+   전에는 이랬습니다 — 지도만 세로로 길고, 오른쪽 칸은 안내문 한 줄과 숫자 둘만
+   담은 채 400px 넘게 비어 있었습니다. 지역을 눌러야만 목록이 생겨서, 처음 온
+   사람은 "여기에 볼 것이 있다"는 것 자체를 알 수 없었습니다.
+   고친 것 — (1) 기본 화면에도 최근 수상을 채우고 (2) 두 칸의 높이를 맞췄습니다. */
+@media (min-width: 861px) {
+  #dok .dok-map-wrap {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    align-items: stretch;
+  }
+  /* 높이를 맞추면 sticky 는 할 일이 없습니다 — 패널이 지도만큼 깁니다. */
+  #dok .dok-map-side { position: static; display: flex; flex-direction: column; }
+  /* 목록이 남은 높이를 채우고, 넘치면 목록 안에서만 스크롤합니다.
+     자식 선택자인 이유 — 사례 목록(.dok-map-list-case)까지 늘리면 안 됩니다. */
+  #dok .dok-map-side > .dok-map-list { flex: 1 1 auto; min-height: 140px; max-height: none; }
+  #dok .dok-map-figure { display: flex; flex-direction: column; justify-content: center; }
+  #dok .dok-map-svg { margin-inline: auto; }
+}
+
+/* ── 지도 위 말풍선 ──
+   마우스를 올린 지역의 이름과 건수를 따라다니며 보여 줍니다. 색만으로는
+   "몇 건인지"도 "눌러도 되는지"도 알 수 없었습니다.
+   손가락에는 hover 가 없으므로 그런 기기에서는 뜨지 않습니다(눌러야 열립니다). */
+#dok .dok-map-tip {
+  position: absolute; z-index: 3; left: 0; top: 0;
+  transform: translate(-50%, -150%);
+  padding: 7px 13px; border-radius: 999px;
+  background: var(--ink); color: #fff;
+  font-size: 13px; font-weight: 700; white-space: nowrap;
+  pointer-events: none; opacity: 0;
+  box-shadow: 0 6px 18px rgba(13,28,38,.22);
+  transition: opacity .14s ease, transform .14s ease;
+}
+#dok .dok-map-tip.is-on { opacity: 1; transform: translate(-50%, -130%); }
+#dok .dok-map-tip b { color: #7fdcff; margin-left: 7px; }
+#dok .dok-map-tip::after {
+  content: ''; position: absolute; left: 50%; top: 100%;
+  margin-left: -5px; border: 5px solid transparent; border-top-color: var(--ink);
+}
+
+/* ── 지도에서 고른 곳을 확실히 보이게 ── */
+#dok .dok-map-area {
+  transform-box: fill-box; transform-origin: center;
+  transition: fill .18s ease, stroke-width .18s ease, opacity .2s ease;
+}
+#dok .dok-map-area:hover { stroke-width: 3; }
+#dok .dok-map-area.is-on { stroke: var(--ink); stroke-width: 2.5; }
+/* 한 곳을 고르면 나머지는 뒤로 물러납니다 — 어디를 보고 있는지 헷갈리지 않게. */
+#dok .dok-map-figure.is-picked .dok-map-area:not(.is-on) { opacity: .42; }
+#dok .dok-map-figure.is-picked .dok-map-label { opacity: .5; }
+#dok .dok-map-label { transition: opacity .2s ease; }
+
+/* 처음 화면에 들어올 때 지역이 차례로 물듭니다. 지연은 스크립트가 넣습니다. */
+#dok .dok-map-figure.is-filling .dok-map-area {
+  transition: fill .6s cubic-bezier(.22,.61,.36,1);
+  transition-delay: var(--dok-fill-delay, 0ms);
+}
+/* 색이 다 찬 뒤, 수상이 많은 곳이 두 번 두근거립니다.
+   "이건 누르는 지도" 라고 말없이 알려 주려는 것입니다. */
+@keyframes dok-map-pulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.05); }
+}
+#dok .dok-map-area.is-hint { animation: dok-map-pulse 1.15s ease-in-out 2; }
+
+/* ── 지역 알약 ── */
+#dok .dok-map-chip:active { transform: scale(.94); }
+#dok .dok-map-chip[aria-pressed="true"] { animation: dok-chip-pop .34s ease; }
+@keyframes dok-chip-pop {
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.13); }
+  100% { transform: scale(1); }
+}
+/* 0건인 지역은 작고 흐리게. 누를 곳이 어디인지 한눈에 갈리게 합니다
+   (예전에는 5건인 경기와 0건인 세종이 같은 무게로 보였습니다). */
+#dok .dok-map-chip.is-empty {
+  opacity: .42; font-size: 13px; min-height: 38px; padding: 0 13px;
+}
+
+/* ── 패널 목록 ── */
+/* 줄이 하나씩 올라옵니다. 지역을 바꿀 때 목록이 툭 갈리지 않게. */
+@keyframes dok-item-in {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: none; }
+}
+#dok .dok-map-list li {
+  animation: dok-item-in .44s cubic-bezier(.22,.61,.36,1) both;
+  animation-delay: var(--dok-item-delay, 0ms);
+}
+#dok .dok-map-list.is-clickable li {
+  border-radius: 10px; padding-left: 10px; margin-inline: -10px;
+}
+#dok .dok-map-listhead {
+  display: flex; align-items: baseline; justify-content: space-between;
+  gap: 10px; margin: 2px 0 8px;
+}
+#dok .dok-map-listhead b { font-size: 14.5px; }
+#dok .dok-map-listhead span { font-size: 12.5px; color: var(--ink-soft); }
+#dok .dok-map-foot { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+#dok .dok-map-foot .dok-map-report-cta { margin-top: 0; }
+#dok .dok-map-allbtn {
+  display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px;
+  border-radius: 999px; border: 1.5px solid var(--line); background: #fff;
+  font-family: 'GmarketSans', sans-serif; font-size: 14px; font-weight: 700;
+  color: var(--ink); cursor: pointer;
+  transition: border-color .15s, color .15s, background .15s;
+}
+#dok .dok-map-allbtn:hover {
+  border-color: var(--brand); color: var(--brand-deep); background: var(--brand-tint);
+}
+
 /* ── 따라다니는 후원 바 ──
    히어로를 지나면 올라오고, 닫으면 그 방문 동안 다시 뜨지 않는다. */
 #dok .dok-donate-bar {
@@ -2015,8 +2126,9 @@ html { scroll-behavior: smooth; }
     <div class="dok-story-grid" id="dok-story-grid"></div>
   </div>
 
-  <!-- ── 후원자 소감 (아직 자리만) ──
-       2026-09-03 사용자 요청으로 모양부터 보려고 만든 칸입니다.
+  <!-- ── 후원자 소감 (지금 꺼져 있습니다) ──
+       2026-09-03 사용자 요청으로 모양부터 보려고 만든 칸이고, 같은 날 껐습니다.
+       스크립트의 DOK_SHOW_VOICES = false 라 이 칸은 화면에 나오지 않습니다.
        ⚠️ 아래 문구는 전부 예시이며 실제 후원자의 말이 아닙니다.
        · 실제 소감을 받으면 아래 JSON 을 갈아 끼우고 "sample" 을 지우세요
          (딱지가 함께 사라집니다).
@@ -2544,9 +2656,11 @@ html { scroll-behavior: smooth; }
 const DOK_SHOW_SAMPLE = false;
 
 // 후원자 소감 칸을 화면에 낼지. 2026-09-03 에 모양만 먼저 만든 칸입니다.
-//  ⚠️ 지금 들어 있는 문구는 예시라 카드마다 '예시' 딱지가 붙습니다.
-//     실제 소감을 받기 전에 딱지를 떼지 마세요.
-const DOK_SHOW_VOICES = true;
+//  ★ 2026-09-03 사용자 지시로 껐습니다 — 지금 들어 있는 세 장은 Claude 가 쓴 예시라
+//    공개 화면에 나가면 안 됩니다. 칸·카드 코드는 그대로 두었습니다(모양 다시 볼 때 필요).
+//  실제 소감을 받으면 아래 #dok-voice-data 의 JSON 을 갈아 끼우고
+//  각 항목의 "sample": true 를 지운 뒤 이 값을 true 로 되돌리세요.
+const DOK_SHOW_VOICES = false;
 
 // 예산감시 사업 목록을 어디에서 읽을지 (2026-09-03).
 //  · 이 파일만 고치면 사업 카드가 바뀝니다. 코드는 건드릴 필요가 없습니다.
@@ -2837,6 +2951,19 @@ items.forEach(item => {
         chip.querySelector('.dok-chip-n').textContent = n ? n : '';
       }
     });
+
+    // 한 곳을 골랐으면 나머지를 물러나게 합니다 (CSS 의 .is-picked).
+    const fig = svg.closest('.dok-map-figure');
+    if (fig) fig.classList.toggle('is-picked', !!selected);
+  }
+
+  /* 패널 안 숫자를 0 에서 올립니다. 첫 화면 지표와 같은 함수를 씁니다
+     (없으면 값만 그대로 넣습니다 — 숫자가 0 으로 남는 사고를 막습니다). */
+  function countPanel() {
+    side.querySelectorAll('.dok-count2').forEach((el) => {
+      if (window.dokCountUp) window.dokCountUp(el);
+      else el.textContent = el.dataset.to;
+    });
   }
 
   // 패널 맨 위 닫기 줄. 지역·중앙정부 목록에서 전국으로 돌아간다.
@@ -2877,18 +3004,57 @@ items.forEach(item => {
   // 사례 파일이 지도보다 늦게 도착하면 옆 칸을 다시 그립니다.
   window.addEventListener('dok:cases', () => { renderSide(); renderOffmap(); });
 
+  /* 목록 한 줄. 누르면 그 회차 요약 팝업이 열립니다
+     (팝업 쪽 스크립트가 #dok-map-side 안의 li[data-round] 를 위임으로 받습니다).
+     ⚠️ 그래서 클래스 이름과 data-round 를 바꾸면 팝업이 조용히 죽습니다. */
+  function awardLi(a, i) {
+    return `<li data-round="${a.round}" tabindex="0" style="--dok-item-delay:${Math.min(i, 8) * 45}ms">
+        <div class="dok-map-round">제${a.round}회 · ${esc(a.date)}</div>
+        <div class="dok-map-proj">${esc(a.project)}</div>
+        <div class="dok-map-who">${esc(a.awardee)}</div>
+        <span class="dok-map-open">요약 보기 →</span>
+      </li>`;
+  }
+
   function renderSide() {
     if (!selected) {
       const totalAwards = awards.filter((a) => a.scope === 'local').length;
+      const totalReports = Object.values(reportCounts).reduce((x, y) => x + y, 0);
+      /* 기본 화면에도 읽을 것을 내놓습니다 — 최근 수상 6건 (2026-09-03).
+         전에는 이 칸이 안내문 한 줄과 숫자 둘뿐이라, 지역을 누르기 전까지
+         오른쪽 절반이 통째로 비어 있었습니다. */
+      const recent = [...awards].sort((a, b) => b.round - a.round).slice(0, 6);
       side.innerHTML =
         '<h3>전국</h3>' +
-        '<p class="dok-map-sub">지도나 아래 지역 목록을 눌러보세요.</p>' +
+        '<p class="dok-map-sub">지도에서 지역을 누르면 그 동네 기록이 열립니다.</p>' +
         '<div class="dok-map-stats">' +
-          `<div class="dok-map-stat"><b>${totalAwards}</b><span>지역에 수여된 독상</span></div>` +
-          `<div class="dok-map-stat"><b>${Object.values(reportCounts).reduce((x, y) => x + y, 0)}</b><span>시민 제보</span></div>` +
+          `<div class="dok-map-stat"><b><span class="dok-count2" data-to="${totalAwards}">0</span></b><span>지역에 수여된 독상</span></div>` +
+          `<div class="dok-map-stat"><b><span class="dok-count2" data-to="${totalReports}">0</span></b><span>시민 제보</span></div>` +
         '</div>' +
+        (recent.length
+          ? '<div class="dok-map-listhead"><b>최근 수상</b>' +
+              `<span>제${recent[recent.length - 1].round}회 ~ 제${recent[0].round}회</span></div>` +
+            '<ul class="dok-map-list is-clickable">' + recent.map(awardLi).join('') + '</ul>'
+          : '') +
         // 2026-09-03: 월간 좋은예산 사례는 전부 중앙정부 칸으로 옮겼습니다.
-        '<button type="button" class="dok-map-report-cta">예산낭비 제보하기 →</button>';
+        '<div class="dok-map-foot">' +
+          (awards.length
+            ? `<button type="button" class="dok-map-allbtn">역대 ${awards.length}회 전체 보기</button>`
+            : '') +
+          '<button type="button" class="dok-map-report-cta">예산낭비 제보하기 →</button>' +
+        '</div>';
+
+      countPanel();
+
+      const all = side.querySelector('.dok-map-allbtn');
+      if (all) all.addEventListener('click', () => {
+        // 역대 표는 접혀 있는 것이 기본입니다. 닫혀 있으면 펴 준 뒤 데려갑니다.
+        const t = document.getElementById('dok-all-toggle');
+        const w = document.getElementById('dok-all-table');
+        if (t && w && !w.classList.contains('open')) t.click();
+        if (w) w.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        track('map_view_all', {});
+      });
 
       const cta0 = side.querySelector('.dok-map-report-cta');
       if (cta0) cta0.addEventListener('click', () => {
@@ -2907,20 +3073,18 @@ items.forEach(item => {
       `<h3>${esc(area.name)}</h3>` +
       '<p class="dok-map-sub">밑빠진 독상 수여 기록과 시민 제보</p>' +
       '<div class="dok-map-stats">' +
-        `<div class="dok-map-stat"><b>${list.length}</b><span>수여된 독상</span></div>` +
-        `<div class="dok-map-stat"><b>${reports}</b><span>시민 제보</span></div>` +
+        `<div class="dok-map-stat"><b><span class="dok-count2" data-to="${list.length}">0</span></b><span>수여된 독상</span></div>` +
+        `<div class="dok-map-stat"><b><span class="dok-count2" data-to="${reports}">0</span></b><span>시민 제보</span></div>` +
       '</div>' +
       (list.length
-        ? '<ul class="dok-map-list">' + list.map((a) =>
-            `<li data-round="${a.round}" tabindex="0">
-              <div class="dok-map-round">제${a.round}회 · ${esc(a.date)}</div>
-              <div class="dok-map-proj">${esc(a.project)}</div>
-              <div class="dok-map-who">${esc(a.awardee)}</div>
-            </li>`).join('') + '</ul>'
+        ? '<ul class="dok-map-list is-clickable">' + list.map(awardLi).join('') + '</ul>'
         : '<p class="dok-map-none">아직 이 지역에 수여된 밑빠진 독상은 없습니다. 새고 있는 예산을 알고 계신가요?</p>') +
       caseList(selected) +
-      `<button type="button" class="dok-map-report-cta">이 지역 예산낭비 제보하기 →</button>`;
+      '<div class="dok-map-foot">' +
+        `<button type="button" class="dok-map-report-cta">이 지역 예산낭비 제보하기 →</button>` +
+      '</div>';
 
+    countPanel();
     wirePanelBar();
 
     const cta = side.querySelector('.dok-map-report-cta');
@@ -2947,12 +3111,9 @@ items.forEach(item => {
         PANEL_BAR +
         '<h3>중앙정부·공공기관</h3>' +
         `<p class="dok-map-sub">특정 지역에 속하지 않는 수상 내역 ${list.length}건</p>` +
-        '<ul class="dok-map-list">' + list.map((a) =>
-          `<li>
-            <div class="dok-map-round">제${a.round}회 · ${esc(a.date)}</div>
-            <div class="dok-map-proj">${esc(a.project)}</div>
-            <div class="dok-map-who">${esc(a.awardee)}</div>
-          </li>`).join('') + '</ul>' +
+        // 2026-09-03: 여기도 누르면 요약이 열립니다. 전에는 지역 목록만 열렸는데,
+        // 같은 모양의 줄인데 어떤 것은 열리고 어떤 것은 안 열려 더 헷갈렸습니다.
+        '<ul class="dok-map-list is-clickable">' + list.map(awardLi).join('') + '</ul>' +
         caseList('');
       wirePanelBar();
       // 모바일에서는 목록이 지도 아래에 있어 열린 것을 모른다
@@ -2985,8 +3146,82 @@ items.forEach(item => {
 
     svg.querySelectorAll('.dok-map-area').forEach((el) => {
       el.addEventListener('click', () => select(el.dataset.code, 'map'));
+      // 마우스가 있는 기기에서만 말풍선을 띄웁니다(showTip 안에서 다시 봅니다).
+      el.addEventListener('pointerenter', (ev) => showTip(el, ev));
+      el.addEventListener('pointermove',  (ev) => showTip(el, ev));
+      el.addEventListener('pointerleave', hideTip);
     });
+    svg.addEventListener('pointerleave', hideTip);
     fitMapText();
+  }
+
+  /* ── 지도 위 말풍선 ──
+     색만으로는 몇 건인지 알 수 없었고, 누를 수 있다는 신호도 없었습니다.
+     ⚠️ 손가락 기기에서는 띄우지 않습니다 — 누르면 바로 패널이 열리므로
+        말풍선이 손가락 밑에 깔려 방해만 됩니다. */
+  let tipEl = null;
+  const hoverable = () => !window.matchMedia('(hover: none)').matches;
+
+  function showTip(el, ev) {
+    if (!hoverable()) return;
+    const fig = svg.closest('.dok-map-figure');
+    const a = areas.find((x) => x.code === el.dataset.code);
+    if (!fig || !a) return;
+    if (!tipEl) {
+      tipEl = document.createElement('div');
+      tipEl.className = 'dok-map-tip';
+      tipEl.setAttribute('aria-hidden', 'true');   // 화면 낭독기에는 도형의 <title> 이 있습니다
+      fig.appendChild(tipEl);
+    }
+    const n = countOf(a.code);
+    const unit = mode === 'awards' ? '건 수상' : '건 제보';
+    tipEl.innerHTML = esc(a.name) + '<b>' + n + unit + '</b>';
+    const box = fig.getBoundingClientRect();
+    tipEl.style.left = (ev.clientX - box.left) + 'px';
+    tipEl.style.top  = (ev.clientY - box.top) + 'px';
+    tipEl.classList.add('is-on');
+  }
+  function hideTip() { if (tipEl) tipEl.classList.remove('is-on'); }
+
+  /* ── 처음 화면에 들어올 때 한 번 ──
+     지역이 차례로 물들고, 그다음 수상이 많은 세 곳이 두 번 두근거립니다.
+     "이건 누르는 지도"라고 말없이 알려 주려는 것입니다.
+     ★ 색은 이미 paint() 가 칠해 둔 상태입니다. 여기서는 잠깐 되돌렸다가 다시 칠해
+       전환이 눈에 보이게만 합니다 — 그래서 이 함수가 아예 안 돌아도(관찰자가 없거나
+       움직임을 끈 사람) 지도 색은 언제나 맞습니다. */
+  let introDone = false;
+  function playIntro() {
+    if (introDone) return;
+    introDone = true;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    const fig = svg.closest('.dok-map-figure');
+    if (!fig || !areas.length) return;
+
+    const order = [...areas].sort((a, b) => countOf(b.code) - countOf(a.code));
+    order.forEach((a, i) => {
+      const el = svg.querySelector(`.dok-map-area[data-code="${a.code}"]`);
+      if (!el) return;
+      el.style.setProperty('--dok-fill-delay', Math.min(i, 15) * 45 + 'ms');
+      el.style.fill = '#eaf1f5';
+    });
+    fig.classList.add('is-filling');
+    // 되돌린 색이 실제로 그려진 다음에 다시 칠해야 전환이 생깁니다.
+    requestAnimationFrame(() => requestAnimationFrame(paint));
+
+    // 색이 다 찬 뒤에 두근거림을 시작합니다. 겹치면 둘 다 흐려집니다.
+    setTimeout(() => {
+      if (selected) return;                       // 그 사이 사람이 눌렀으면 그만둡니다
+      order.slice(0, 3).forEach((a) => {
+        if (!countOf(a.code)) return;
+        const el = svg.querySelector(`.dok-map-area[data-code="${a.code}"]`);
+        if (el) el.classList.add('is-hint');
+      });
+    }, 1000);
+    setTimeout(() => fig.classList.remove('is-filling'), 2000);
+  }
+
+  function stopHint() {
+    svg.querySelectorAll('.dok-map-area.is-hint').forEach((el) => el.classList.remove('is-hint'));
   }
 
   // SVG 안 글자는 viewBox 단위라, 지도가 좁아지면 같이 줄어든다.
@@ -3023,6 +3258,8 @@ items.forEach(item => {
   // 둘이 같은 일을 하지만 어느 쪽을 실제로 누르는지 알아야 무엇을 키울지 정할 수 있다.
   // 2026-09-02 이전에는 둘 다 같은 이벤트를 보내 구분이 안 됐다.
   function select(code, from) {
+    stopHint();          // 사람이 이미 알아챘습니다. 더 흔들 이유가 없습니다.
+    hideTip();
     selected = selected === code ? null : code;
     paint();
     renderSide();
@@ -3039,7 +3276,15 @@ items.forEach(item => {
   function drawChips() {
     const box = document.getElementById('dok-map-chips');
     if (!box) return;
-    box.innerHTML = areas.map((a) =>
+    /* 수상이 많은 지역부터 놓습니다 (2026-09-03).
+       행정코드 순으로 늘어놓으면 5건인 경기와 0건인 세종이 같은 무게로 보여서,
+       어디를 눌러야 볼 것이 있는지 알 수 없었습니다.
+       ⚠️ 순서는 '밑빠진 독상' 기준으로 한 번만 정합니다 — 제보 모드로 바꿀 때마다
+          알약이 자리를 옮기면, 누르려던 것을 놓칩니다. */
+    const ordered = [...areas].sort((a, b) =>
+      awardsOf(b.code).length - awardsOf(a.code).length ||
+      String(a.short || a.name).localeCompare(String(b.short || b.name), 'ko'));
+    box.innerHTML = ordered.map((a) =>
       `<button type="button" class="dok-map-chip" data-code="${a.code}" aria-pressed="false">` +
       `<span>${esc(a.short || a.name)}</span><span class="dok-chip-n"></span></button>`).join('');
     box.querySelectorAll('.dok-map-chip').forEach((el) => {
@@ -3065,6 +3310,20 @@ items.forEach(item => {
     renderSide();
     renderOffmap();
     fillSidoSelect(map.areas);
+
+    // 지도가 화면에 들어오는 순간 한 번만 재생합니다.
+    // 관찰자가 없는 환경에서는 그냥 재생하지 않습니다(색은 이미 칠해져 있습니다).
+    const fig = svg.closest('.dok-map-figure');
+    if (fig && 'IntersectionObserver' in window) {
+      const io = new IntersectionObserver((es) => {
+        es.forEach((e) => {
+          if (!e.isIntersecting) return;
+          io.disconnect();
+          playIntro();
+        });
+      }, { threshold: 0.25 });
+      io.observe(fig);
+    }
   }).catch((err) => {
     console.error('지도를 불러오지 못했습니다', err);
     side.innerHTML = '<p class="dok-map-none">지도를 불러오지 못했습니다.</p>';
@@ -3195,7 +3454,11 @@ items.forEach(item => {
         }).join('')
       : src
         ? src.innerHTML
-        : '<p class="dok-camp-modal-empty">아직 정리된 내용이 없습니다. 준비되는 대로 이곳에 올립니다.</p>';
+        : (c.round
+            /* 상세 요약을 두 번 쓰지 않습니다 — 역대 수상 요약(DOK_SUMMARY)에 이미 있으면
+               그것을 가리키고, 아래 단추로 그 팝업을 엽니다. */
+            ? `<p class="dok-camp-modal-empty">이 사업의 상세한 내용은 <b>제${esc(c.round)}회 수상 요약</b>에 있습니다. 아래 단추로 열 수 있습니다.</p>`
+            : '<p class="dok-camp-modal-empty">아직 정리된 내용이 없습니다. 준비되는 대로 이곳에 올립니다.</p>');
     if (c.outcome) {
       body.insertAdjacentHTML('beforeend',
         `<div class="dok-camp-modal-outcome">${esc(c.outcome)}</div>`);
@@ -3204,6 +3467,9 @@ items.forEach(item => {
 
     const foot = document.getElementById('dok-camp-modal-foot');
     foot.innerHTML =
+      (c.round
+        ? `<button type="button" class="dok-camp-btn" id="dok-camp-foot-round" data-round="${esc(c.round)}">제${esc(c.round)}회 수상 요약 보기 →</button>`
+        : '') +
       (c.link ? `<a href="${esc(c.link)}" target="_blank" rel="noopener">관련 자료 보기 →</a>` : '') +
       (c.status === 'ongoing'
         ? '<button type="button" class="dok-camp-btn is-join" id="dok-camp-foot-join">이 감시에 참여하기</button>'
@@ -3212,6 +3478,21 @@ items.forEach(item => {
     foot.style.display = foot.innerHTML ? 'flex' : 'none';
     const fj = document.getElementById('dok-camp-foot-join');
     if (fj) fj.addEventListener('click', () => { modal.close(); openJoin(c); });
+
+    /* 요약 팝업은 주소(#dok-40)로 엽니다. 그쪽 코드가 hashchange 를 듣고 있어서
+       내보내기 함수를 새로 만들지 않아도 되고, tools/port-summary.py 가 그 블록을
+       다시 구워도 이 연결은 살아남습니다. */
+    const fr = document.getElementById('dok-camp-foot-round');
+    if (fr) fr.addEventListener('click', () => {
+      const want = 'dok-' + fr.dataset.round;
+      modal.close();
+      // 이미 같은 주소면 hashchange 가 나지 않아 팝업이 안 열립니다. 지웠다 다시 답니다.
+      if (location.hash === '#' + want) {
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      }
+      location.hash = want;
+      track('campaign_round_open', { id: c.id || '', round: fr.dataset.round });
+    });
 
     modal.showModal();
     document.body.style.overflow = 'hidden';
@@ -3791,6 +4072,10 @@ if (reportModal) {
     }
     requestAnimationFrame(step);
   }
+
+  /* 지도 옆 패널은 지역을 고를 때마다 새로 그려지므로, 아래 관찰자가 잡지 못합니다.
+     그쪽에서 직접 부를 수 있게 내보냅니다. */
+  window.dokCountUp = run;
 
   const io = new IntersectionObserver((entries) => {
     entries.forEach((e) => {
