@@ -2540,9 +2540,17 @@ const DOK_INTAKE = {
       조회·수정됩니다(도너스 문서도 "클라이언트에 노출되지 않게" 라고 적고 있습니다). */
 const DOK_DONUS = {
   base:     'https://cloud.donus.org/api/forms/v0/submit/interact',
-  formkey:  '',            // 도너스 관리시스템에서 발급한 Formkey
-  channel:  '',            // 활동채널코드 — 필수. 기초정보 > 활동채널
-  category: '',            // 활동분류코드 — 선택. 기초정보 > 활동분류
+  /* 기초정보 > 기타 > API Key 관리 화면 아래쪽 'Form Key' 에서 발급했습니다(2026-09-03).
+     ⚠️ 이 키는 시민행동 도너스 계정에 하나뿐입니다. 그 화면에서 재발급을 누르면
+        옛 키가 죽고, 이 키를 쓰는 모든 페이지의 서명이 동시에, 조용히 멈춥니다.
+        재발급했다면 여기 값도 반드시 같이 바꾸세요.
+     ⚠️ 바로 위 API Key 와 헷갈리지 말 것. 그것은 브라우저에 두면 안 됩니다. */
+  formkey:  'CB034522-455B-46BE-9836-194DD519D08F',
+  // 활동채널코드 — 필수. 기초정보 > 서비스 > 활동채널.
+  // AC008 '온라인 서명(웹)' 은 이 서명을 받으려고 2026-09-03 에 새로 만든 채널입니다.
+  // AC9xx 계열은 도너스가 자동으로 쓰는 칸이라 여기에 섞으면 자동 집계가 오염됩니다.
+  channel:  'AC008',
+  category: '',            // 활동분류코드 — 선택. 기초정보 > 서비스 > 활동분류
   tags:     ['밑빠진 독상'], // 활동기록 태그. 사업 id 가 뒤에 자동으로 붙습니다
 
   /* 필수 동의 두 개를 언제·어느 문구로 받았는지 남길 사용자정의필드.
@@ -3357,7 +3365,13 @@ items.forEach(item => {
           });
           out = await res.json().catch(() => ({}));
           ok  = res.ok && !!out.interactIdx;   // 성공하면 활동기록 번호가 옵니다
-          if (!ok && out.message) out.error = out.message;
+          /* 도너스 오류 문구는 화면에 그대로 내지 않습니다. 개발자에게 하는 말이라
+             시민이 읽을 것이 못 됩니다("유효성 검증 실패 - MemberIdx : 필수 입력 값입니다").
+             무엇이 틀렸는지는 콘솔에만 남기고, 화면에는 사람 말로 씁니다. */
+          if (!ok) {
+            if (out.message) console.warn('[도너스] 참여 등록 실패:', out.message);
+            out.error = '참여하지 못했습니다. 잠시 후 다시 시도해주세요.';
+          }
         } else {
           // 예전 Cloudflare API 규격. 지금은 쓰지 않지만 롤백용으로 남겨 둡니다.
           const res = await fetch(DOK_INTAKE.join.url, {
