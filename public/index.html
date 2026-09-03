@@ -2524,7 +2524,12 @@ const DOK_CAMPAIGN_URL = 'data/campaigns.json';
 //     제보: 캠페이너스 입력폼 주소 / 서명: 도너스 Formkey·채널·분류 코드
 const DOK_INTAKE = {
   report:  { mode: 'disabled', url: '' },   // 예산낭비 제보 → 캠페이너스 입력폼
-  join:    { mode: 'disabled', url: '' },   // 감시 참여·서명 → 도너스
+  // 2026-09-03 에 열었습니다. 그 전에 확인한 것 —
+  //  (1) Form Key 유효 · CORS 열림 · 실제 제출 성공(interactIdx 284732720)
+  //  (2) 기존 구성원의 수신동의를 덮어쓰지 않음(같은 이메일로 두 번 넣어 확인)
+  //  (3) 개인정보 방침 6장 위탁표의 도너스 줄을 채움
+  // 잠그려면 'disabled' 로 되돌리면 됩니다. 그 한 줄로 칸과 제출이 함께 막힙니다.
+  join:    { mode: 'donus', url: '' },      // 감시 참여·서명 → 도너스
   regions: { mode: 'disabled', url: '' },   // 지역별 제보 건수 집계
 };
 
