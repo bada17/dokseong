@@ -658,6 +658,9 @@ html { scroll-behavior: smooth; }
 /* 참여 완료 화면 */
 #dok .dok-join-done { display: none; padding: 40px 28px 36px; text-align: center; }
 #dok .dok-join-done.is-on { display: block; }
+/* 성공 뒤 초점을 여기로 옮기지만(화면 읽는 사람을 위해) 테두리는 그리지 않습니다.
+   키보드로 걸어 들어온 자리가 아니라 코드가 옮겨 놓은 자리입니다. */
+#dok .dok-join-done:focus { outline: none; }
 #dok .dok-join-done .dok-join-done-mark { font-size: 44px; line-height: 1; }
 #dok .dok-join-done h4 { font-size: 21px; margin: 16px 0 10px; word-break: keep-all; }
 #dok .dok-join-done p { font-size: 15px; color: var(--ink-soft); word-break: keep-all; }
@@ -665,10 +668,36 @@ html { scroll-behavior: smooth; }
   margin-top: 20px; padding: 16px; border-radius: 12px;
   background: var(--brand-tint); font-size: 15px; font-weight: 700; color: var(--brand-deep);
 }
+/* 참여자 수가 없으면 칸 자체를 없앱니다. 도너스는 이 숫자를 주지 않으므로
+   늘 비어 있고, 그냥 두면 빈 하늘색 상자가 화면에 남습니다. */
+#dok .dok-join-done .dok-join-total:empty { display: none; }
 #dok .dok-join-done .dok-join-close-btn {
   margin-top: 22px; min-height: 48px; padding: 0 28px; border: 0; border-radius: 999px;
   font-family: 'GmarketSans', sans-serif; font-size: 15px; font-weight: 700;
   background: var(--ink); color: #fff; cursor: pointer;
+}
+
+/* 서명을 마친 뒤의 후원 권유. 따라다니는 후원 바와 같은 빨간 알약이라
+   '후원 버튼'으로 읽힙니다. */
+#dok .dok-join-donate {
+  margin-top: 26px; padding-top: 22px; border-top: 1px solid var(--line);
+}
+#dok .dok-join-donate .dok-join-donate-lead {
+  font-size: 14.5px; color: var(--ink-soft); word-break: keep-all; margin: 0 0 16px;
+}
+#dok .dok-join-donate .dok-join-donate-lead b { color: var(--ink); }
+#dok .dok-join-donate .dok-join-donate-btn {
+  display: inline-block; min-height: 48px; line-height: 48px; padding: 0 30px;
+  border-radius: 999px; text-decoration: none;
+  font-family: 'GmarketSans', sans-serif; font-size: 16px; font-weight: 700;
+  background: var(--alert); color: #fff; transition: transform .15s, background .15s;
+}
+#dok .dok-join-donate .dok-join-donate-btn:hover { background: #ff2d1e; transform: scale(1.04); }
+/* 후원 권유가 떠 있을 때는 '닫기' 를 조용하게 — 큰 버튼 둘이 서로 다투지 않도록 */
+#dok .dok-join-donate:not([hidden]) ~ .dok-join-close-btn {
+  margin-top: 14px; min-height: 40px; padding: 0 12px;
+  background: transparent; color: var(--ink-soft);
+  font-size: 14px; font-weight: 600; text-decoration: underline;
 }
 
 @media (max-width: 620px) {
@@ -1720,11 +1749,27 @@ html { scroll-behavior: smooth; }
       <p class="dok-join-error" id="dok-join-error" role="alert"></p>
     </form>
 
-    <div class="dok-join-done" id="dok-join-done">
+    <!-- tabindex="-1" 은 제출 성공 뒤 초점을 여기로 옮기기 위한 것입니다.
+         키보드 차례에는 끼지 않습니다. -->
+    <div class="dok-join-done" id="dok-join-done" tabindex="-1">
       <div class="dok-join-done-mark">✊</div>
       <h4>참여해 주셔서 고맙습니다</h4>
       <p>이 감시의 진행 상황과 결과를 알려드리겠습니다.</p>
       <div class="dok-join-total" id="dok-join-total"></div>
+
+      <!-- 서명을 마친 사람에게만 보이는 후원 권유 (2026-09-03).
+           방금 이름을 더한 사람이 가장 마음이 열려 있는 순간이라 여기에 둡니다.
+           문 앞에서 돈을 받으면 서명하는 사람 수가 죽습니다 — 그래서 '다음'에 권합니다.
+           주소는 DOK_DONATE 한 곳에서 정합니다. -->
+      <div class="dok-join-donate" id="dok-join-donate">
+        <p class="dok-join-donate-lead">
+          밑빠진 독상은 <b>정부·기업 지원 없이</b> 시민 후원으로 이어집니다.
+          이 감시를 계속하는 데 힘을 보태주세요.
+        </p>
+        <a class="dok-join-donate-btn" id="dok-join-donate-btn"
+           href="https://action.or.kr" target="_blank" rel="noopener">후원으로 힘 보태기</a>
+      </div>
+
       <button type="button" class="dok-join-close-btn" id="dok-join-done-close">닫기</button>
     </div>
 
@@ -2572,6 +2617,20 @@ const DOK_DONUS = {
   updateOnMatch: false,
 };
 
+/* ── 후원으로 보내는 곳 (2026-09-03) ──────────────────────────────────────────
+   한 곳에서 정합니다. 따라다니는 후원 바와 서명 완료 화면이 같은 주소를 씁니다.
+
+   도너스 온라인모금 > 모금함 에서 모금함을 만들고 URL 생성기로 주소를 뽑아
+   url 에 넣으세요. 비워 두면 시민행동 홈으로 갑니다 — 거기에도 후원 안내가
+   있으므로, 주소가 없다고 버튼을 감추지는 않습니다.
+
+   금액을 정한 모금함이면 label 을 '1,000원으로 힘 보태기' 처럼 바꾸세요.
+   지키지 못할 금액을 미리 적어 두지는 않았습니다. */
+const DOK_DONATE = {
+  url:   '',
+  label: '후원으로 힘 보태기',
+};
+
 // 접수처가 없을 때 폼에 띄우는 말. 폼마다 다르게 하고 싶으면 여기만 고치세요.
 const DOK_INTAKE_OFF_MSG = '접수 창구를 준비하고 있습니다. 곧 열겠습니다.';
 
@@ -2618,6 +2677,21 @@ function dokJoinReady() {
   lock(document.getElementById('dok-report-form'), 'report');
   lock(document.getElementById('dok-report-form-modal'), 'report');
   lock(document.getElementById('dok-join-form'), 'join');
+
+  /* 후원 주소를 한 곳에서 뿌립니다 — 따라다니는 후원 바와 서명 완료 화면.
+     둘이 다른 데를 가리키는 일이 없게 하려는 것입니다. */
+  const donateUrl = DOK_DONATE.url || 'https://action.or.kr';
+  const barBtn = document.getElementById('dok-donate-btn');
+  if (barBtn) barBtn.href = donateUrl;
+  const joinDonateBtn = document.getElementById('dok-join-donate-btn');
+  if (joinDonateBtn) {
+    joinDonateBtn.href = donateUrl;
+    joinDonateBtn.textContent = DOK_DONATE.label;
+    // 서명 직후의 후원 클릭은 따로 셉니다. 후원 바 클릭과 섞으면 어느 쪽이
+    // 실제로 후원으로 이어지는지 알 수 없습니다.
+    joinDonateBtn.addEventListener('click', () => track('donate_click', { from: 'join_done' }));
+  }
+  if (barBtn) barBtn.addEventListener('click', () => track('donate_click', { from: 'bar' }));
 })();
 
 // ── UTM 보관 ──
@@ -3277,6 +3351,9 @@ items.forEach(item => {
     joinForm.style.display = 'none';
     document.getElementById('dok-join-head').style.display = 'none';
     joinDone.classList.add('is-on');
+    /* 폼을 감추면 눌렀던 버튼이 사라져 초점이 갈 곳을 잃습니다. 고맙다는 말로
+       옮겨 놓아야 화면을 읽어 주는 사람에게도 성공이 전달됩니다. */
+    joinDone.focus();
   }
 
   if (joinModal) {
