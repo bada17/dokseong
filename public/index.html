@@ -2513,7 +2513,9 @@ const DOK_CAMPAIGN_URL = 'data/campaigns.json';
 
 // 폼이 받은 것을 어디로 보낼지.
 //   'disabled' — 보내지 않습니다. 버튼이 잠기고 안내만 뜹니다(개인정보가 나가지 않음).
-//   'link'     — 우리 폼 대신 url 의 바깥 접수처로 보냅니다(캠페이너스 입력폼 · 도너스).
+//   'link'     — 우리 폼 대신 url 의 바깥 접수처로 보냅니다(캠페이너스 입력폼).
+//   'donus'    — 우리 폼에서 도너스 Forms API 로 바로 보냅니다(서명·참여 전용).
+//                아래 DOK_DONUS 를 채워야 켜집니다.
 //
 //  ⚠️ 예전 Cloudflare API(/api/report · /api/join · /api/regions)는 2026-08-24
 //     운영 구조 변경으로 쓰지 않습니다(OPERATIONS.md). 코드는 비교·롤백용으로
@@ -2526,8 +2528,48 @@ const DOK_INTAKE = {
   regions: { mode: 'disabled', url: '' },   // 지역별 제보 건수 집계
 };
 
+/* ── 도너스 서명 연동 (2026-09-03) ────────────────────────────────────────────
+   join.mode 를 'donus' 로 바꾸면 참여 팝업이 이 값들로 도너스에 바로 씁니다.
+   규격 출처: developer.donus.org 의 'Forms API v0 / Submit an Interaction'.
+
+   ★ 여기 네 칸을 채우기 전에는 mode 를 'donus' 로 바꿔도 폼이 열리지 않습니다.
+     빈 값으로 켜서 개인정보가 엉뚱한 데로 나가는 일을 막으려는 것입니다.
+
+   Formkey 는 브라우저에서 쓰라고 만든 값이라 소스에 보여도 됩니다.
+   ⚠️ 일반 API Key 는 절대 여기 넣지 마세요 — 그 키 하나로 후원자 명부 전체가
+      조회·수정됩니다(도너스 문서도 "클라이언트에 노출되지 않게" 라고 적고 있습니다). */
+const DOK_DONUS = {
+  base:     'https://cloud.donus.org/api/forms/v0/submit/interact',
+  formkey:  '',            // 도너스 관리시스템에서 발급한 Formkey
+  channel:  '',            // 활동채널코드 — 필수. 기초정보 > 활동채널
+  category: '',            // 활동분류코드 — 선택. 기초정보 > 활동분류
+  tags:     ['밑빠진 독상'], // 활동기록 태그. 사업 id 가 뒤에 자동으로 붙습니다
+
+  /* 필수 동의 두 개를 언제·어느 문구로 받았는지 남길 사용자정의필드.
+     도너스 활동기록의 info1~info5 중 하나를 골라 적으세요(예: 'info1').
+     비워 두면 동의 기록이 활동내용(description) 안에만 남습니다.
+     ⚠️ 아래 문구 버전은 화면의 동의 문구를 고칠 때 같이 올려야 합니다. */
+  consentField:   '',
+  consentVersion: '2026-09-01',
+
+  /* 이미 도너스에 있는 사람이 서명했을 때, 그 사람의 이름·수신동의를
+     이 폼의 값으로 덮어쓸지. false 로 둡니다 — 공개된 폼에서 들어온 값이
+     기존 후원회원의 기록을 덮어쓰면 되돌리기 어렵습니다.
+     (false 여도 활동기록은 그 사람 앞으로 정상 기록됩니다.) */
+  updateOnMatch: false,
+};
+
 // 접수처가 없을 때 폼에 띄우는 말. 폼마다 다르게 하고 싶으면 여기만 고치세요.
 const DOK_INTAKE_OFF_MSG = '접수 창구를 준비하고 있습니다. 곧 열겠습니다.';
+
+/* 서명 접수가 실제로 열려 있는가. 'donus' 라고 적어 두고 Formkey 를 안 넣은
+   상태를 '잠김'으로 봅니다 — 화면 잠금과 제출 처리가 같은 함수를 봅니다. */
+function dokJoinReady() {
+  const m = DOK_INTAKE.join.mode;
+  if (m === 'link') return !!DOK_INTAKE.join.url;
+  if (m === 'donus') return !!(DOK_DONUS.formkey && DOK_DONUS.channel);
+  return m !== 'disabled';
+}
 
 // ── 위 스위치 적용 ──
 (function applyDokFlags() {
@@ -2546,8 +2588,11 @@ const DOK_INTAKE_OFF_MSG = '접수 창구를 준비하고 있습니다. 곧 열�
 
   // 접수처가 없는 폼은 잠급니다. 개인정보가 우리 손을 타지 않게 하는 것이 목적이라
   // 화면만 가리는 것이 아니라 제출 자체를 막습니다(아래 submit 처리에서도 한 번 더 봅니다).
+  // 서명은 mode 만 보지 않고 Formkey 까지 봅니다(위 dokJoinReady).
+  const intakeReady = (key) =>
+    key === 'join' ? dokJoinReady() : DOK_INTAKE[key].mode !== 'disabled';
   const lock = (form, key) => {
-    if (!form || DOK_INTAKE[key].mode !== 'disabled') return;
+    if (!form || intakeReady(key)) return;
     const btn = form.querySelector('button[type="submit"], .dok-report-submit, .dok-join-submit');
     if (btn) { btn.disabled = true; btn.dataset.dokLocked = '1'; }
     form.querySelectorAll('input, textarea, select').forEach((el) => { el.disabled = true; });
@@ -3205,6 +3250,22 @@ items.forEach(item => {
 
   function closeJoin() { if (joinModal) joinModal.close(); }
 
+  /* 참여를 마쳤을 때의 화면. total 은 지금까지의 참여자 수입니다.
+     ⚠️ 도너스는 이 숫자를 돌려주지 않습니다(활동기록 번호만 옵니다). 그래서
+        null 이 들어오고, 그때는 숫자 줄을 비웁니다 — 0 명처럼 보이면 안 됩니다. */
+  function showJoinDone(total) {
+    if (typeof total === 'number' && joinTarget) {
+      joinCounts[joinTarget.id] = total;
+      paintCounts();
+    }
+    document.getElementById('dok-join-total').textContent =
+      (typeof total === 'number' && total >= DOK_JOIN_COUNT_MIN)
+        ? `지금까지 ${total.toLocaleString()}명이 함께하고 있습니다` : '';
+    joinForm.style.display = 'none';
+    document.getElementById('dok-join-head').style.display = 'none';
+    joinDone.classList.add('is-on');
+  }
+
   if (joinModal) {
     document.getElementById('dok-join-close').addEventListener('click', closeJoin);
     document.getElementById('dok-join-done-close').addEventListener('click', closeJoin);
@@ -3218,7 +3279,7 @@ items.forEach(item => {
       e.preventDefault();
       // 접수처가 없으면 여기서 끝냅니다. 이름·이메일·전화번호가 담긴 요청을
       // 갈 곳 없는 주소로 보내지 않기 위한 것입니다(화면 잠금과 별개의 두 번째 빗장).
-      if (DOK_INTAKE.join.mode === 'disabled') {
+      if (!dokJoinReady()) {
         joinError.textContent = DOK_INTAKE_OFF_MSG;
         joinError.style.display = 'block';
         return;
@@ -3230,39 +3291,92 @@ items.forEach(item => {
       if (!joinTarget) return;
       joinError.style.display = 'none';
 
-      const payload = {
-        campaign_id:   joinTarget.id || '',
-        campaign_name: joinTarget.title || '',
-        name:  document.getElementById('dok-join-name').value.trim(),
-        email: document.getElementById('dok-join-email').value.trim(),
-        phone: document.getElementById('dok-join-phone').value.trim(),
-        consent_privacy: document.getElementById('dok-join-consent-privacy').checked,
-        consent_news:    document.getElementById('dok-join-consent-news').checked,
-        website: document.getElementById('dok-join-website').value,
-        utm: utmParams
-      };
+      const name  = document.getElementById('dok-join-name').value.trim();
+      const email = document.getElementById('dok-join-email').value.trim();
+      const phone = document.getElementById('dok-join-phone').value.trim();
+      const consentPrivacy = document.getElementById('dok-join-consent-privacy').checked;
+      const consentNews    = document.getElementById('dok-join-consent-news').checked;
+      const trap = document.getElementById('dok-join-website').value;
+
+      // 사람 눈에 안 보이는 칸이 채워졌으면 로봇입니다. 아무 데도 보내지 않고,
+      // 로봇이 눈치채지 못하게 성공한 척합니다(예전에는 서버가 하던 일입니다).
+      if (trap) { showJoinDone(null); return; }
 
       joinSubmit.disabled = true;
       joinSubmit.textContent = '보내는 중…';
 
       try {
-        const res = await fetch(DOK_INTAKE.join.url, {
-          method: 'POST',
-          headers: { 'content-type': 'application/json' },
-          body: JSON.stringify(payload)
-        });
-        const out = await res.json().catch(() => ({}));
+        let out = {};
+        let ok  = false;
 
-        if (res.ok && out.ok) {
+        if (DOK_INTAKE.join.mode === 'donus') {
+          /* 도너스 Forms API — 'Submit an Interaction'.
+             registerMember:true 로 보내면 이메일(없으면 휴대폰)로 기존 구성원을
+             찾아 붙이고, 없으면 새로 만듭니다. 활동기록은 어느 쪽이든 남습니다. */
+          const consentNote =
+            `개인정보 수집·이용 동의 ${consentPrivacy ? 'Y' : 'N'} / ` +
+            `캠페인 소식·후원 정보 수신 동의 ${consentNews ? 'Y' : 'N'} / ` +
+            `문구 ${DOK_DONUS.consentVersion} / ${new Date().toISOString()}`;
+
+          const body = {
+            registerMember: true,
+            member: {
+              updateOnMatch: DOK_DONUS.updateOnMatch,
+              name,
+              email,
+              cellphone: phone,
+              /* 수신동의는 화면에서 받은 것만 켭니다.
+                 ⚠️ 도너스는 이 네 칸을 안 보내면 전부 true 로 둡니다. 그래서
+                    전화·우편은 명시적으로 false 를 보냅니다 — 폼에 "광고 전화는
+                    하지 않습니다" 라고 적어 두고 동의로 넣으면 거짓말이 됩니다. */
+              agreeEmail: consentNews,
+              agreeText:  consentNews,
+              agreeTel:   false,
+              agreePost:  false,
+            },
+            interactTypeCode:     'ENG',            // GEN:일반, ENG:참여
+            interactDate:         new Date().toLocaleDateString('sv-SE'), // yyyy-MM-dd (한국 시간 기준)
+            interactChannelCode:  DOK_DONUS.channel,
+            title:                `[밑빠진 독상] ${joinTarget.title || '감시 참여'}`,
+            description:          `밑빠진 독상 페이지에서 감시에 참여했습니다.\n사업: ${joinTarget.title || ''} (${joinTarget.id || ''})\n${consentNote}`,
+            tags: DOK_DONUS.tags.concat(joinTarget.id ? [joinTarget.id] : []),
+          };
+          if (DOK_DONUS.category) body.interactCategoryCode = DOK_DONUS.category;
+          if (DOK_DONUS.consentField) body[DOK_DONUS.consentField] = consentNote.slice(0, 300);
+          // UTM 은 도너스 쪽 이름이 달라 옮겨 담습니다(utm_source → utmSource).
+          const utmMap = {
+            utm_source: 'utmSource', utm_medium: 'utmMedium', utm_campaign: 'utmCampaign',
+            utm_content: 'utmContent', utm_term: 'utmTerm',
+          };
+          Object.keys(utmMap).forEach((k) => { if (utmParams[k]) body[utmMap[k]] = utmParams[k]; });
+
+          const res = await fetch(`${DOK_DONUS.base}/${encodeURIComponent(DOK_DONUS.formkey)}`, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify(body),
+          });
+          out = await res.json().catch(() => ({}));
+          ok  = res.ok && !!out.interactIdx;   // 성공하면 활동기록 번호가 옵니다
+          if (!ok && out.message) out.error = out.message;
+        } else {
+          // 예전 Cloudflare API 규격. 지금은 쓰지 않지만 롤백용으로 남겨 둡니다.
+          const res = await fetch(DOK_INTAKE.join.url, {
+            method: 'POST',
+            headers: { 'content-type': 'application/json' },
+            body: JSON.stringify({
+              campaign_id: joinTarget.id || '', campaign_name: joinTarget.title || '',
+              name, email, phone,
+              consent_privacy: consentPrivacy, consent_news: consentNews,
+              website: trap, utm: utmParams,
+            }),
+          });
+          out = await res.json().catch(() => ({}));
+          ok  = res.ok && out.ok;
+        }
+
+        if (ok) {
           track('join_submit', { id: joinTarget.id || '' });
-          joinCounts[joinTarget.id] = out.total || 0;
-          paintCounts();
-          document.getElementById('dok-join-total').textContent =
-            out.total >= DOK_JOIN_COUNT_MIN
-              ? `지금까지 ${out.total.toLocaleString()}명이 함께하고 있습니다` : '';
-          joinForm.style.display = 'none';
-          document.getElementById('dok-join-head').style.display = 'none';
-          joinDone.classList.add('is-on');
+          showJoinDone(typeof out.total === 'number' ? out.total : null);
         } else {
           joinError.textContent = out.error || '참여하지 못했습니다. 잠시 후 다시 시도해주세요.';
           joinError.style.display = 'block';
@@ -3277,9 +3391,13 @@ items.forEach(item => {
     });
   }
 
-  // 참여자 수 불러오기 (없어도 화면은 그대로 뜬다)
-  // 참여자 수 — 접수처가 없으면 부르지 않습니다(있지도 않은 주소입니다).
-  if (DOK_INTAKE.join.mode !== 'disabled') {
+  /* 참여자 수 불러오기 (없어도 화면은 그대로 뜬다).
+     ⚠️ 이것은 예전 Cloudflare API 규격({ counts: {…} })입니다.
+        'link'·'donus' 는 그런 것을 주지 않습니다 — 도너스 Forms API 는 쓰기 전용이고,
+        참여자 수를 읽으려면 API Key 가 필요한데 그 키는 브라우저에 두면 안 됩니다.
+        그래서 그 두 방식에서는 아예 부르지 않습니다. 숫자를 화면에 다시 띄우려면
+        어딘가에서 집계본을 받아 joinCounts 에 넣어 주면 됩니다. */
+  if (!['disabled', 'link', 'donus'].includes(DOK_INTAKE.join.mode)) {
     fetch(DOK_INTAKE.join.url)
       .then((r) => r.json())
       .then((d) => { joinCounts = d.counts || {}; paintCounts(); })
