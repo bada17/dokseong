@@ -226,22 +226,89 @@ npx wrangler d1 execute dokseong --remote \
 > 마감이 없습니다). `#dok-deadline` 은 이제 없고, `wrangler.toml` 의 `REPORT_DEADLINE`
 > 값만 남아 있습니다. 되살리려면 그 커밋 이전 판을 보세요.
 
-## 처음 한 번 해야 하는 세팅 (옛 설계 — 지금은 안 합니다)
+## 처음 세팅 — **2026-09-04 에 이미 끝냈습니다**
 
-> 2026-08-24 운영 구조 변경으로 **D1·R2·`schema.sql` 은 쓰지 않습니다**
-> (`OPERATIONS.md`). 아래는 비교·롤백용 기록입니다. 새로 세팅하지 마세요.
+> 2026-08-24 에 "제보는 캠페이너스로" 라고 정했다가 **2026-09-04 에 되돌렸습니다.**
+> 캠페이너스 폼은 새 탭으로 나가는 링크라 몇 건이 들어왔는지 돌려받을 수 없었고,
+> 지도의 지역별 건수가 그 숫자를 필요로 했습니다. 그래서 **제보는 우리가 직접 받습니다.**
+> `functions/api/` · `schema.sql` · D1 · R2 는 다시 살아 있는 코드입니다.
+
+| 무엇 | 어디에 |
+|---|---|
+| Cloudflare 계정 | `action@action.or.kr` (단체 메일) |
+| 제보 글 | D1 `dokseong` (서울) |
+| 제보 사진 | R2 `dokseong-photos` — **비공개. 공개 주소를 열지 마세요** |
+| 사이트 | <https://dokseong.pages.dev> |
+
+아래는 그때 실행한 것입니다. **다시 실행하지 마세요** — `d1 create` 를 다시 하면
+빈 DB 가 하나 더 생기고 `wrangler.toml` 과 어긋납니다.
 
 ```bash
-# 1. D1 데이터베이스 만들기
-npx wrangler d1 create dokseong
-#    → 출력된 database_id를 wrangler.toml에 붙여넣기
-
-# 2. 테이블 만들기
+npx wrangler login                              # action@action.or.kr 로
+npx wrangler d1 create dokseong                 # → database_id 를 wrangler.toml 에
 npx wrangler d1 execute dokseong --remote --file=schema.sql
-
-# 3. IP 해시용 소금값 (제보자 IP를 원본으로 저장하지 않기 위함)
-npx wrangler pages secret put IP_SALT
+npx wrangler r2 bucket create dokseong-photos   # 대시보드에서 R2 를 먼저 켜야 합니다
+npx wrangler pages project create dokseong --production-branch main
+npx wrangler pages secret put IP_SALT           # 무작위 64자리. 아무도 원본을 모릅니다
 ```
+
+⚠️ `IP_SALT` 를 바꾸면 그전에 쌓인 제보의 `ip_hash` 와 이어지지 않아 같은 사람인지
+   판단하지 못합니다(도배 방지가 그만큼 헐거워집니다). 새로 만들 이유가 없습니다.
+
+### 배포
+
+```bash
+npx wrangler pages deploy public --project-name dokseong --branch main --commit-dirty=true
+```
+
+⚠️ 출력에 **`Using redirected Wrangler configuration`** 이 나오면 멈추세요.
+   `wrangler.toml` 이 무시되고 D1·R2 가 가짜 이름으로 붙습니다.
+   원인은 `.wrangler/deploy/config.json` 이라는 찌꺼기입니다 — 지우고 다시 배포하세요.
+   (GPT 가 chatgpt.site 로 배포하면서 남긴 것입니다. 2026-09-04 에 한 번 겪었습니다.)
+
+## 제보 검토하기 — `python tools/review.py`
+
+**제보는 사람이 한 번 열어봐야 지도에 오릅니다.** 접수는 자동, 표시는 수동입니다.
+아무도 검토하지 않으면 지도는 계속 0건입니다.
+
+```bash
+python tools/review.py
+```
+
+브라우저가 열리고 새 제보가 사진과 함께 나옵니다. 건마다 넷 중 하나를 고릅니다 —
+
+| 고른 것 | 뜻 | 지도 |
+|---|---|---|
+| 확인 `reviewing` | 읽었고 이상 없음 | ✅ |
+| 후보 `candidate` | 이번 회차 후보로 | ✅ |
+| 탈락 `dropped` | 제보는 맞지만 안 다룸 | ❌ |
+| 스팸 `spam` | 장난·광고 | ❌ |
+
+**탈락·스팸으로 넘기면 회신 이메일이 그 자리에서 지워집니다.** 답할 일이 없는 분의
+연락처를 들고 있지 않기 위해서입니다(개인정보 처리방침 7번).
+
+**시작할 때마다 기간이 지난 것을 먼저 지웁니다.**
+
+| 무엇 | 언제 |
+|---|---|
+| 제보 내용·사진·지역 | 접수 후 1년 |
+| 바꾼 IP 값·브라우저 | 접수 후 6개월 (그 두 칸만 비웁니다) |
+
+지우는 것은 **되돌릴 수 없습니다.** 기간은 `tools/review.py` 위쪽 `KEEP_MONTHS` ·
+`KEEP_TRACE_MONTHS` 이고, 바꾸면 `public/privacy.html` 7번도 같이 고쳐야 합니다.
+
+⚠️ **관리자 웹페이지를 일부러 만들지 않았습니다.** 공개된 주소에 관리 화면을 두면
+   비밀번호 하나로 제보자 정보 전체가 열리는 문이 인터넷에 생깁니다. 이 도구는
+   담당자 컴퓨터에서 `127.0.0.1` 로만 열립니다. 대신 **그 컴퓨터에서만 검토할 수
+   있습니다** — 여러 사람이 나눠 검토해야 하면 그때 다시 생각해야 합니다.
+   내려받은 사진은 검토가 끝나면 지웁니다.
+
+### 대시보드에서 직접 보기
+
+검토 도구를 안 쓰고 눈으로만 확인할 때. 글과 사진이 다른 화면이라 맞춰 보기 번거롭습니다.
+
+- 글 <https://dash.cloudflare.com/abc1ccabeb112f41675ee95e164bc4d1/workers/d1>
+- 사진 <https://dash.cloudflare.com/abc1ccabeb112f41675ee95e164bc4d1/r2/default/buckets/dokseong-photos>
 
 ## 로컬에서 보기
 
@@ -290,19 +357,20 @@ npx wrangler pages dev public --d1 DB=dokseong
 `40회`·`26년` 두 지표는 실제 값이라 그대로 둡니다.
 사업 목록 자리에는 '정리하고 있습니다' 안내가 뜹니다(빈 화면이 되지 않습니다).
 
-### `DOK_INTAKE` (지금 셋 다 `disabled`)
+### `DOK_INTAKE` (2026-09-04 기준 셋 다 열려 있습니다)
 
 폼이 받은 것을 어디로 보낼지 정합니다.
 
 - `'disabled'` — **보내지 않습니다.** 칸과 버튼이 잠기고 안내만 뜹니다.
-- `'link'` — 우리 폼 대신 `url` 의 바깥 접수처로 보냅니다(캠페이너스 입력폼).
+- `'api'` — 이 저장소의 `functions/api/` 로 보냅니다(제보·지도 집계).
+- `'link'` — 우리 폼 대신 `url` 의 바깥 접수처로 새 탭을 엽니다.
 - `'donus'` — **서명 전용.** 우리 참여 팝업에서 도너스 Forms API 로 바로 씁니다.
 
 ```js
 const DOK_INTAKE = {
-  report:  { mode: 'disabled', url: '' },   // 예산낭비 제보 → 캠페이너스 입력폼
-  join:    { mode: 'disabled', url: '' },   // 감시 참여·서명 → 도너스
-  regions: { mode: 'disabled', url: '' },   // 지역별 제보 건수 집계
+  report:  { mode: 'api',   url: '/api/report' },    // 제보 → 우리 D1 + R2
+  join:    { mode: 'donus', url: '' },               // 서명 → 도너스
+  regions: { mode: 'api',   url: '/api/regions' },   // 지역별 제보 건수
 };
 ```
 

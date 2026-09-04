@@ -22,23 +22,20 @@ REPORT_DEADLINE_LABEL = "하반기 1차 제보 마감"
 binding = "DB"
 database_name = "dokseong"
 # ⚠️ `wrangler d1 create dokseong` 실행 후 나오는 값으로 교체
-database_id = "REPLACE_WITH_D1_DATABASE_ID"
+database_id = "6f74066f-e056-4a08-a6f9-70b8a49a14c1"
 
 # 제보 사진. D1에는 파일을 넣을 수 없어 R2를 쓴다.
 #
-# ⚠️ 지금은 꺼 두었습니다. 버킷이 없는 상태로 이 설정이 들어가면 배포가
-#    막힐 수 있어, 첫 배포를 방해하지 않도록 주석으로 두었습니다.
+# 2026-09-04 에 켰습니다. action@action.or.kr 계정에 버킷을 만들었고
+# R2 구독(무료 한도 10GB)을 붙였습니다.
 #
-# 사진 기능을 켜는 순서:
-#   1) npx wrangler r2 bucket create dokseong-photos
-#   2) 아래 세 줄의 주석을 풀고 다시 배포
+# ⚠️ 이 버킷은 비공개입니다. 공개 주소를 열지 마세요 — 제보 사진은
+#    내부 확인용이고 사람 얼굴·차량번호가 찍혀 들어옵니다.
+# ⚠️ 사진은 계속 쌓입니다. 보관 기간을 정해 지우지 않으면 언젠가
+#    무료 한도를 넘습니다(10GB ≈ 사진 1만 장).
 #
-# 켜기 전까지는 사진을 올려도 저장되지 않고 글만 접수됩니다
-# (functions/api/report.js 가 PHOTOS 바인딩이 없으면 사진을 건너뜁니다).
-#
-# ⚠️ 버킷을 만들 때 공개로 열지 마세요. 제보 사진은 내부 확인용이고
-#    사람 얼굴·차량번호가 찍혀 들어올 수 있습니다.
-#
-# [[r2_buckets]]
-# binding = "PHOTOS"
-# bucket_name = "dokseong-photos"
+# 끄려면 아래 세 줄을 주석으로 되돌리면 됩니다. 그러면 사진은 저장되지
+# 않고 글만 접수됩니다(report.js 가 PHOTOS 바인딩이 없으면 건너뜁니다).
+[[r2_buckets]]
+binding = "PHOTOS"
+bucket_name = "dokseong-photos"

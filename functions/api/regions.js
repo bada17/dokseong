@@ -21,18 +21,31 @@ export async function onRequestGet({ env, request }) {
   const round = url.searchParams.get('round'); // 없으면 전체 회차 합계
 
   try {
-    const where = round ? 'WHERE round = ?' : '';
+    // 반자동: 사람이 한 번 열어본 제보만 지도에 오른다.
+    //
+    //   new        접수만 됨. 아무도 안 봤다        → 지도에 안 뜸
+    //   reviewing  담당자가 읽고 넘겼다             → 지도에 뜸
+    //   candidate  이번 회차 후보로 채택           → 지도에 뜸
+    //   dropped    후보 탈락                       → 안 뜸
+    //   spam       장난·광고                       → 안 뜸
+    //
+    // 접수는 자동이고 표시만 사람이 연다. 장난 제보 한 건에 지역 색이
+    // 바뀌면 지도를 믿을 수 없게 되기 때문이다.
+    // ⚠️ 그래서 아무도 status 를 안 바꾸면 지도는 계속 0건이다.
+    //    검토하는 방법은 저장소 README 의 '제보 검토하기' 를 볼 것.
+    const LIVE = "status IN ('reviewing', 'candidate')";
+    const where = round ? `WHERE round = ? AND ${LIVE}` : `WHERE ${LIVE}`;
     const bind = round ? [round] : [];
 
     const bySido = await env.DB.prepare(
       `SELECT sido AS code, COUNT(*) AS n FROM reports
-       ${where}${where ? ' AND' : 'WHERE'} sido IS NOT NULL
+       ${where} AND sido IS NOT NULL
        GROUP BY sido`
     ).bind(...bind).all();
 
     const bySigungu = await env.DB.prepare(
       `SELECT sigungu AS code, COUNT(*) AS n FROM reports
-       ${where}${where ? ' AND' : 'WHERE'} sigungu IS NOT NULL
+       ${where} AND sigungu IS NOT NULL
        GROUP BY sigungu`
     ).bind(...bind).all();
 

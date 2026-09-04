@@ -2682,14 +2682,22 @@ const DOK_CAMPAIGN_URL = 'data/campaigns.json';
 //  ⚠️ 접수처를 붙이기 전에 받아야 하는 것 — OPERATIONS.md 2·3장을 보세요.
 //     제보: 캠페이너스 입력폼 주소 / 서명: 도너스 Formkey·채널·분류 코드
 const DOK_INTAKE = {
-  report:  { mode: 'disabled', url: '' },   // 예산낭비 제보 → 캠페이너스 입력폼
+  // 2026-09-04 제보를 우리가 직접 받기로 했습니다(캠페이너스 링크 안 씁니다).
+  // 캠페이너스 폼은 새 탭으로 나가는 링크라, 몇 건이 들어왔는지 돌려받을 길이
+  // 없었습니다. 지도의 지역별 건수가 그 숫자를 필요로 합니다.
+  // 받는 곳은 이 저장소의 Cloudflare Pages Functions 입니다 —
+  // D1(글) + R2(사진), 둘 다 action@action.or.kr 계정.
+  // ⚠️ 잠그려면 mode 를 'disabled' 로. 그 한 줄로 칸과 제출이 함께 막힙니다.
+  report:  { mode: 'api', url: '/api/report' },
   // 2026-09-03 에 열었습니다. 그 전에 확인한 것 —
   //  (1) Form Key 유효 · CORS 열림 · 실제 제출 성공(interactIdx 284732720)
   //  (2) 기존 구성원의 수신동의를 덮어쓰지 않음(같은 이메일로 두 번 넣어 확인)
   //  (3) 개인정보 방침 6장 위탁표의 도너스 줄을 채움
   // 잠그려면 'disabled' 로 되돌리면 됩니다. 그 한 줄로 칸과 제출이 함께 막힙니다.
   join:    { mode: 'donus', url: '' },      // 감시 참여·서명 → 도너스
-  regions: { mode: 'disabled', url: '' },   // 지역별 제보 건수 집계
+  // 지역별 제보 건수. 제보 '내용'은 여기로 안 나옵니다 — 건수뿐입니다.
+  // 그리고 사람이 한 번 열어본 것만 셉니다(regions.js 의 status 조건).
+  regions: { mode: 'api', url: '/api/regions' },
 };
 
 /* ── 도너스 서명 연동 (2026-09-03) ────────────────────────────────────────────
@@ -3842,7 +3850,10 @@ function setupReportForm(form) {
       const img = new Image();
       img.onload = () => {
         const scale = Math.min(1, MAX_SIDE / Math.max(img.width, img.height));
-        if (scale === 1 && file.size < 1200000) { URL.revokeObjectURL(url); resolve(file); return; }
+        // 작아서 줄일 필요가 없어도 캔버스를 거친다. 다시 그리는 과정에서
+        // EXIF(촬영 위치·시각·기기)가 떨어져 나가기 때문이다. 제보 사진에
+        // 위치가 붙어 있으면 제보자의 집이나 직장이 드러날 수 있다.
+        // ⚠️ 여기를 지름길로 되돌리지 말 것. 화질보다 이쪽이 중요하다.
         const cv = document.createElement('canvas');
         cv.width = Math.round(img.width * scale);
         cv.height = Math.round(img.height * scale);

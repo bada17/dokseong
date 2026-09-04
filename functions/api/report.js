@@ -21,7 +21,10 @@ const RATE_MAX = 5;
 
 // 사진
 const MAX_PHOTOS = 3;
-const MAX_PHOTO_BYTES = 6 * 1024 * 1024;   // 클라이언트에서 이미 줄여 보낸다
+// 폼이 캔버스로 줄여 보내므로 실제로 오는 사진은 1MB 안팎입니다.
+// 이 상한은 브라우저를 거치지 않고 바로 찔러 넣는 쪽에만 의미가 있습니다 —
+// 넉넉히 잡아 둘 이유가 없어 2MB 로 낮췄습니다(R2 저장료 방어).
+const MAX_PHOTO_BYTES = 2 * 1024 * 1024;
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/heic'];
 
 const json = (data, status = 200) =>
