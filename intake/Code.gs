@@ -157,8 +157,12 @@ function doPost(e) {
     var now = new Date();
     var links = savePhotos(photos, now);
 
+    /* 마지막 `접수` 는 상태 칸의 첫 값입니다. 비워 두면 안 됩니다 —
+       비어 있으면 필터 보기(`상태 = 접수`)로 밀린 것을 못 찾고,
+       '아직 아무도 안 봤다' 와 '누가 실수로 지웠다' 를 구별할 수도 없습니다.
+       뒤 세 칸(검토한 사람·검토한 날·메모)은 빈 채로 남습니다. */
     var row = [now, CURRENT_ROUND, SIDO[sido] || '', sido, cut(d.region),
-               detail, links.join('\n'), email, utmText(d.utm)];
+               detail, links.join('\n'), email, utmText(d.utm), STATES[0]];
 
     sheet().appendRow(row);
     notify(row, links.length);
