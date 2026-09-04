@@ -10,18 +10,5 @@
     "image": "",
     "image_alt": "",
     "body": []
-  },
-  {
-    "id": "riverbus",
-    "title": "서울시 한강 리버버스",
-    "summary": "수요 예측과 운영 적자 구조를 검증했습니다.",
-    "status": "closed",
-    "period": "2024.5 ~ 2025.3",
-    "outcome": "제40회 밑빠진 독상 수여",
-    "link": "",
-    "image": "",
-    "image_alt": "",
-    "body": [],
-    "round": 40
   }
 ]
