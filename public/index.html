@@ -2670,25 +2670,31 @@ const DOK_SHOW_VOICES = false;
 //     'https://raw.githubusercontent.com/bada17/dokseong/main/public/data/campaigns.json'
 const DOK_CAMPAIGN_URL = 'data/campaigns.json';
 
+/* 제보를 받는 구글 Apps Script 웹앱 주소(배포 › 배포 관리 의 `/exec` 주소).
+   시트 하나가 접수처이자 검토실입니다. 설치 순서는 저장소 `intake/README.md`.
+
+   ★ 비워 두면 제보 폼이 잠깁니다 — 갈 곳 없는 주소로 제보 내용과 사진이
+     나가는 일을 막으려는 것입니다. 주소를 넣는 순간 폼이 열립니다.
+   ★ 이 주소는 소스에 그대로 보입니다. 정적 페이지라 숨길 수가 없습니다.
+     남이 할 수 있는 것은 가짜 줄 쌓기뿐이고, 읽기·수정·삭제는 못 합니다
+     (doGet 은 지역별 '건수'만 내주고 제보 내용은 내주지 않습니다). */
+const DOK_SHEET_ENDPOINT = '';
+
 // 폼이 받은 것을 어디로 보낼지.
 //   'disabled' — 보내지 않습니다. 버튼이 잠기고 안내만 뜹니다(개인정보가 나가지 않음).
 //   'link'     — 우리 폼 대신 url 의 바깥 접수처로 보냅니다(캠페이너스 입력폼).
+//   'sheet'    — 우리 폼에서 구글 Apps Script 로 바로 보냅니다(제보 전용).
+//                위 DOK_SHEET_ENDPOINT 를 채워야 켜집니다.
 //   'donus'    — 우리 폼에서 도너스 Forms API 로 바로 보냅니다(서명·참여 전용).
 //                아래 DOK_DONUS 를 채워야 켜집니다.
-//
-//  ⚠️ 예전 Cloudflare API(/api/report · /api/join · /api/regions)는 2026-08-24
-//     운영 구조 변경으로 쓰지 않습니다(OPERATIONS.md). 코드는 비교·롤백용으로
-//     남겨 두었을 뿐이라, 지금 부르면 실패하거나 아무 데도 저장되지 않습니다.
-//  ⚠️ 접수처를 붙이기 전에 받아야 하는 것 — OPERATIONS.md 2·3장을 보세요.
-//     제보: 캠페이너스 입력폼 주소 / 서명: 도너스 Formkey·채널·분류 코드
 const DOK_INTAKE = {
-  // 2026-09-04 제보를 우리가 직접 받기로 했습니다(캠페이너스 링크 안 씁니다).
-  // 캠페이너스 폼은 새 탭으로 나가는 링크라, 몇 건이 들어왔는지 돌려받을 길이
-  // 없었습니다. 지도의 지역별 건수가 그 숫자를 필요로 합니다.
-  // 받는 곳은 이 저장소의 Cloudflare Pages Functions 입니다 —
-  // D1(글) + R2(사진), 둘 다 action@action.or.kr 계정.
+  // 2026-09-04 제보를 구글 스프레드시트로 받기로 했습니다.
+  // 같은 날 만든 Cloudflare D1 + R2 방식(`functions/api/report.js`)은 쓰지 않습니다 —
+  // **검토를 여러 사람이 나눠 하기 때문입니다.** 담당자 컴퓨터에서만 도는
+  // `tools/review.py` 로는 한 사람밖에 못 봅니다. 시트는 계정만 나눠 주면
+  // 여럿이 동시에 보고, 누가 무엇을 봤는지도 남습니다.
   // ⚠️ 잠그려면 mode 를 'disabled' 로. 그 한 줄로 칸과 제출이 함께 막힙니다.
-  report:  { mode: 'api', url: '/api/report' },
+  report:  { mode: 'sheet', url: DOK_SHEET_ENDPOINT },
   // 2026-09-03 에 열었습니다. 그 전에 확인한 것 —
   //  (1) Form Key 유효 · CORS 열림 · 실제 제출 성공(interactIdx 284732720)
   //  (2) 기존 구성원의 수신동의를 덮어쓰지 않음(같은 이메일로 두 번 넣어 확인)
@@ -2696,8 +2702,10 @@ const DOK_INTAKE = {
   // 잠그려면 'disabled' 로 되돌리면 됩니다. 그 한 줄로 칸과 제출이 함께 막힙니다.
   join:    { mode: 'donus', url: '' },      // 감시 참여·서명 → 도너스
   // 지역별 제보 건수. 제보 '내용'은 여기로 안 나옵니다 — 건수뿐입니다.
-  // 그리고 사람이 한 번 열어본 것만 셉니다(regions.js 의 status 조건).
-  regions: { mode: 'api', url: '/api/regions' },
+  // 그리고 사람이 한 번 열어본 것만 셉니다(시트의 `상태` 가 검토중·후보인 줄).
+  // 제보와 같은 웹앱입니다 — 주소 하나에 붙였습니다.
+  regions: { mode: 'sheet',
+             url: DOK_SHEET_ENDPOINT ? DOK_SHEET_ENDPOINT + '?action=regions' : '' },
 };
 
 /* ── 도너스 서명 연동 (2026-09-03) ────────────────────────────────────────────
@@ -2765,6 +2773,14 @@ function dokJoinReady() {
   return m !== 'disabled';
 }
 
+/* 제보 접수가 실제로 열려 있는가. 'sheet' 라고 적어 두고 웹앱 주소를 안 넣은
+   상태를 '잠김'으로 봅니다 — 서명 쪽과 같은 짜임입니다. */
+function dokReportReady() {
+  const m = DOK_INTAKE.report.mode;
+  if (m === 'sheet' || m === 'link') return !!DOK_INTAKE.report.url;
+  return m !== 'disabled';
+}
+
 // ── 위 스위치 적용 ──
 (function applyDokFlags() {
   const hide = (el) => { if (el) el.style.display = 'none'; };
@@ -2782,9 +2798,12 @@ function dokJoinReady() {
 
   // 접수처가 없는 폼은 잠급니다. 개인정보가 우리 손을 타지 않게 하는 것이 목적이라
   // 화면만 가리는 것이 아니라 제출 자체를 막습니다(아래 submit 처리에서도 한 번 더 봅니다).
-  // 서명은 mode 만 보지 않고 Formkey 까지 봅니다(위 dokJoinReady).
-  const intakeReady = (key) =>
-    key === 'join' ? dokJoinReady() : DOK_INTAKE[key].mode !== 'disabled';
+  // 서명은 Formkey 까지, 제보는 웹앱 주소까지 봅니다(위 두 함수).
+  const intakeReady = (key) => {
+    if (key === 'join') return dokJoinReady();
+    if (key === 'report') return dokReportReady();
+    return DOK_INTAKE[key].mode !== 'disabled';
+  };
   const lock = (form, key) => {
     if (!form || intakeReady(key)) return;
     const btn = form.querySelector('button[type="submit"], .dok-report-submit, .dok-join-submit');
@@ -3301,7 +3320,8 @@ items.forEach(item => {
   }
 
   // 지역별 제보 건수 — 접수처가 없으면 부르지 않습니다(있지도 않은 주소입니다).
-  const regionsReq = DOK_INTAKE.regions.mode === 'disabled'
+  // 실패해도 빈 집계로 넘어갑니다. 지도는 수상 내역만으로도 볼 수 있어야 합니다.
+  const regionsReq = (DOK_INTAKE.regions.mode === 'disabled' || !DOK_INTAKE.regions.url)
     ? Promise.resolve({ sido: {} })
     : fetch(DOK_INTAKE.regions.url).then((r) => r.json()).catch(() => ({ sido: {} }));
 
@@ -3813,8 +3833,22 @@ items.forEach(item => {
 })();
 
 // ── 시민 제보 ──
-// Cloudflare Pages Functions(functions/api/report.js)로 보낸다.
+// 구글 Apps Script 웹앱(intake/Code.gs)으로 보낸다. 시트가 접수처이자 검토실이다.
 // 폼이 두 곳(아래 제보 섹션 · 지도에서 뜨는 팝업)이라 처리를 한 함수로 묶었다.
+//
+// 사진은 파일 그대로가 아니라 base64 글자로 실어 보낸다. Apps Script 는
+// multipart 를 제대로 풀어 주지 않아서다. 대신 본문이 1/3 가량 커지는데,
+// 폼이 이미 캔버스로 줄여 둔 사진이라(1600px · 품질 0.82) 문제가 되지 않는다.
+function fileToBase64(file) {
+  return new Promise((resolve) => {
+    const r = new FileReader();
+    // 데이터 URL 의 머리(`data:image/jpeg;base64,`)는 떼고 알맹이만 보낸다.
+    r.onload = () => resolve(String(r.result || '').replace(/^data:[^,]*,/, ''));
+    r.onerror = () => resolve('');
+    r.readAsDataURL(file);
+  });
+}
+
 function setupReportForm(form) {
   if (!form) return;
   const f = (name) => form.querySelector(`[data-f="${name}"]`);
@@ -3901,7 +3935,7 @@ function setupReportForm(form) {
     e.preventDefault();
     // 접수처가 없으면 여기서 끝냅니다. 제보 내용·사진·회신 이메일이 갈 곳 없는
     // 주소로 나가지 않게 하는 것입니다(화면 잠금과 별개의 두 번째 빗장).
-    if (DOK_INTAKE.report.mode === 'disabled') {
+    if (!dokReportReady()) {
       error.textContent = DOK_INTAKE_OFF_MSG;
       error.style.display = 'block';
       return;
@@ -3921,20 +3955,33 @@ function setupReportForm(form) {
       return;
     }
 
-    const fd = new FormData();
-    fd.append('detail', detail);
-    fd.append('region', val('region'));
-    fd.append('sido', f('sido') ? f('sido').value : '');
-    fd.append('email', val('email'));
-    fd.append('website', f('website') ? f('website').value : '');
-    fd.append('utm', JSON.stringify(utmParams));
-    photos.forEach((ph) => fd.append('photos', ph.file));
-
     btn.disabled = true;
     btn.textContent = '보내는 중…';
 
     try {
-      const res = await fetch(DOK_INTAKE.report.url, { method: 'POST', body: fd });
+      const payload = {
+        form: 'dok-report',
+        detail,
+        region: val('region'),
+        sido: f('sido') ? f('sido').value : '',
+        email: val('email'),
+        website: f('website') ? f('website').value : '',   // 허니팟
+        utm: utmParams,
+        photos: [],
+      };
+      for (const ph of photos) {
+        const data = await fileToBase64(ph.file);
+        if (data) payload.photos.push({ type: ph.file.type || 'image/jpeg', data });
+      }
+
+      // ⚠️ content-type 은 text/plain 이어야 한다. application/json 으로 보내면
+      //    브라우저가 먼저 OPTIONS 를 던지는데 Apps Script 가 답하지 않아
+      //    CORS 에서 막힌다. 받는 쪽은 본문을 그냥 JSON 으로 읽는다.
+      const res = await fetch(DOK_INTAKE.report.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
       const out = await res.json().catch(() => ({}));
 
       if (res.ok && out.ok) {
