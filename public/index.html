@@ -1655,9 +1655,7 @@ html { scroll-behavior: smooth; }
          alt="함께하는 시민행동" decoding="async">
   </a>
   <nav>
-    <!-- 2026-09-07 — 진행 중인 감시사업 없이 런칭하기로 해 사업 칸을 껐습니다.
-         다시 켤 때 이 줄의 주석을 풀 것.
-         <a class="dok-nav-link" href="#dok-campaigns">예산감시 사업</a> -->
+    <a class="dok-nav-link" href="#dok-campaigns">예산감시 사업</a>
     <a class="dok-nav-link" href="#dok-map">지도</a>
     <a class="dok-nav-link" href="#dok-history">역대 수상</a>
     <a class="dok-nav-link" href="#dok-report">시민 제보</a>
@@ -1734,29 +1732,17 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- ══ 예산감시 사업 칸 — 2026-09-07 사용자 지시로 통째로 껐습니다 ══
-     "현재 진행중인 감시사업 없이 런칭하는 걸로 하자."
+<!-- ── 예산감시 사업 칸 ──
+     2026-09-07 — 칸은 살리고 **목록만** 비웁니다(사용자 지시).
+     "현재 사업 올리는 거 일단 주석처리해" + "진행중인 감시사업 칸은 살려".
+     실제로 무엇을 껐는지는 data/campaigns.json 의 머리 주석을 보세요 —
+     그 파일의 사업이 하나도 'ongoing' 이 아니면 이 칸은 준비 중이라고만 말합니다.
 
-     다시 켤 때 함께 풀 것 —
-       (1) 이 블록
-       (2) 위 헤더 메뉴의 '예산감시 사업' 링크
-       (3) 히어로의 '진행 중인 감시 참여하기' 단추
-
-     코드는 하나도 지우지 않았습니다. 목록을 그리는 스크립트는
-     `if (!grid || !tabs.length) return;` 로 시작하므로, 이 칸이 없으면
-     조용히 아무 일도 하지 않습니다. data/campaigns.json 도 그대로 둡니다.
-
-     ⚠️ 감시 참여(도너스 서명)는 이 칸의 카드에서만 열립니다.
-        칸을 끄면 서명 입구도 같이 닫힙니다 — 폼·도너스 연동 코드는 살아 있고
-        누를 곳만 없는 상태입니다. 서명을 따로 열려면 입구를 새로 만들어야 합니다.
-
-     아래 안쪽 주석 표시는 주석 안에 주석을 넣을 수 없어 지웠습니다.
-
+     ⚠️ 감시 참여(도너스 서명)는 이 칸의 **카드에서만** 열립니다.
+        목록이 비어 있는 동안에는 서명으로 들어갈 입구가 없습니다 —
+        폼·도너스 연동 코드는 그대로 살아 있고 누를 곳만 없는 상태입니다. -->
 <section class="dok-section" id="dok-campaigns">
   <h2>지금 지켜보고 있는 예산</h2>
-
-  아래 사업 목록은 전부 예시(더미) 데이터입니다. 실제 사업으로 교체할 것
-  <span class="dok-vote-notice">아래 사업은 예시 데이터입니다 — 실제 내용으로 교체 예정</span>
 
   <div class="dok-camp-tabs" role="tablist">
     <button type="button" class="dok-camp-tab" role="tab" data-status="ongoing" aria-selected="true">
@@ -1769,7 +1755,6 @@ html { scroll-behavior: smooth; }
 
   <div class="dok-camp-grid" id="dok-camp-grid"></div>
 </section>
--->
 
 <!-- ── 예산감시 사업 데이터 ──
      분기마다 여기만 고치면 위 목록이 바뀝니다. 코드는 건드릴 필요 없습니다.
@@ -3629,7 +3614,9 @@ items.forEach(item => {
     grid.innerHTML = list.length
       ? list.map((c, i) => card(c, i)).join('')
       : `<p class="dok-camp-empty">${status === 'ongoing'
-          ? '지금 지켜보고 있는 사업을 정리하고 있습니다.'
+          /* 2026-09-07 — 목록을 비운 채로 런칭하므로 이 문장이 실제로 화면에 나옵니다.
+         "정리하고 있습니다" 는 곧 올라온다는 뜻이라, 언제 무엇이 오는지 덧붙였습니다. */
+      ? '다음 분기 감시 사업을 준비하고 있습니다. 정해지면 이 자리에 올립니다.'
           : '종료된 사업을 정리하고 있습니다.'}</p>`;
 
     grid.querySelectorAll('.dok-camp-card').forEach((el) => {
