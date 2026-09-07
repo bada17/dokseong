@@ -135,8 +135,13 @@ function setUpCampaignForm() {
      아래 로그가 순서를 알려 줍니다. 칸이 없어도 `campaignsJson` 은 멀쩡히 돕니다
      (머리글 이름으로 찾으므로, 없으면 사진 없는 것으로 봅니다). */
 
-  /* 이미 붙어 있으면 다시 붙이지 않습니다 — 다시 붙이면 탭이 하나 더 생깁니다. */
-  if (!form.getDestinationId()) {
+  /* 이미 붙어 있으면 다시 붙이지 않습니다 — 다시 붙이면 탭이 하나 더 생깁니다.
+     ⚠️ `getDestinationId()` 는 안 붙어 있을 때 null 을 주는 게 아니라
+        **예외를 던집니다**("The form currently has no response destination").
+        그래서 값을 보는 게 아니라 던지는지로 판단합니다. */
+  var linked = false;
+  try { linked = !!form.getDestinationId(); } catch (err) { linked = false; }
+  if (!linked) {
     form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
   }
 
@@ -147,7 +152,10 @@ function setUpCampaignForm() {
   var made = null;
   var sheets = ss.getSheets();
   for (var i = sheets.length - 1; i >= 0; i--) {
-    if (sheets[i].getFormUrl()) { made = sheets[i]; break; }
+    /* 설문지가 안 붙은 탭에서도 안전하게 — 오늘 이 API 들에 두 번 데였습니다. */
+    var url = null;
+    try { url = sheets[i].getFormUrl(); } catch (err) { url = null; }
+    if (url) { made = sheets[i]; break; }
   }
   if (made && made.getName() !== CAMP.sheetName) made.setName(CAMP.sheetName);
   if (made) {
