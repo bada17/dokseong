@@ -191,6 +191,14 @@ function doPost(e) {
  */
 function doGet(e) {
   var action = (e && e.parameter && e.parameter.action) || '';
+
+  /* 감시사업 목록 — 담당자가 구글 설문지로 올린 것을 사이트가 읽어 갑니다.
+     만드는 곳은 옆 파일 Campaigns.gs 입니다. 제보와는 아무 상관이 없습니다. */
+  if (action === 'campaigns') {
+    return ContentService.createTextOutput(campaignsJson())
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   if (action !== 'regions') {
     return ContentService
       .createTextOutput('밑빠진 독상 제보 접수처입니다. 폼에서만 씁니다.')

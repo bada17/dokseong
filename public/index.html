@@ -2729,7 +2729,7 @@ const DOK_SHOW_VOICES = false;
 //  ⚠️ 나중에 캠페이너스 안에 붙여넣으면 상대주소('data/…')는 404 가 납니다.
 //     그때는 아래 주석처럼 GitHub 절대주소로 바꾸세요 — 어디에 붙여넣어도 읽힙니다.
 //     'https://raw.githubusercontent.com/bada17/dokseong/main/public/data/campaigns.json'
-const DOK_CAMPAIGN_URL = 'data/campaigns.json';
+// ★ 2026-09-07 — 이 값은 아래 DOK_SHEET_ENDPOINT 다음으로 옮겼습니다(설문지에서 읽습니다).
 
 /* 제보를 받는 구글 Apps Script 웹앱 주소(배포 › 배포 관리 의 `/exec` 주소).
    시트 하나가 접수처이자 검토실입니다. 설치 순서는 저장소 `intake/README.md`.
@@ -2740,6 +2740,20 @@ const DOK_CAMPAIGN_URL = 'data/campaigns.json';
      남이 할 수 있는 것은 가짜 줄 쌓기뿐이고, 읽기·수정·삭제는 못 합니다
      (doGet 은 지역별 '건수'만 내주고 제보 내용은 내주지 않습니다). */
 const DOK_SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxI7UMptIhxwMR7mPtqP72EDQ1z871zJNhBcJeaVBeP5KdIcDhCT4_3CpGSnxPMYgE8hg/exec';
+
+/* 예산감시 사업 목록을 어디에서 읽을지.
+
+   ★ 2026-09-07 사용자 결정 — **담당자가 구글 설문지를 채우면 사이트에 올라옵니다.**
+     코드도 배포도 깃허브도 거치지 않습니다. 만드는 곳은 intake/Campaigns.gs 이고,
+     편집기에서 setUpCampaignForm() 을 한 번 실행하면 담당자에게 줄 주소가 나옵니다.
+     상태를 '진행 중'·'종료' 로 바꾼 줄만 나갑니다 — '숨김' 은 안 나갑니다.
+
+   ★ 못 읽거나 한 건도 없으면 **아래 #dok-campaign-data 의 씨앗이 그대로 남습니다.**
+     화면이 비는 일은 없습니다('켜는 것만 스크립트가 한다').
+   ⚠️ 접수처 주소가 비어 있으면 예전처럼 data/campaigns.json 을 읽습니다. */
+const DOK_CAMPAIGN_URL = DOK_SHEET_ENDPOINT
+  ? DOK_SHEET_ENDPOINT + '?action=campaigns'
+  : 'data/campaigns.json';
 
 // 폼이 받은 것을 어디로 보낼지.
 //   'disabled' — 보내지 않습니다. 버튼이 잠기고 안내만 뜹니다(개인정보가 나가지 않음).
