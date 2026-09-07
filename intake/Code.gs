@@ -221,6 +221,40 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
+  /* 시트가 코드와 같은 모양인지 밖에서 보는 창 — `?action=check`.
+     ★ 왜 필요한가: 칸이 한 칸만 밀려도 **아무 오류가 안 납니다.** 새 제보가 조용히
+       엉뚱한 칸에 들어가고, 지도는 0건이 되며, 아무도 모릅니다. 시트를 손본 뒤
+       맞았는지 확인할 길이 시트를 직접 여는 것밖에 없었습니다.
+     ⚠️ 나가는 것은 **칸 이름과 줄 수뿐입니다.** 제보 내용·이메일·사진은 여기로
+        절대 나가지 않습니다 — 그래서 공개 주소에 두어도 됩니다. */
+  if (action === 'check') {
+    var want = SHEET.head.concat(TRACK);
+    var got = [], rowCount = 0;
+    try {
+      var s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET.name);
+      if (s) {
+        got = s.getRange(1, 1, 1, want.length).getValues()[0].map(function (v) {
+          return trim(v);
+        });
+        rowCount = Math.max(0, s.getLastRow() - 1);
+      }
+    } catch (err) { console.error(err); }
+
+    var ok = got.length === want.length;
+    for (var j = 0; ok && j < want.length; j++) { if (got[j] !== want[j]) ok = false; }
+
+    return ContentService.createTextOutput(JSON.stringify({
+      ok: ok,
+      sheet: SHEET.name,
+      exists: got.length > 0,
+      expected: want,
+      actual: got,
+      rows: rowCount,
+      round: roundLabel(),
+      campaigns: typeof campaignsJson === 'function'   // Campaigns.gs 를 붙였는지
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+
   if (action !== 'regions') {
     return ContentService
       .createTextOutput('밑빠진 독상 제보 접수처입니다. 폼에서만 씁니다.')

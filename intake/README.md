@@ -201,6 +201,27 @@ npx wrangler pages deploy public --project-name dokseong --branch main --commit-
 회차 칸(`B`)에 남은 `41` 은 손으로 `26년 하반기` 로 고쳐 주세요 — 새로 들어오는 것만
 저절로 붙습니다.
 
+### 맞았는지 보는 법 — `?action=check`
+
+시트를 손본 뒤 **밖에서** 확인할 수 있습니다. 시트를 열지 않아도 됩니다.
+
+```
+curl -sL '<웹앱주소>?action=check'
+```
+
+```json
+{ "ok": true, "actual": ["접수시각","회차","시도", …], "rows": 0,
+  "round": "26년 하반기", "campaigns": true }
+```
+
+`ok` 가 `true` 면 시트가 코드와 같은 모양입니다. `false` 면 `expected` 와 `actual` 을
+나란히 보면 어느 칸이 어긋났는지 바로 보입니다.
+`campaigns` 는 `Campaigns.gs` 를 붙였는지, `round` 는 오늘 들어오는 제보가 어느
+회차로 적힐지입니다.
+
+⚠️ **나가는 것은 칸 이름과 줄 수뿐입니다.** 제보 내용·이메일·사진은 이 길로
+나가지 않습니다. 그래서 공개 주소에 두어도 됩니다.
+
 ---
 
 `Code.gs` 를 고친 뒤에는 **배포 › 배포 관리 › ✏️ › 새 버전**.
