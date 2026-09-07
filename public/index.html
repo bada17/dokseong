@@ -141,6 +141,8 @@ html { scroll-behavior: smooth; }
 #dok .dok-camp-empty {
   grid-column: 1 / -1; text-align: center; padding: 60px 20px;
   color: var(--ink-soft); font-size: 15px;
+  /* 좁은 화면에서 '정해지면' 이 '정해 / 지면' 으로 잘렸습니다. */
+  word-break: keep-all;
 }
 @media (max-width: 900px) {
   #dok .dok-camp-grid { grid-template-columns: repeat(2, 1fr); }
