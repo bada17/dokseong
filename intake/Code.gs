@@ -24,13 +24,23 @@
 /* 알림을 받는 메일함. */
 var NOTIFY_TO = 'action@action.or.kr';
 
-/* 지금 도는 회차. 밑빠진 독상은 분기마다 한 번 돌고, 제보는 들어온 때의
-   회차로 묶입니다. **분기가 바뀌면 이 숫자를 올리고 새 버전으로 배포하세요.**
-   안 올리면 새 제보가 지난 회차에 섞여 들어갑니다. */
-var CURRENT_ROUND = 41;
+/* 제보가 들어온 때를 반기로 묶어 `26년 하반기` 꼴로 적습니다.
+   1~6월이 상반기, 7~12월이 하반기입니다.
+
+   ★ 손으로 올리는 값이 아닙니다. 예전에는 `CURRENT_ROUND = 41` 을 두고
+     분기가 바뀔 때마다 사람이 올려 새 버전으로 배포해야 했는데, 잊으면 새 제보가
+     지난 회차에 조용히 섞여 들어갔습니다. 이제 날짜에서 계산하므로 배포할 일이 없습니다.
+   ⚠️ 시각은 반드시 서울 기준으로 읽습니다. Apps Script 서버 시간을 그대로 쓰면
+      6월 30일 밤·12월 31일 밤 제보가 다음 반기로 넘어갈 수 있습니다. */
+function roundLabel(when) {
+  var d = when || new Date();
+  var yy = Utilities.formatDate(d, 'Asia/Seoul', 'yy');
+  var month = Number(Utilities.formatDate(d, 'Asia/Seoul', 'M'));
+  return yy + '년 ' + (month <= 6 ? '상반기' : '하반기');
+}
 
 /* 제보 사진을 담는 드라이브 폴더의 이름. 없으면 처음 사진이 올 때 만듭니다.
-   회차마다 그 아래에 `제41회` 같은 폴더가 하나씩 더 생깁니다.
+   반기마다 그 아래에 `26년 하반기` 같은 폴더가 하나씩 더 생깁니다.
    ⚠️ 만들어진 폴더는 **이 계정만** 볼 수 있습니다. 다른 검토자가 사진을 보려면
       그 사람에게 이 폴더를 '보기' 권한으로 공유해 주어야 합니다(README 4번).
       링크가 있는 모든 사용자에게 여는 것은 하지 마세요 — 제보 사진입니다. */
@@ -42,9 +52,9 @@ var PHOTO_ROOT = '밑빠진 독상 제보 사진';
    wide 는 글이 길어 줄바꿈과 넓은 폭이 필요한 열 번호입니다(1부터 셉니다). */
 var SHEET = {
   name: '제보',
-  head: ['접수시각', '회차', '시도', '시도코드', '기관',
+  head: ['접수시각', '회차', '시도', '기관',
          '제보 내용', '사진', '회신 이메일', '유입 경로', '개인정보 동의'],
-  wide: [6, 7]
+  wide: [5, 6]
 };
 
 /* 사람이 채우는 칸. `상태` 를 고르면 뒤 둘은 onEdit 이 저절로 채웁니다. */
@@ -60,14 +70,26 @@ var STATES = ['접수', '검토중', '후보', '탈락', '스팸'];
 var LIVE = ['검토중', '후보'];
 
 /* 시도 코드 → 이름. `public/data/map-sido.json` 과 같은 값입니다.
-   코드만 적어 두면 시트를 읽을 때마다 눈으로 옮겨야 해서 이름도 함께 적습니다.
-   ⚠️ 36 은 전남과 광주가 합쳐진 코드입니다(2026 통합). 지도 쪽과 같이 맞춰야 합니다. */
+   ⚠️ 36 은 전남과 광주가 합쳐진 코드입니다(2026 통합). 지도 쪽과 같이 맞춰야 합니다.
+
+   ★ 시트에는 **이름만** 적습니다. 예전에는 `시도코드` 칸을 따로 두었는데,
+     사람이 읽을 일이 없는 두 자리 숫자가 검토실 한복판을 차지했습니다.
+     지도가 쓰는 코드는 아래 SIDO_CODE 로 이름에서 되찾습니다. */
 var SIDO = {
   '11': '서울특별시', '21': '부산광역시', '22': '대구광역시', '23': '인천광역시',
   '25': '대전광역시', '26': '울산광역시', '29': '세종특별자치시', '31': '경기도',
   '32': '강원도', '33': '충청북도', '34': '충청남도', '35': '전라북도',
   '36': '전남광주통합특별시', '37': '경상북도', '38': '경상남도', '39': '제주특별자치도'
 };
+
+/* 이름 → 코드. 위 표를 뒤집은 것입니다(손으로 또 적지 않습니다 — 어긋납니다).
+   지도가 부르는 `?action=regions` 는 코드로 세야 해서 여기를 거칩니다.
+   표에 없는 이름은 그냥 안 세집니다 — 사람이 시트에 손으로 적어 넣은 경우입니다. */
+var SIDO_CODE = (function () {
+  var out = {};
+  for (var code in SIDO) { out[SIDO[code]] = code; }
+  return out;
+})();
 
 /* 한 칸에 들어올 수 있는 글자 수. 넘으면 자릅니다.
    시트 한 칸의 한계는 5만 자인데, 그보다 먼저 사람이 못 읽습니다. */
@@ -165,7 +187,7 @@ function doPost(e) {
        ⚠️ 비어 있어도 제보를 버리지 않습니다 — 화면에서 이미 두 번 막았고,
           이 스크립트를 사이트보다 먼저 배포하면 아직 옛 화면을 보고 있는
           사람의 제보가 통째로 튕기기 때문입니다. 빈 칸은 옛 화면에서 온 것입니다. */
-    var row = [now, CURRENT_ROUND, SIDO[sido] || '', sido, cut(d.region),
+    var row = [now, roundLabel(now), SIDO[sido] || '', cut(d.region),
                detail, links.join('\n'), email, utmText(d.utm), cut(d.consent),
                STATES[0]];
 
@@ -205,7 +227,10 @@ function doGet(e) {
       .setMimeType(ContentService.MimeType.TEXT);
   }
 
-  var round = (e.parameter.round || '').replace(/\D/g, '');   // 없으면 전체 합계
+  /* 없으면 전체 합계. 있으면 `26년 하반기` 처럼 시트에 적힌 그대로 줍니다
+     — 예전에는 숫자만 남기고 걸렀는데 회차가 이제 글자라 그러면 안 됩니다.
+     지금 화면은 회차를 안 붙여 부릅니다(전체 합계). */
+  var round = trim(e.parameter.round || '');
   var key = 'regions:' + (round || 'all');
 
   /* 지도는 페이지를 열 때마다 한 번씩 부릅니다. 시트를 매번 훑을 이유가 없어
@@ -220,14 +245,15 @@ function doGet(e) {
     var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SHEET.name);
     var last = sh ? sh.getLastRow() : 0;
     if (last > 1) {
-      /* 세 칸만 읽습니다 — 회차·시도코드·상태. 제보 내용은 읽지도 않습니다. */
-      var roundCol = 2, sidoCol = 4, statusCol = SHEET.head.length + 1;
+      /* 세 칸만 읽습니다 — 회차·시도·상태. 제보 내용은 읽지도 않습니다. */
+      var roundCol = 2, sidoCol = 3, statusCol = SHEET.head.length + 1;
       var rows = sh.getRange(2, 1, last - 1, statusCol).getValues();
       for (var i = 0; i < rows.length; i++) {
         if (LIVE.indexOf(trim(rows[i][statusCol - 1])) < 0) continue;
-        if (round && String(rows[i][roundCol - 1]) !== round) continue;
+        if (round && trim(rows[i][roundCol - 1]) !== round) continue;
         out.total++;
-        var code = trim(rows[i][sidoCol - 1]);
+        /* 시트에는 이름이 적혀 있고 지도는 코드로 셉니다 — 여기서 되돌립니다. */
+        var code = SIDO_CODE[trim(rows[i][sidoCol - 1])];
         if (code) out.sido[code] = (out.sido[code] || 0) + 1;
       }
     }
@@ -276,7 +302,7 @@ function onEdit(e) {
 
 /* 탭 하나에 다 모읍니다. 회차별로 나누지 않습니다 —
    밀린 것을 한 곳에서 훑을 수 있어야 하고, 구글 시트는 줄이 몇만 개여도 멀쩡합니다.
-   회차별로 보고 싶으면 나누는 게 아니라 필터 보기(`회차 = 41`)로 봅니다. */
+   회차별로 보고 싶으면 나누는 게 아니라 필터 보기(`회차 = 26년 하반기`)로 봅니다. */
 function sheet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(SHEET.name);
@@ -305,9 +331,9 @@ function setUpSheet(sh) {
   sh.getRange(2, 1, sh.getMaxRows() - 1, 1).setNumberFormat('yyyy-MM-dd HH:mm');
   sh.setColumnWidth(1, 130);
 
-  /* 시도코드는 `11` 같은 두 자리입니다. 숫자로 두면 앞의 0 이 날아가고
-     `09` 가 `9` 가 됩니다 — 지도가 못 알아봅니다. 글자로 못 박습니다. */
-  sh.getRange(2, 4, sh.getMaxRows() - 1, 1).setNumberFormat('@');
+  /* 회차는 `26년 하반기` 입니다. 시트가 날짜로 알아듣고 제멋대로 바꾸지 않게
+     글자로 못 박습니다. */
+  sh.getRange(2, 2, sh.getMaxRows() - 1, 1).setNumberFormat('@');
 
   for (var i = 1; i <= n; i++) {
     if (SHEET.wide.indexOf(i) >= 0) {
@@ -343,7 +369,7 @@ function savePhotos(photos, when) {
 
   var folder;
   try {
-    folder = photoFolder();
+    folder = photoFolder(when);
   } catch (err) {
     console.error('폴더를 열지 못했습니다', err);
     return links;
@@ -375,10 +401,10 @@ function savePhotos(photos, when) {
 /* 이번 회차 사진 폴더. 없으면 만듭니다.
    찾은 폴더 번호는 스크립트 속성에 적어 둡니다 — 제보마다 드라이브를 뒤지지
    않으려는 것입니다. 사람이 폴더를 옮기거나 지우면 다시 찾습니다. */
-function photoFolder() {
-  var name = '제' + CURRENT_ROUND + '회';
+function photoFolder(when) {
+  var name = roundLabel(when);
   var props = PropertiesService.getScriptProperties();
-  var key = 'photoFolder:' + CURRENT_ROUND;
+  var key = 'photoFolder:' + name;
 
   var id = props.getProperty(key);
   if (id) {
@@ -404,7 +430,7 @@ function notify(row, photoCount) {
     '제보가 한 건 들어왔습니다.',
     '',
     '받은 때 : ' + Utilities.formatDate(row[0], 'Asia/Seoul', 'yyyy-MM-dd HH:mm'),
-    '회차    : 제' + row[1] + '회',
+    '회차    : ' + row[1],
     '지역    : ' + (row[2] || '(안 적음)'),
     '사진    : ' + (photoCount ? photoCount + '장' : '없음'),
     '',
