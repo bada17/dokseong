@@ -43,7 +43,7 @@ var PHOTO_ROOT = '밑빠진 독상 제보 사진';
 var SHEET = {
   name: '제보',
   head: ['접수시각', '회차', '시도', '시도코드', '기관',
-         '제보 내용', '사진', '회신 이메일', '유입 경로'],
+         '제보 내용', '사진', '회신 이메일', '유입 경로', '개인정보 동의'],
   wide: [6, 7]
 };
 
@@ -161,8 +161,13 @@ function doPost(e) {
        비어 있으면 필터 보기(`상태 = 접수`)로 밀린 것을 못 찾고,
        '아직 아무도 안 봤다' 와 '누가 실수로 지웠다' 를 구별할 수도 없습니다.
        뒤 세 칸(검토한 사람·검토한 날·메모)은 빈 채로 남습니다. */
+    /* 동의 문구의 판 번호가 그대로 들어옵니다(예: `2026-09-07`).
+       ⚠️ 비어 있어도 제보를 버리지 않습니다 — 화면에서 이미 두 번 막았고,
+          이 스크립트를 사이트보다 먼저 배포하면 아직 옛 화면을 보고 있는
+          사람의 제보가 통째로 튕기기 때문입니다. 빈 칸은 옛 화면에서 온 것입니다. */
     var row = [now, CURRENT_ROUND, SIDO[sido] || '', sido, cut(d.region),
-               detail, links.join('\n'), email, utmText(d.utm), STATES[0]];
+               detail, links.join('\n'), email, utmText(d.utm), cut(d.consent),
+               STATES[0]];
 
     sheet().appendRow(row);
     notify(row, links.length);
