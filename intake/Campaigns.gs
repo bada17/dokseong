@@ -19,8 +19,14 @@
  *    그래서 '링크가 있는 누구나 보기' 로 엽니다.
  *    제보 사진(PHOTO_ROOT)과 **폴더가 다릅니다.** 절대 섞지 마세요.
  *
- * 설치 — 편집기에서 `setUpCampaignForm()` 을 **한 번** 실행하면 끝입니다.
- *        실행 기록(로그)에 담당자에게 줄 설문지 주소가 찍힙니다.
+ * 설치 — 편집기에서 `setUpCampaignForm()` 을 실행하고, 로그가 시키는 대로
+ *        **설문지에서 사진 칸 하나만 손으로** 더하면 끝입니다.
+ *        로그에 담당자에게 줄 설문지 주소도 함께 찍힙니다.
+ *
+ * ⚠️ 사진 칸을 코드가 못 만듭니다. Apps Script 의 Forms 서비스에는 파일 올리는
+ *    물음을 만드는 길이 없습니다(2026-09-07 확인 — `addFileUploadItem` 은 없는
+ *    함수라 `TypeError` 가 납니다). 읽는 쪽은 멀쩡하므로, 사람이 한 번 달아 두면
+ *    그 뒤로는 코드가 알아서 읽습니다.
  */
 
 var CAMP = {
@@ -56,15 +62,48 @@ var CAMP = {
 
 
 /**
- * 설문지를 만들고 이 스프레드시트에 붙입니다. **한 번만** 실행하세요.
- * 여러 번 눌러도 설문지가 여러 개 생길 뿐 해가 되지는 않지만, 시트 탭도 같이 늘어납니다.
+ * 설문지를 만들고 이 스프레드시트에 붙입니다.
+ *
+ * 여러 번 눌러도 됩니다 — 이미 만든 설문지가 있으면 새로 만들지 않고 그것을 다시
+ * 씁니다(물음만 지웠다 다시 답니다). 시트에 붙이는 것도 아직 안 붙어 있을 때만 합니다.
+ *
+ * ⚠️ **사진 칸은 이 코드가 못 만듭니다.** Apps Script 에는 파일 올리는 물음을
+ *    만드는 길이 아예 없습니다(`addFileUploadItem` 같은 것이 없습니다).
+ *    실행이 끝나면 로그가 시키는 대로 **설문지에서 손으로 한 칸 더하세요.**
+ *    안 더해도 나머지는 그대로 돌아갑니다 — 카드가 빈 액자로 둘 뿐입니다.
  */
 function setUpCampaignForm() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var props = PropertiesService.getScriptProperties();
 
-  var form = FormApp.create(CAMP.formTitle);
+  /* 이미 있는 설문지를 찾습니다. 먼저 적어 둔 번호로, 없으면 이름으로 —
+     이름으로도 찾는 이유는 앞서 실패한 실행이 남긴 설문지를 주워 쓰기 위해서입니다.
+     그러지 않으면 다시 누를 때마다 못 쓰는 설문지가 드라이브에 쌓입니다. */
+  var form = null;
+  var saved = props.getProperty('campaignFormId');
+  if (saved) {
+    try { form = FormApp.openById(saved); }
+    catch (err) { props.deleteProperty('campaignFormId'); }
+  }
+  if (!form) {
+    var found = DriveApp.getFilesByName(CAMP.formTitle);
+    while (found.hasNext()) {
+      var f = found.next();
+      if (f.getMimeType() !== MimeType.GOOGLE_FORMS) continue;
+      try { form = FormApp.openById(f.getId()); break; } catch (err) { /* 남의 것 */ }
+    }
+  }
+  var isNew = !form;
+  if (isNew) form = FormApp.create(CAMP.formTitle);
+  props.setProperty('campaignFormId', form.getId());
+
   form.setDescription(CAMP.formHelp);
   form.setCollectEmail(false);
+
+  /* 물음을 싹 지우고 다시 답니다 — 다시 눌러도 같은 물음이 겹쳐 붙지 않게.
+     ⚠️ 손으로 더한 사진 칸도 이때 같이 지워집니다. 다시 더하세요(로그 참고). */
+  var had = form.getItems();
+  for (var k = had.length - 1; k >= 0; k--) form.deleteItem(had[k]);
 
   form.addMultipleChoiceItem()
       .setTitle(CAMP.q.status)
@@ -92,13 +131,14 @@ function setUpCampaignForm() {
   form.addTextItem().setTitle(CAMP.q.link)
       .setHelpText('관련 글이나 자료가 있으면 주소를 붙여넣으세요.');
 
-  form.addFileUploadItem().setTitle(CAMP.q.photo)
-      .setHelpText('한 장. 없으면 비워 두세요 — 카드가 알아서 빈 액자로 둡니다.')
-      .setMaxFileSize(5 * 1024 * 1024)
-      .setMaxFiles(1)
-      .setAllowedFileTypes([FormApp.FileType.IMAGE]);
+  /* 사진 칸은 여기 없습니다 — 코드로 만들 수 없어서 사람이 손으로 답니다.
+     아래 로그가 순서를 알려 줍니다. 칸이 없어도 `campaignsJson` 은 멀쩡히 돕니다
+     (머리글 이름으로 찾으므로, 없으면 사진 없는 것으로 봅니다). */
 
-  form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
+  /* 이미 붙어 있으면 다시 붙이지 않습니다 — 다시 붙이면 탭이 하나 더 생깁니다. */
+  if (!form.getDestinationId()) {
+    form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
+  }
 
   /* 설문지가 만든 탭 이름은 제멋대로라 우리 이름으로 바꿔 둡니다.
      (붙인 직후에는 목록에 늦게 잡힐 때가 있어 잠깐 기다립니다.) */
@@ -116,7 +156,33 @@ function setUpCampaignForm() {
         .setFontWeight('bold').setBackground('#fde8d7');
   }
 
-  Logger.log('setUpCampaignForm: 끝났습니다.');
+  /* 사진 칸이 이미 붙어 있는지 봅니다 — 두 번째 실행부터는 사람이 더해 두었을
+     수 있는데, 위에서 물음을 싹 지웠으므로 지금은 없는 것이 정상입니다. */
+  var hasPhoto = false;
+  var now = form.getItems();
+  for (var m = 0; m < now.length; m++) {
+    if (now[m].getTitle() === CAMP.q.photo) { hasPhoto = true; break; }
+  }
+
+  Logger.log(isNew ? '설문지를 새로 만들었습니다.' : '이미 있던 설문지를 다시 썼습니다.');
+  Logger.log('');
+  Logger.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  Logger.log('★ 아직 한 가지 남았습니다 — 사진 칸을 손으로 더하세요.');
+  Logger.log('  Apps Script 로는 파일 올리는 물음을 만들 수 없습니다.');
+  Logger.log('');
+  Logger.log('  1) 아래 「고칠 때 여는 주소」 를 엽니다');
+  Logger.log('  2) 맨 아래 ⊕ (질문 추가) 를 누릅니다');
+  Logger.log('  3) 물음 종류를 「파일 업로드」 로 바꿉니다');
+  Logger.log('     — 처음이면 "파일 업로드를 사용 설정" 안내가 뜹니다. 계속을 누르세요');
+  Logger.log('  4) 제목을 정확히  ' + CAMP.q.photo + '  이라고 적습니다  ← 글자가 다르면 안 읽힙니다');
+  Logger.log('  5) 「특정 파일 형식만 허용」 › 이미지, 최대 파일 수 1 로 둡니다');
+  Logger.log('  6) 설명에 적어 두면 좋습니다 — "한 장. 없어도 됩니다"');
+  Logger.log('');
+  Logger.log('  ⚠️ 이 함수를 다시 실행하면 이 칸도 지워집니다. 그때 다시 더하세요.');
+  Logger.log('  ⚠️ 안 더해도 나머지는 그대로 돕니다 — 카드가 빈 액자로 둘 뿐입니다.');
+  Logger.log('  지금 사진 칸: ' + (hasPhoto ? '있음' : '없음 — 위 순서대로 더하세요'));
+  Logger.log('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━');
+  Logger.log('');
   Logger.log('담당자에게 줄 주소 — ' + form.getPublishedUrl());
   Logger.log('고칠 때 여는 주소 — ' + form.getEditUrl());
   return form.getPublishedUrl();
