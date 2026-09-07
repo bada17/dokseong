@@ -775,18 +775,29 @@ function campaignsJson() {
 function campBody(text) {
   if (!text) return [];
   var out = [];
+  var buf = [];                       // 아직 문단으로 못 내보낸 줄들
+
+  function flush() {
+    if (buf.length) { out.push(['p', buf.join(' ')]); buf = []; }
+  }
+
   var blocks = String(text).replace(/\r\n/g, '\n').split(/\n\s*\n/);
   for (var i = 0; i < blocks.length; i++) {
-    var b = blocks[i].trim();
-    if (!b) continue;
-    var lines = b.split('\n');
+    var lines = blocks[i].split('\n');
     for (var j = 0; j < lines.length; j++) {
       var line = lines[j].trim();
       if (!line) continue;
-      if (line.charAt(0) === '#') out.push(['h', line.replace(/^#+\s*/, '')]);
-      else if (j === 0) out.push(['p', lines.join(' ').trim()]);
+      if (line.charAt(0) === '#') {
+        /* 소제목을 만나면 그때까지 모은 줄을 먼저 문단으로 내보냅니다. */
+        flush();
+        out.push(['h', line.replace(/^#+\s*/, '')]);
+      } else {
+        buf.push(line);
+      }
     }
+    flush();                          // 빈 줄이 나오면 문단이 끝납니다
   }
+  flush();
   return out;
 }
 
