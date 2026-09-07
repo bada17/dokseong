@@ -251,7 +251,8 @@ function doGet(e) {
       actual: got,
       rows: rowCount,
       round: roundLabel(),
-      campaigns: typeof campaignsJson === 'function'   // Campaigns.gs 를 붙였는지
+      campaigns: typeof campaignsJson === 'function',  // 감시사업 부분이 들어갔는지
+      campaignSheet: campaignCheck()                   // 감시사업 탭의 머리글
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -561,7 +562,9 @@ var CAMP = {
     photo:   '사진'
   },
 
-  /* 화면에 오르는 상태 둘. **그 밖의 값(숨김·빈칸)은 어느 탭에도 안 나옵니다.** */
+  /* 화면에 오르는 상태 둘. **그 밖의 값(숨김·빈칸)은 어느 탭에도 안 나옵니다.**
+     ⚠️ 띄어쓰기는 무시하고 견줍니다 — `진행중` 도 `진행 중` 으로 봅니다.
+        한 칸 차이로 사업이 조용히 안 뜨는 일을 막으려는 것입니다. */
   states: { '진행 중': 'ongoing', '종료': 'closed' },
 
   /* 사이트가 1분에 한 번만 시트를 훑게 합니다. 상태를 바꾸면 늦어야 1분 뒤에 반영됩니다. */
@@ -712,6 +715,47 @@ function setUpCampaignForm() {
 }
 
 
+/* 위 states 를 띄어쓰기 뺀 열쇠로 다시 적은 것입니다(손으로 또 적지 않습니다).
+   `진행중`·`진행 중`·`진행  중` 이 모두 같은 것으로 걸립니다. */
+var CAMP_STATES = (function () {
+  var out = {};
+  for (var k in CAMP.states) { out[k.replace(/\s+/g, '')] = CAMP.states[k]; }
+  return out;
+})();
+
+
+/* `?action=check` 가 감시사업 탭도 보여 주게 하는 것.
+   ★ 왜: 이 탭의 머리글은 설문지가 만들고 사람이 고칩니다. 어긋나도 아무 오류가
+     안 나고 사업이 조용히 안 뜹니다. 2026-09-07 에 물음을 다시 다는 바람에
+     `상태` 칸이 두 벌이 됐는데 밖에서는 보이지가 않아 한참 헤맸습니다.
+   ⚠️ 나가는 것은 **머리글 이름과 줄 수뿐**입니다. 사업 내용은 어차피 공개될
+      것이지만, 여기로는 안 내보냅니다 — 그건 `?action=campaigns` 의 몫입니다. */
+function campaignCheck() {
+  var out = { sheet: CAMP.sheetName, exists: false, headers: [], rows: 0, dup: [] };
+  try {
+    var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CAMP.sheetName);
+    if (!sh) return out;
+    out.exists = true;
+    out.rows = Math.max(0, sh.getLastRow() - 1);
+    var wide = sh.getLastColumn();
+    if (wide > 0) {
+      var head = sh.getRange(1, 1, 1, wide).getValues()[0];
+      var seen = {};
+      for (var c = 0; c < wide; c++) {
+        var name = trim(head[c]);
+        out.headers.push(name);
+        if (!name) continue;
+        /* 같은 이름이 두 번 나오면 적어 둡니다 — campaignsJson 은 제일 오른쪽
+           것을 읽으므로, 왼쪽 것을 고치면 아무 일도 안 일어납니다. */
+        if (seen[name]) { if (out.dup.indexOf(name) < 0) out.dup.push(name); }
+        seen[name] = true;
+      }
+    }
+  } catch (err) { console.error(err); }
+  return out;
+}
+
+
 /**
  * 사이트가 부르는 곳 — `?action=campaigns`.
  * '감시사업' 탭에서 상태가 「진행 중」·「종료」인 줄만 골라 카드 모양으로 내줍니다.
@@ -740,7 +784,7 @@ function campaignsJson() {
           return (i === undefined) ? '' : String(row[i] === null ? '' : row[i]).trim();
         };
 
-        var status = CAMP.states[pick('status')];
+        var status = CAMP_STATES[pick('status').replace(/\s+/g, '')];
         var title = pick('title');
         if (!status || !title) continue;
 
