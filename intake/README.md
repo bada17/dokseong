@@ -148,7 +148,7 @@ npx wrangler pages deploy public --project-name dokseong --branch main --commit-
 ## 감시사업 등록 — 구글 설문지 (2026-09-07)
 
 **담당자가 설문지 하나만 채우면 사이트의 「예산감시 사업」 칸에 올라옵니다.**
-코드도, 배포도, 깃허브도 거치지 않습니다. 만드는 곳은 `intake/Campaigns.gs` 입니다.
+코드도, 배포도, 깃허브도 거치지 않습니다. 만드는 곳은 `intake/Code.gs` 아래쪽입니다.
 
 ```
 담당자 → 구글 설문지 (사진 포함)
@@ -158,9 +158,16 @@ npx wrangler pages deploy public --project-name dokseong --branch main --commit-
 
 ### 한 번만 하면 되는 것
 
-1. Apps Script 편집기에서 **파일을 하나 더 만들고** `intake/Campaigns.gs` 를 붙여넣습니다
-   (`Code.gs` 를 지우지 말고 **옆에 나란히** 둡니다).
-2. `Code.gs` 도 다시 붙여넣습니다 — `doGet` 에 갈래가 하나 늘었습니다.
+1. Apps Script 편집기의 **`Code.gs` 하나에** 이 폴더의 `Code.gs` 를 통째로
+   붙여넣습니다(Ctrl+A → Ctrl+V → Ctrl+S). 감시사업 부분도 그 안에 들어 있습니다.
+
+   > **파일은 하나입니다.** 예전에는 `Campaigns.gs` 로 나눠 두었는데, 편집기에
+   > 손으로 붙여넣다가 **한 파일을 붙이면 다른 파일이 옛 것으로 되돌아가는 일이
+   > 두 번** 있었습니다(2026-09-07). Apps Script 는 파일이 몇 개든 함수를 같이
+   > 읽으므로 나눌 이유가 없습니다. 붙여넣기를 한 번으로 줄였습니다.
+
+2. 저장한 뒤 **함수 목록 맨 아래에 `setUpCampaignForm` 이 보이는지** 확인합니다.
+   안 보이면 붙여넣기가 안 산 것입니다 — 다시 붙여넣으세요.
 3. 툴바 함수 목록에서 **`setUpCampaignForm`** 을 골라 ▶ 실행합니다.
    실행 기록에 **담당자에게 줄 설문지 주소**와 다음 순서가 찍힙니다.
    여러 번 눌러도 됩니다 — 있던 설문지를 다시 씁니다.
@@ -200,7 +207,7 @@ Apps Script 의 Forms 서비스에는 **파일 올리는 물음을 만드는 길
 **제보 사진 폴더와 절대 섞지 마세요.**
 
 ⚠️ 설문지가 만든 탭 이름을 `감시사업` 에서 바꾸면 사이트가 못 읽습니다.
-바꿔야 하면 `Campaigns.gs` 의 `CAMP.sheetName` 도 같이 고칩니다.
+바꿔야 하면 `Code.gs` 의 `CAMP.sheetName` 도 같이 고칩니다.
 물음 제목이 곧 시트 머리글입니다 — 제목을 고치면 `CAMP.q` 도 같이 고칩니다.
 
 ---
@@ -235,7 +242,7 @@ curl -sL '<웹앱주소>?action=check'
 
 `ok` 가 `true` 면 시트가 코드와 같은 모양입니다. `false` 면 `expected` 와 `actual` 을
 나란히 보면 어느 칸이 어긋났는지 바로 보입니다.
-`campaigns` 는 `Campaigns.gs` 를 붙였는지, `round` 는 오늘 들어오는 제보가 어느
+`campaigns` 는 감시사업 부분이 들어갔는지, `round` 는 오늘 들어오는 제보가 어느
 회차로 적힐지입니다.
 
 ⚠️ **나가는 것은 칸 이름과 줄 수뿐입니다.** 제보 내용·이메일·사진은 이 길로
