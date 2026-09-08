@@ -215,13 +215,29 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-map-side h3 { font-size: 22px; margin-bottom: 4px; }
 #dok .dok-map-side .dok-map-sub { font-size: 14px; color: var(--ink-soft); margin-bottom: 20px; }
-#dok .dok-map-stats { display: flex; gap: 10px; margin-bottom: 22px; }
+/* 2026-09-08 — 숫자가 작고 흐려서 눈에 안 들어왔다. 이 칸이 '전국' 패널의
+   첫 내용이 됐으므로(안내문 한 줄을 지웠다) 숫자를 주인공으로 세운다.
+   가운데 정렬을 왼쪽으로 돌린 것도 그 때문이다 — 왼쪽 띠와 숫자와 이름이
+   한 줄에서 시작해야 시선이 걸린다. */
+#dok .dok-map-stats { display: flex; gap: 12px; margin-bottom: 22px; }
 #dok .dok-map-stat {
-  flex: 1; background: var(--brand-tint); border-radius: 10px;
-  padding: 14px 12px; text-align: center;
+  flex: 1; background: var(--brand-tint); border-radius: 12px;
+  padding: 15px 16px; text-align: left;
+  border-left: 4px solid var(--brand);
 }
-#dok .dok-map-stat b { display: block; font-size: 26px; line-height: 1.2; color: var(--brand-deep); }
-#dok .dok-map-stat span { font-size: 12.5px; color: var(--ink-soft); font-weight: 600; }
+#dok .dok-map-stat b {
+  display: block; font-size: 42px; line-height: 1.02; color: var(--brand-deep);
+  /* 숫자가 0부터 올라가며 세어지는 칸이라, 자릿수가 바뀔 때 글자가 덜컹거린다.
+     tabular-nums 로 폭을 고정한다. */
+  font-variant-numeric: tabular-nums; letter-spacing: -.02em;
+}
+/* ⚠️ **직계 자식(`>`)이어야 한다.** 세어 올라가는 숫자가 `<b><span class="dok-count2">`
+   라서, 그냥 `span` 으로 적으면 이 규칙이 **숫자까지 같이 잡아** 라벨 크기로
+   줄여 버린다. 2026-09-08 이전까지 숫자가 커 보이지 않던 진짜 이유가 이것이다. */
+#dok .dok-map-stat > span {
+  display: block; margin-top: 4px;
+  font-size: 13.5px; color: var(--ink); font-weight: 700;
+}
 #dok .dok-map-list {
   list-style: none;
   /* 중앙정부 목록은 21건이라 패널이 화면보다 길어진다.
@@ -269,7 +285,7 @@ html { scroll-behavior: smooth; }
   #dok .dok-map-dot { font-size: var(--dok-map-dot, 24px); }
   #dok .dok-map-mode { min-height: 44px; padding: 0 18px; }
   #dok .dok-map-offmap button { min-height: 52px; width: 100%; }
-  #dok .dok-map-stat b { font-size: 30px; }
+  #dok .dok-map-stat b { font-size: 38px; }
   #dok .dok-map-list { max-height: 60vh; }
 }
 
@@ -484,7 +500,8 @@ html { scroll-behavior: smooth; }
      지워 버려서 왼쪽 위에 붙는다. 여기서 되돌린다. */
   margin: auto;
   width: min(720px, calc(100vw - 32px));
-  max-height: min(86vh, 900px);
+  /* 2026-09-08 — 본문 자리를 넓히려고 86vh 에서 올렸다. */
+  max-height: min(92vh, 940px);
   padding: 0; border: 0; border-radius: 18px;
   background: var(--bg); color: var(--ink);
   overflow: hidden;
@@ -493,7 +510,8 @@ html { scroll-behavior: smooth; }
 #dok .dok-camp-modal-inner { display: flex; flex-direction: column; max-height: inherit; }
 
 #dok .dok-camp-modal-head {
-  padding: 22px 28px 20px; border-bottom: 1px solid var(--line);
+  /* 2026-09-08 — 본문에 자리를 더 주려고 위아래 여백을 조였다 */
+  padding: 17px 28px 15px; border-bottom: 1px solid var(--line);
   position: relative; flex-shrink: 0;
 }
 /* 이미지 위에 얹히므로 배경을 깔아 준다 */
@@ -505,7 +523,7 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-camp-modal-head .dok-camp-top { margin-bottom: 12px; }
 #dok .dok-camp-modal-lead {
-  font-size: 15px; color: var(--ink-soft); margin-top: 10px; word-break: keep-all;
+  font-size: 15px; color: var(--ink-soft); margin-top: 7px; word-break: keep-all;
 }
 #dok .dok-camp-modal-close {
   position: absolute; top: -52px; right: 20px; z-index: 2;
@@ -514,7 +532,9 @@ html { scroll-behavior: smooth; }
 }
 #dok .dok-camp-modal-close:hover { background: var(--line); }
 
-#dok .dok-camp-modal-body { padding: 24px 28px 28px; overflow-y: auto; }
+/* flex:1 로 남는 높이를 다 가져간다. min-height:0 이 없으면 flex 아이템의
+   기본 최소 높이가 내용 크기라서 본문이 안 줄고 팝업이 삐져나간다. */
+#dok .dok-camp-modal-body { padding: 24px 28px 28px; overflow-y: auto; flex: 1 1 auto; min-height: 0; }
 /* 보고서 본문 중간에 넣는 사진. 결과보고서처럼 보여줄 것이 쌓인 글에 씁니다
    (2026-09-03). 맨 위 대표 사진과 달리 비율을 자르지 않습니다 — 문서 캡처나
    세로 사진이 들어올 수 있기 때문입니다. */
@@ -875,7 +895,11 @@ html { scroll-behavior: smooth; }
 
 /* 상세 팝업 위쪽 이미지 */
 #dok .dok-camp-modal-thumb {
-  aspect-ratio: 16 / 7;
+  /* 2026-09-08 — 대표 사진이 팝업을 반쯤 먹어서 본문이 눌렸다.
+     비율을 납작하게 하고 **화면 높이로 한 번 더** 막는다. 비율만으로는
+     세로가 짧은 화면에서 안 잡힌다 — aspect-ratio 는 폭이 기준이라서다. */
+  aspect-ratio: 16 / 4;
+  max-height: min(160px, 18vh);
   background: #eef3f6;
   overflow: hidden;
   flex-shrink: 0;
@@ -895,7 +919,8 @@ html { scroll-behavior: smooth; }
 
 @media (max-width: 620px) {
   #dok .dok-camp-thumb { margin: -26px -24px 16px; }
-  #dok .dok-camp-modal-thumb { aspect-ratio: 16 / 8; }
+  /* 작은 화면은 팝업이 전체 화면이라 사진이 더 아깝다 */
+  #dok .dok-camp-modal-thumb { aspect-ratio: 16 / 5; max-height: 16vh; }
 }
 
 /* ── 지도 패널 닫기 ──
@@ -3145,14 +3170,12 @@ items.forEach(item => {
       const recent = [...awards].sort((a, b) => b.round - a.round).slice(0, 6);
       side.innerHTML =
         '<h3>전국</h3>' +
-        '<p class="dok-map-sub">지도에서 지역을 누르면 그 동네 기록이 열립니다.</p>' +
         '<div class="dok-map-stats">' +
-          `<div class="dok-map-stat"><b><span class="dok-count2" data-to="${totalAwards}">0</span></b><span>지역에 수여된 독상</span></div>` +
+          `<div class="dok-map-stat"><b><span class="dok-count2" data-to="${totalAwards}">0</span></b><span>지역 밑빠진 독상</span></div>` +
           `<div class="dok-map-stat"><b><span class="dok-count2" data-to="${totalReports}">0</span></b><span>시민 제보</span></div>` +
         '</div>' +
         (recent.length
-          ? '<div class="dok-map-listhead"><b>최근 수상</b>' +
-              `<span>제${recent[recent.length - 1].round}회 ~ 제${recent[0].round}회</span></div>` +
+          ? '<div class="dok-map-listhead"><b>최근 수상</b></div>' +
             '<ul class="dok-map-list is-clickable">' + recent.map(awardLi).join('') + '</ul>'
           : '') +
         // 2026-09-03: 월간 좋은예산 사례는 전부 중앙정부 칸으로 옮겼습니다.
