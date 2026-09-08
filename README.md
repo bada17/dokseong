@@ -257,8 +257,8 @@ npx wrangler d1 execute dokseong --remote \
 | 제보 사진 | 구글 드라이브 `밑빠진 독상 제보 사진 / 제NN회` — **비공개. 링크 공개 금지** |
 | 받는 코드 | [`intake/Code.gs`](intake/Code.gs) · 순서는 [`intake/README.md`](intake/README.md) |
 | 화면에 넣는 주소 | `public/index.html` 의 `DOK_SHEET_ENDPOINT` 한 줄 |
-| Cloudflare 계정 | `action@action.or.kr` — 이제 **사이트를 서비스하는 일만** 합니다 |
-| 사이트 | <https://dokseong.pages.dev> |
+| Cloudflare 계정 | `action@action.or.kr` — 2026-09-08 부터 **아무 일도 안 합니다**. 되돌릴 자리로만 남겨 둡니다 |
+| 사이트 | <https://dok.action.or.kr> (깃허브 페이지) |
 
 ⚠️ **`DOK_SHEET_ENDPOINT` 가 비어 있으면 제보 폼이 잠깁니다.** 갈 곳 없는 주소로
    제보 내용과 사진이 나가지 않게 하려는 것입니다.
@@ -271,9 +271,31 @@ npx wrangler d1 execute dokseong --remote \
 
 ⚠️ **R2 는 유료 구독이라 카드가 걸려 있습니다.** 사진을 드라이브로 옮겼으므로
    버킷을 지우고 구독을 해지해도 됩니다. D1 과 Pages 는 무료 한도라 카드가 필요 없습니다.
-   ⚠️ Pages 프로젝트(`dokseong`)는 **지우지 마세요** — 사이트가 사는 주소입니다.
+   ⚠️ Pages 프로젝트(`dokseong`)도 이제 사이트를 서비스하지 않지만, **아직 지우지 마세요** —
+   깃허브 페이지가 잘 도는 것을 확인할 때까지 되돌릴 자리로 남겨 둡니다.
 
-### 배포
+### 배포 — `main` 에 푸시하면 끝입니다
+
+```bash
+git push origin HEAD:main
+```
+
+[`.github/workflows/pages.yml`](.github/workflows/pages.yml) 이 `public/` 폴더를
+깃허브 페이지로 내보냅니다. 1~2분 걸립니다. 진행 상황은 저장소의 **Actions** 탭에서 봅니다.
+손으로 다시 돌리려면 Actions › 「사이트 배포」 › Run workflow.
+
+⚠️ **저장소를 비공개로 바꾸면 사이트가 내려갑니다.** 무료 요금제는 공개 저장소만
+   깃허브 페이지를 쓸 수 있습니다.
+
+⚠️ `public/CNAME` 을 지우지 마세요 — 주소가 `dok.action.or.kr` 이 아니라
+   `bada17.github.io/dokseong/` 으로 돌아갑니다.
+
+#### 예전 방식 (Cloudflare) — 되돌릴 때만
+
+2026-09-08 까지는 Cloudflare Pages 에 손으로 올렸습니다. 관리하는 곳을 깃허브
+하나로 모으려고 옮겼습니다. Cloudflare Pages 프로젝트(`dokseong`)는 아직 지우지
+않았으므로, 문제가 생기면 **호스트코코아 DNS 에서 `dok.action.or.kr` 의 값을
+`bada17.github.io` → `dokseong.pages.dev` 로 되돌리면** 복구됩니다.
 
 ```bash
 npx wrangler pages deploy public --project-name dokseong --branch main --commit-dirty=true
@@ -533,8 +555,9 @@ const DOK_DONATE = {
 - 원문을 화면에 게시해도 되는지 좋은예산센터에 확인
 
 **남이 해줘야 하는 것**
-- `dok.action.or.kr` DNS·인증서 → 시민행동 웹 담당. **지금은 TLS 에서 끊깁니다**
-  (살아 있는 주소는 `dokseong-action.bada523082.chatgpt.site`). [DEPLOY.md](DEPLOY.md) 4번
+- ~~`dok.action.or.kr` DNS·인증서~~ → **2026-09-08 에 붙였습니다.** 호스트코코아 DNS 의
+  CNAME 을 `bada17.github.io` 로 바꾸고 깃허브 페이지에 도메인을 등록했습니다.
+  HTTPS 인증서는 깃허브가 자동 발급합니다.
 - **개인정보 방침의 노란 칸 2곳** → `public/privacy.html` 6장 위탁 표의 **캠페이너스 줄**
   (법인명·보유 기간). **제보 접수를 열기 전에 채우세요.** 지금은 제보가 잠겨 있어
   그쪽으로 개인정보가 가지 않습니다.
