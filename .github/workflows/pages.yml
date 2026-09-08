@@ -1,0 +1,48 @@
+# main 에 올라오면 public/ 폴더를 깃허브 페이지로 내보냅니다.
+#
+# 왜 이 파일이 있나 —
+#   깃허브 페이지는 기본으로 저장소 뿌리나 docs/ 만 내보냅니다. 이 저장소는
+#   화면이 public/ 에 있어서 그대로는 안 됩니다. 폴더를 옮기면 tools/preview.py ·
+#   README · 배포 문서가 다 어긋나므로, 폴더는 그대로 두고 여기서 public/ 만
+#   집어 올립니다.
+#
+# 그 전에는 Cloudflare Pages 에 `npx wrangler pages deploy` 로 손수 올렸습니다.
+# 2026-09-08 에 깃허브 한 곳으로 모으기로 하면서 이쪽으로 옮겼습니다.
+# ⚠️ Cloudflare 쪽(`dokseong.pages.dev`)은 아직 살아 있습니다 — 되돌릴 자리입니다.
+
+name: 사이트 배포 (GitHub Pages)
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:      # 손으로도 돌릴 수 있게 (Actions 탭 › Run workflow)
+
+# 페이지를 배포하는 데 필요한 최소 권한입니다.
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# 배포가 겹치면 나중 것만 남깁니다. 돌고 있는 것은 끊지 않습니다.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/configure-pages@v5
+
+      # public/ 안의 것만 올라갑니다. functions/ · intake/ · tools/ 는 안 나갑니다.
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: public
+
+      - id: deployment
+        uses: actions/deploy-pages@v4
