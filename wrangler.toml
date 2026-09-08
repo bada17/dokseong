@@ -36,8 +36,8 @@ database_id = "6f74066f-e056-4a08-a6f9-70b8a49a14c1"
 
 # 제보 사진. D1에는 파일을 넣을 수 없어 R2를 쓴다.
 #
-# 2026-09-04 에 켰습니다. action@action.or.kr 계정에 버킷을 만들었고
-# R2 구독(무료 한도 10GB)을 붙였습니다.
+# 2026-09-07 배포 계정에서 버킷이 없는 것을 확인해 바인딩은 잠시 꺼 둡니다.
+# 현재 공개 화면은 Google Sheet 접수처를 사용하므로 이 바인딩을 읽지 않습니다.
 #
 # ⚠️ 이 버킷은 비공개입니다. 공개 주소를 열지 마세요 — 제보 사진은
 #    내부 확인용이고 사람 얼굴·차량번호가 찍혀 들어옵니다.
@@ -46,6 +46,6 @@ database_id = "6f74066f-e056-4a08-a6f9-70b8a49a14c1"
 #
 # 끄려면 아래 세 줄을 주석으로 되돌리면 됩니다. 그러면 사진은 저장되지
 # 않고 글만 접수됩니다(report.js 가 PHOTOS 바인딩이 없으면 건너뜁니다).
-[[r2_buckets]]
-binding = "PHOTOS"
-bucket_name = "dokseong-photos"
+# [[r2_buckets]]
+# binding = "PHOTOS"
+# bucket_name = "dokseong-photos"
