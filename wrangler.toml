@@ -1,5 +1,5 @@
 # Cloudflare Pages 설정
-# 배포는 GPT/Codex 담당. Claude는 이 파일을 수정만 하고 배포하지 않음.
+# 배포는 Claude 가 직접 한다(2026-09-09, 사용자 지시로 'GPT 담당' 문구를 걷었다).
 
 name = "dokseong"
 pages_build_output_dir = "public"
