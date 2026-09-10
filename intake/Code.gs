@@ -122,6 +122,7 @@ var ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 function setUp() {
   var sh = sheet();                       // 없으면 만들고 꾸밉니다
   var folder = photoFolder();             // 없으면 만듭니다
+  setUpStorySheet();                      // 활동가의 글 목록 탭 (없으면 만듭니다)
 
   var lines = [
     '',
@@ -143,7 +144,7 @@ function setUp() {
     '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━'
   ];
   console.log(lines.join('\n'));
-  return sh.getName() + ' 탭과 사진 폴더를 만들었습니다.';
+  return sh.getName() + ' · ' + STORY.name + ' 탭과 사진 폴더를 만들었습니다.';
 }
 
 
@@ -224,6 +225,27 @@ function doGet(e) {
      만드는 곳은 이 파일 아래쪽입니다. 제보와는 아무 상관이 없습니다. */
   if (action === 'campaigns') {
     return ContentService.createTextOutput(campaignsJson())
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  /* 활동가의 글 — 목록과 본문. 시트의 `활동가의 글` 탭만 읽습니다.
+     `공개` 로 표시한 줄만 나가고, 제보 탭은 건드리지 않습니다(이 파일 아래쪽). */
+  if (action === 'stories') {
+    /* 목록은 페이지를 열 때마다 부릅니다. 시트를 매번 훑을 이유가 없어
+       1분 재워 둡니다 — 시트를 고쳐도 늦어야 1분 뒤에는 화면에 뜹니다. */
+    var sCache = CacheService.getScriptCache();
+    var sHit = sCache.get('stories');
+    if (!sHit) {
+      sHit = storiesJson();
+      sCache.put('stories', sHit, 60);
+    }
+    return ContentService.createTextOutput(sHit)
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
+  /* 본문은 재우지 않습니다 — 사진이 박힌 답이라 캐시 한 칸(100KB)을 넘깁니다. */
+  if (action === 'story') {
+    return ContentService.createTextOutput(storyJson(trim(e.parameter.id || '')))
       .setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -879,4 +901,269 @@ function publicPhoto(cell) {
 function campPhotoFolder() {
   var found = DriveApp.getFoldersByName(CAMP.photoFolder);
   return found.hasNext() ? found.next() : DriveApp.createFolder(CAMP.photoFolder);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   활동가의 글 — 시트는 목록만, 본문은 구글 문서 (2026-09-10)
+
+   ★ 왜 이렇게 나눴나
+     글은 고쳐 쓰는 물건입니다. 시트 칸에 본문을 넣으면 줄바꿈만 살고 사진도
+     표도 못 넣습니다. 그래서 **본문은 구글 문서, 목록만 시트**로 갈랐습니다.
+     시민참여 상담소('전문위원의 글')가 같은 방식이고, 그것을 옮겨 온 것입니다.
+
+   ★ 글 한 편 올리는 법
+     1. 구글 문서를 하나 만들고 평소처럼 씁니다(사진·표·굵게·링크 다 됩니다).
+     2. 시트의 `활동가의 글` 탭에 한 줄 적습니다 — 제목·필자·날짜·문서 주소.
+     3. `공개` 칸을 `공개` 로 바꾸면 그때 화면에 나갑니다. 비우면 안 나갑니다.
+     ⚠️ 글 한 편 = 문서 하나입니다. 한 문서에 탭을 나눠 여러 편 넣지 마세요.
+
+   ★ 내주는 것 (누구나 볼 수 있습니다 — 주소가 화면 소스에 박혀 있습니다)
+       ?action=stories        `공개` 로 표시한 글의 목록(제목·필자·날짜·소개)
+       ?action=story&id=…     그 글 한 편의 본문(구글 문서를 HTML 로 바꾼 것)
+   ★ 여기로 제보는 한 줄도 나가지 않습니다. 다른 탭을 읽지 않습니다.
+   ═══════════════════════════════════════════════════════════════ */
+var STORY = {
+  name: '활동가의 글',
+  head: ['제목', '필자', '소속·직책', '날짜', '구글 문서 주소', '공개', '한 줄 소개'],
+  wide: [1, 5, 7]                       // 넓게 둘 칸(제목·주소·소개)
+};
+
+/* 목록. 본문은 여기 담지 않습니다 — 열 편이면 답이 수십 MB 가 됩니다. */
+function storiesJson() {
+  var rows = storyRows();
+  var out = [];
+  for (var i = 0; i < rows.length; i++) {
+    out.push({
+      id: rows[i].id, title: rows[i].title, author: rows[i].author,
+      role: rows[i].role, date: rows[i].date, excerpt: rows[i].excerpt
+    });
+  }
+  return JSON.stringify({ ok: true, items: out });
+}
+
+/* `공개` 인 줄만, 문서 id 를 뽑아서 돌려줍니다. */
+function storyRows() {
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(STORY.name);
+  if (!sh || sh.getLastRow() < 2) return [];
+
+  var rows = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getValues();
+  var at = storyCols(rows[0]);
+  if (at['제목'] == null || at['구글 문서 주소'] == null) return [];
+
+  var out = [];
+  for (var i = 1; i < rows.length; i++) {
+    var r = rows[i];
+    if (at['공개'] != null && trim(r[at['공개']]) !== '공개') continue;
+    var id = storyDocId(trim(r[at['구글 문서 주소']]));
+    var title = trim(r[at['제목']]);
+    if (!id || !title) continue;
+    out.push({
+      id: id,
+      title: title,
+      author: at['필자'] != null ? trim(r[at['필자']]) : '',
+      role: at['소속·직책'] != null ? trim(r[at['소속·직책']]) : '',
+      date: at['날짜'] != null ? storyDay(r[at['날짜']]) : '',
+      excerpt: at['한 줄 소개'] != null ? trim(r[at['한 줄 소개']]) : ''
+    });
+  }
+  return out;
+}
+
+/* 머리글 줄에서 '이름 → 몇 번째 칸' 표를 만듭니다.
+   번호가 아니라 이름으로 찾으므로, 사람이 칸을 옮기거나 끼워 넣어도 안 깨집니다. */
+function storyCols(head) {
+  var at = {};
+  for (var i = 0; i < head.length; i++) {
+    var k = trim(head[i]);
+    if (k && at[k] == null) at[k] = i;
+  }
+  return at;
+}
+
+/* 문서 주소에서 id 를 뽑습니다. id 를 그대로 적어 넣어도 받습니다. */
+function storyDocId(v) {
+  if (!v) return '';
+  var m = v.match(/\/d\/([a-zA-Z0-9_-]{20,})/);
+  if (m) return m[1];
+  return /^[a-zA-Z0-9_-]{20,}$/.test(v) ? v : '';
+}
+
+/* 날짜 칸은 사람이 손으로 적기도 하고 날짜값이기도 합니다. 둘 다 받습니다. */
+function storyDay(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, 'Asia/Seoul', 'yyyy-MM-dd');
+  return trim(v);
+}
+
+/* ⚠️ **아무 문서나 읽어 주면 안 됩니다.** 이 스크립트는 시트 주인의 권한으로
+      돌기 때문에, id 만 주면 열어 주는 순간 그 계정이 볼 수 있는 **모든 구글
+      문서**를 남이 읽는 구멍이 됩니다. 그래서 **시트에 `공개` 로 올라 있는
+      id 인지 먼저 확인**합니다. 이 검사를 빼지 마세요. */
+function storyJson(id) {
+  if (!id) return JSON.stringify({ ok: false, why: '주소가 없습니다' });
+  var rows = storyRows(), row = null;
+  for (var i = 0; i < rows.length; i++) if (rows[i].id === id) row = rows[i];
+  if (!row) return JSON.stringify({ ok: false, why: '공개된 글이 아닙니다' });
+
+  return JSON.stringify({
+    ok: true, id: row.id, title: row.title, author: row.author,
+    role: row.role, date: row.date, html: storyHtml(id)
+  });
+}
+
+
+/* ── 구글 문서를 HTML 로 ──────────────────────────────────────
+   활동가가 평소처럼 쓴 글을 사이트 안에서 그대로 읽히게 하는 것이 목적입니다.
+   그래서 **무엇을 옮기는지**를 정해 두고 그것만 옮깁니다 —
+     소제목 · 문단 · 목록 · 표 · 사진 · 굵게 · 기울임 · 링크.
+   글꼴과 색과 크기는 **일부러 버립니다.** 사이트 디자인을 따르게 하려는 것이라
+   문서에서 파란 20pt 로 써도 화면에서는 본문 글씨로 나옵니다.
+
+   ★ 사진은 data URI 로 바로 박습니다. 드라이브에 두고 링크를 걸면 그 파일을
+     '링크 있는 누구나'로 열어야 하는데, 제보 사진 폴더 규칙과 헷갈릴 여지를
+     아예 없애려는 것입니다.
+   ⚠️ 그래서 큰 사진은 통째로 답에 실립니다. 한 장 2MB, 글 하나 8MB 에서
+      끊습니다. 넘으면 그 자리에 한 줄만 남습니다.                            */
+var STORY_IMG_ONE = 2 * 1024 * 1024;
+var STORY_IMG_ALL = 8 * 1024 * 1024;
+
+function storyHtml(id) {
+  var body = DocumentApp.openById(id).getBody();
+  var n = body.getNumChildren();
+  var out = [], list = null, budget = { used: 0 };
+
+  for (var i = 0; i < n; i++) {
+    var el = body.getChild(i);
+    var t = el.getType();
+
+    if (t === DocumentApp.ElementType.LIST_ITEM) {
+      var li = el.asListItem();
+      var want = li.getGlyphType() === DocumentApp.GlyphType.NUMBER ? 'ol' : 'ul';
+      if (list !== want) { if (list) out.push('</' + list + '>'); out.push('<' + want + '>'); list = want; }
+      out.push('<li>' + storyRuns(li, budget) + '</li>');
+      continue;
+    }
+    if (list) { out.push('</' + list + '>'); list = null; }
+
+    if (t === DocumentApp.ElementType.PARAGRAPH) {
+      var p = el.asParagraph();
+      var inner = storyRuns(p, budget);
+      /* 빈 줄은 버립니다. 사진만 있는 줄은 남깁니다. */
+      if (!inner.replace(/<[^>]*>/g, '').trim() && inner.indexOf('<img') < 0) continue;
+      var tag = storyTag(p.getHeading());
+      out.push('<' + tag + '>' + inner + '</' + tag + '>');
+      continue;
+    }
+
+    if (t === DocumentApp.ElementType.TABLE) {
+      out.push(storyTable(el.asTable(), budget));
+      continue;
+    }
+  }
+  if (list) out.push('</' + list + '>');
+  return out.join('\n');
+}
+
+/* 문서의 제목 단계를 화면 단계로 옮깁니다.
+   ⚠️ h1·h2 는 쓰지 않습니다 — 카드 제목이 이미 그 자리를 씁니다. */
+function storyTag(h) {
+  var H = DocumentApp.ParagraphHeading;
+  if (h === H.TITLE || h === H.HEADING1 || h === H.HEADING2) return 'h5';
+  if (h === H.HEADING3 || h === H.HEADING4 || h === H.SUBTITLE) return 'h6';
+  return 'p';
+}
+
+/* 한 문단 안을 훑습니다. 글자는 굵게·기울임·링크만 살리고, 사진은 그 자리에 박습니다. */
+function storyRuns(par, budget) {
+  var out = [];
+  for (var i = 0; i < par.getNumChildren(); i++) {
+    var c = par.getChild(i);
+    var ct = c.getType();
+    if (ct === DocumentApp.ElementType.INLINE_IMAGE) out.push(storyImg(c.asInlineImage(), budget));
+    else if (ct === DocumentApp.ElementType.TEXT) out.push(storyText(c.asText()));
+  }
+  return out.join('');
+}
+
+function storyText(t) {
+  var s = t.getText();
+  if (!s) return '';
+  var idx = t.getTextAttributeIndices();
+  if (!idx.length || idx[0] !== 0) idx.unshift(0);
+
+  var out = [];
+  for (var i = 0; i < idx.length; i++) {
+    var a = idx[i], b = (i + 1 < idx.length) ? idx[i + 1] : s.length;
+    if (b <= a) continue;
+    var piece = storyEsc(s.slice(a, b));
+    var url = t.getLinkUrl(a);
+    if (t.isBold(a)) piece = '<b>' + piece + '</b>';
+    if (t.isItalic(a)) piece = '<i>' + piece + '</i>';
+    if (url) piece = '<a href="' + storyEsc(url) + '" target="_blank" rel="noopener">' + piece + '</a>';
+    out.push(piece);
+  }
+  return out.join('');
+}
+
+function storyImg(img, budget) {
+  try {
+    var blob = img.getBlob();
+    var bytes = blob.getBytes();
+    if (bytes.length > STORY_IMG_ONE || budget.used + bytes.length > STORY_IMG_ALL) {
+      return '<p>(사진이 너무 커서 싣지 못했습니다)</p>';
+    }
+    budget.used += bytes.length;
+    var alt = '';
+    try { alt = img.getAltDescription() || ''; } catch (e2) {}
+    return '<img src="data:' + blob.getContentType() + ';base64,' +
+           Utilities.base64Encode(bytes) + '" alt="' + storyEsc(alt) + '" loading="lazy">';
+  } catch (e) {
+    return '';
+  }
+}
+
+function storyTable(tb, budget) {
+  var out = ['<table>'];
+  for (var r = 0; r < tb.getNumRows(); r++) {
+    var row = tb.getRow(r);
+    out.push('<tr>');
+    for (var c = 0; c < row.getNumCells(); c++) {
+      var cell = row.getCell(c), inner = [];
+      for (var k = 0; k < cell.getNumChildren(); k++) {
+        var ch = cell.getChild(k);
+        if (ch.getType() === DocumentApp.ElementType.PARAGRAPH) inner.push(storyRuns(ch.asParagraph(), budget));
+        else if (ch.getType() === DocumentApp.ElementType.LIST_ITEM) inner.push(storyRuns(ch.asListItem(), budget));
+      }
+      out.push((r === 0 ? '<th>' : '<td>') + inner.join('<br>') + (r === 0 ? '</th>' : '</td>'));
+    }
+    out.push('</tr>');
+  }
+  out.push('</table>');
+  return out.join('');
+}
+
+function storyEsc(v) {
+  return String(v == null ? '' : v)
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+/* 글 목록 탭을 만듭니다. setUp() 이 부릅니다. 이미 있으면 그냥 둡니다. */
+function setUpStorySheet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sh = ss.getSheetByName(STORY.name);
+  if (sh) return sh;
+
+  sh = ss.insertSheet(STORY.name);
+  sh.appendRow(STORY.head);
+  sh.getRange(1, 1, 1, STORY.head.length)
+    .setFontWeight('bold').setBackground('#e5f7fe');
+  sh.setFrozenRows(1);
+  for (var i = 0; i < STORY.wide.length; i++) sh.setColumnWidth(STORY.wide[i], 320);
+
+  /* `공개` 칸은 손으로 적게 두면 '공개함'·'O' 처럼 제각각이 됩니다.
+     그러면 코드가 못 알아보고 글이 조용히 안 나갑니다. 목록으로 고정합니다. */
+  sh.getRange(2, STORY.head.indexOf('공개') + 1, 500, 1).setDataValidation(
+    SpreadsheetApp.newDataValidation().requireValueInList(['공개', '숨김'], true).build());
+  return sh;
 }

@@ -1233,6 +1233,25 @@ html { scroll-behavior: smooth; }
 #dok .dok-story-body > * + * { margin-top: 12px; }
 #dok .dok-story-body a { color: var(--brand-deep); }
 
+/* 구글 문서에서 받아 오는 본문. 문서에 사진·표·소제목·목록이 들어옵니다
+   (Code.gs 의 storyHtml 이 그 여섯만 옮깁니다). 글꼴·색·크기는 버리고
+   여기 규칙을 따르게 합니다 — 문서에서 파란 20pt 로 써도 본문 글씨로 나옵니다. */
+#dok .dok-story-body img {
+  display: block; max-width: 100%; height: auto; border-radius: 10px; margin: 4px 0;
+}
+#dok .dok-story-body h5 { font-size: 16px; font-weight: 700; margin-top: 22px; }
+#dok .dok-story-body h6 { font-size: 15px; font-weight: 700; color: var(--ink-soft); margin-top: 18px; }
+#dok .dok-story-body ul, #dok .dok-story-body ol { padding-left: 20px; }
+#dok .dok-story-body li + li { margin-top: 4px; }
+#dok .dok-story-body table {
+  width: 100%; border-collapse: collapse; font-size: 14px; display: block; overflow-x: auto;
+}
+#dok .dok-story-body th, #dok .dok-story-body td {
+  border: 1px solid var(--line); padding: 8px 10px; text-align: left; vertical-align: top;
+}
+#dok .dok-story-body th { background: #f4f9fc; font-weight: 700; }
+#dok .dok-story-wait { color: var(--ink-soft); font-size: 14.5px; }
+
 /* ── 후원자 소감 ──
    2026-09-03 사용자 요청으로 "어떤 모양인지 보려고" 먼저 만든 칸입니다.
    ⚠️ 지금 들어 있는 문구는 전부 예시이며 실제 후원자의 말이 아닙니다.
@@ -2282,9 +2301,18 @@ html { scroll-behavior: smooth; }
   </div>
 </section>
 
-<!-- ── 이야기 목록 ──
-     여기에 한 편씩 추가하면 위 히스토리 칸에 카드로 나옵니다. 코드는 건드리지 않습니다.
-     적은 순서대로 나오므로, 새 글은 맨 위에 넣으세요.
+<!-- ── 이야기 목록 (대비책) ──
+     ★ 2026-09-10 부터 **글은 여기가 아니라 구글 시트에 올립니다.**
+       시트 `활동가의 글` 탭에 한 줄(제목·필자·날짜·구글 문서 주소)을 적고
+       `공개` 로 바꾸면 화면에 나옵니다. 본문은 그 구글 문서에 씁니다.
+       (받아 오는 코드는 이 파일 아래쪽 '활동가의 글' 부분, 서버는 intake/Code.gs)
+
+     그럼 아래 것은 무엇인가 — **시트가 답하지 않을 때 남는 대비책**입니다.
+     배포 전이거나, 스크립트가 멎었거나, 인터넷이 끊겼을 때 이 글이 나옵니다.
+     시트에서 한 편이라도 오면 화면은 통째로 시트 것으로 바뀝니다.
+     ⚠️ 그러니 같은 글을 시트에도 올리려면, 올린 뒤 여기서는 지우세요.
+
+     아래 목록에 손으로 더할 수도 있습니다(적은 순서대로 나옵니다).
 
        id      : 아래 본문과 이어 주는 이름. 영문·숫자로 아무렇게나 지으면 됩니다.
        title   : 글 제목
@@ -4362,9 +4390,20 @@ toggleBtn.addEventListener('click', () => {
   if (open) track('open_history_table', {});
 });
 
-// ── 활동가·후원자 이야기 ──
-// 목록(JSON)과 본문(HTML)을 나눠 둔 것은 예산감시 사업과 같은 방식입니다.
-// JSON 안에 긴 글을 넣으면 줄바꿈·따옴표 때문에 쓰기 어렵기 때문입니다.
+// ── 활동가의 글 ──
+// 글이 여러 편 올라올 자리입니다. **구글 시트가 목록을, 구글 문서가 본문을** 맡습니다
+// (2026-09-10). 시민참여 상담소의 '전문위원의 글'과 같은 방식이고, 그것을 옮겨 온 것입니다.
+//
+//   목록  DOK_SHEET_ENDPOINT?action=stories       — 시트 `활동가의 글` 탭의 `공개` 인 줄
+//   본문  DOK_SHEET_ENDPOINT?action=story&id=…    — 그 줄이 가리키는 구글 문서
+//
+// 왜 시트인가 — 글을 올릴 때마다 이 파일을 고치고 배포하지 않으려는 것입니다.
+// 활동가는 구글 문서에 쓰고, 담당자는 시트에 한 줄 적고 `공개`로 바꾸면 끝입니다.
+//
+// ⚠️ 아래 인라인 목록(dok-story-data)과 본문(dok-story-bodies)은 **지우지 마세요.**
+//    시트가 답하지 않을 때(배포 전·오류·오프라인) 화면에 남는 대비책입니다.
+//    시트에서 한 편이라도 오면 **시트 것으로 통째로 바뀝니다**(섞지 않습니다 —
+//    같은 글을 시트에도 올리면 두 번 나오기 때문입니다).
 (function () {
   const wrap = document.getElementById('dok-story-wrap');
   const grid = document.getElementById('dok-story-grid');
@@ -4380,44 +4419,85 @@ toggleBtn.addEventListener('click', () => {
   } catch (e) {
     // 쉼표 하나 빠뜨렸다고 페이지 전체가 멈추면 안 된다
     console.error('이야기 목록을 읽지 못했습니다 (dok-story-data)', e);
-    return;
+    stories = [];
+  }
+  if (!Array.isArray(stories)) stories = [];
+
+  // 지금 화면에 그려진 목록. 아래 단추들이 이것을 본다.
+  let shown = [];
+
+  // remote 인 목록은 본문이 아직 없다 — 처음 펼칠 때 구글 문서에서 받아 온다.
+  function draw(list, remote) {
+    shown = list;
+    grid.innerHTML = list.map((s, i) => {
+      const body = remote ? null : document.querySelector(`#dok-story-bodies [data-story="${s.id}"]`);
+      const meta = [s.author, s.role, s.date].filter(Boolean).map(esc).join(' · ');
+      let tail = '';
+      if (body || remote) {
+        tail = `<button type="button" class="dok-story-more" data-i="${i}"
+                  aria-expanded="false" aria-controls="dok-story-body-${i}">이어서 읽기 ▾</button>
+                <div class="dok-story-body" id="dok-story-body-${i}" hidden
+                     ${remote ? `data-doc="${esc(s.id)}"` : ''}>${body ? body.innerHTML : ''}</div>`;
+      } else if (s.link) {
+        tail = `<a class="dok-story-more" href="${esc(s.link)}"
+                  target="_blank" rel="noopener">원문 보기 →</a>`;
+      }
+      return `<article class="dok-story-card">
+        ${meta ? `<div class="dok-story-meta">${meta}</div>` : ''}
+        <h4>${esc(s.title)}</h4>
+        ${s.excerpt ? `<p class="dok-story-excerpt">${esc(s.excerpt)}</p>` : ''}
+        ${tail}
+      </article>`;
+    }).join('');
+
+    grid.querySelectorAll('.dok-story-more[data-i]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const box = document.getElementById('dok-story-body-' + btn.dataset.i);
+        const open = box.hidden;
+        box.hidden = !open;
+        btn.setAttribute('aria-expanded', String(open));
+        btn.textContent = open ? '접기 ▴' : '이어서 읽기 ▾';
+        if (!open) return;
+        track('open_story', { id: String((shown[btn.dataset.i] || {}).id || '') });
+        if (box.dataset.doc && !box.dataset.loaded) loadBody(box, box.dataset.doc);
+      });
+    });
+
+    // 글이 없으면 빈 칸을 내보내지 않는다
+    wrap.hidden = !list.length;
   }
 
-  // 글이 없으면 빈 칸을 내보내지 않는다
-  if (!Array.isArray(stories) || !stories.length) return;
+  // 본문은 눌렀을 때 받아 온다. 열 편을 미리 받으면 사진까지 딸려 와 무거워진다.
+  function loadBody(box, id) {
+    box.dataset.loaded = '1';
+    box.innerHTML = '<p class="dok-story-wait">글을 불러오는 중입니다…</p>';
+    fetch(DOK_SHEET_ENDPOINT + '?action=story&id=' + encodeURIComponent(id))
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d || !d.ok || !d.html) throw new Error((d && d.why) || '본문이 비어 있습니다');
+        // 이 HTML 은 우리 Apps Script 가 만든 것이다. 문서의 글자는 거기서 escape 하고
+        // 정해 둔 태그(문단·목록·표·사진·굵게·링크)만 나온다 — Code.gs 의 storyHtml.
+        box.innerHTML = d.html;
+      })
+      .catch((e) => {
+        box.dataset.loaded = '';        // 다시 누르면 또 시도한다
+        box.innerHTML = '<p class="dok-story-wait">글을 불러오지 못했습니다. 잠시 후 다시 눌러 주세요.</p>';
+        console.error('활동가의 글 본문을 못 받았습니다', e);
+      });
+  }
 
-  grid.innerHTML = stories.map((s, i) => {
-    const body = document.querySelector(`#dok-story-bodies [data-story="${s.id}"]`);
-    const meta = [s.author, s.role, s.date].filter(Boolean).map(esc).join(' · ');
-    let tail = '';
-    if (body) {
-      tail = `<button type="button" class="dok-story-more" data-i="${i}"
-                aria-expanded="false" aria-controls="dok-story-body-${i}">이어서 읽기 ▾</button>
-              <div class="dok-story-body" id="dok-story-body-${i}" hidden>${body.innerHTML}</div>`;
-    } else if (s.link) {
-      tail = `<a class="dok-story-more" href="${esc(s.link)}"
-                target="_blank" rel="noopener">원문 보기 →</a>`;
-    }
-    return `<article class="dok-story-card">
-      ${meta ? `<div class="dok-story-meta">${meta}</div>` : ''}
-      <h4>${esc(s.title)}</h4>
-      ${s.excerpt ? `<p class="dok-story-excerpt">${esc(s.excerpt)}</p>` : ''}
-      ${tail}
-    </article>`;
-  }).join('');
+  draw(stories, false);
 
-  grid.querySelectorAll('.dok-story-more[data-i]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      const box = document.getElementById('dok-story-body-' + btn.dataset.i);
-      const open = box.hidden;
-      box.hidden = !open;
-      btn.setAttribute('aria-expanded', String(open));
-      btn.textContent = open ? '접기 ▴' : '이어서 읽기 ▾';
-      if (open) track('open_story', { id: String(stories[btn.dataset.i].id || '') });
-    });
-  });
-
-  wrap.hidden = false;
+  // 시트에서 목록을 받아 온다. 못 받으면 위에 그려 둔 것이 그대로 남는다.
+  if (typeof DOK_SHEET_ENDPOINT === 'string' && DOK_SHEET_ENDPOINT) {
+    fetch(DOK_SHEET_ENDPOINT + '?action=stories')
+      .then((r) => r.json())
+      .then((d) => {
+        if (!d || !d.ok || !Array.isArray(d.items) || !d.items.length) return;
+        draw(d.items, true);
+      })
+      .catch((e) => console.error('활동가의 글 목록을 못 받았습니다', e));
+  }
 })();
 
 // ── 스크롤 리빌 ──
