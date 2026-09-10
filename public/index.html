@@ -2554,6 +2554,8 @@ html { scroll-behavior: smooth; }
     word-break:keep-all;-webkit-font-smoothing:antialiased
   }
   #ah-foot a{color:inherit;text-decoration:none}
+  /* 키보드로 옮겨 다닐 때 지금 어디인지 보이게 합니다. 머리띠·본문과 같은 규칙입니다. */
+  #ah-foot :focus-visible{outline:2.5px solid var(--brand);outline-offset:3px}
   #ah-foot h2,#ah-foot h3,#ah-foot p{margin:0}
   #ah-foot .wrap{width:min(1120px,calc(100% - 48px));margin:0 auto}
 
@@ -2569,7 +2571,8 @@ html { scroll-behavior: smooth; }
     font-family:GmarketSans,sans-serif;font-weight:700;color:#fff;
     font-size:clamp(20px,2.2vw,31px);line-height:1.35;letter-spacing:-.02em
   }
-  #ah-foot .give p{margin-top:10px;font-size:14.5px;color:rgba(255,255,255,.9)}
+  /* 하늘색 위의 작은 글씨입니다. 흐리게 하면 읽기가 더 어려워져 흰색 그대로 씁니다. */
+  #ah-foot .give p{margin-top:10px;font-size:14.5px;color:#fff}
   #ah-foot .give a{
     flex:none;background:#fff;color:var(--ink);border-radius:999px;
     padding:15px 30px;font-weight:700;font-size:16px;transition:transform .15s
@@ -2626,6 +2629,22 @@ html { scroll-behavior: smooth; }
   #ah-foot .ft-btns .mark{flex:none;display:flex;align-items:center;color:var(--ink-soft)}
   #ah-foot .ft-btns .mark svg{width:17px;height:17px;display:block;fill:currentColor}
   #ah-foot .ft-btns a:hover .mark{color:var(--brand-deep)}
+  /* ⚠️ 2026-09-10 — 위 로고와 **똑같은 일이 새창 표시에도** 났습니다.
+     캠페이너스에 이식하니 '관련 페이지' 넷의 오른쪽 표시 뒤에 노란 바탕이 깔렸습니다.
+     imweb 전역 CSS 가 깔아 놓은 것이고, 새창 표시는 선으로만 그린 투명한 그림이라
+     그 색이 그대로 비칩니다. 소셜 아이콘이 멀쩡해 보이는 것은 그쪽 그림에 꽉 찬
+     네모(rect)가 있어 노란색을 덮기 때문이지, 안 깔린 것이 아닙니다.
+     소셜과 관련 페이지가 같은 .ft-btns 라 한 규칙이 둘 다 덮습니다.
+     남의 규칙이라 !important 말고는 방법이 없습니다. */
+  #ah-foot .ft-btns a .mark,
+  #ah-foot .ft-btns a .mark svg{
+    background:none!important;background-color:transparent!important;
+    border:0!important;outline:0!important;box-shadow:none!important;
+    padding:0!important;border-radius:0!important;filter:none!important
+  }
+  #ah-foot .ft-btns a .mark::before,#ah-foot .ft-btns a .mark::after{
+    content:none!important;display:none!important
+  }
   #ah-foot .ft-policy{display:flex;flex-wrap:wrap;gap:6px;margin-top:22px}
   #ah-foot .ft-policy a{border:1px solid var(--line);padding:7px 12px;font-size:12.5px;font-weight:700;color:var(--ink-soft)}
   #ah-foot .ft-policy a:hover{border-color:var(--brand);color:var(--brand-deep)}
@@ -2658,7 +2677,7 @@ html { scroll-behavior: smooth; }
       <h2>당신이 낸 세금, 누가 지켜보고 있을까요?</h2>
       <p>시민행동은 정부와 기업의 돈을 감시합니다. 그 일은 시민의 후원으로만 굴러갑니다.</p>
     </div>
-    <a href="https://mrmweb.hsit.co.kr/v2/Member/MemberJoin.aspx?action=join&amp;server=GdGrmt6XtgAAdxPdh65AQQ==" target="_blank" rel="noopener">후원으로 함께하기 →</a>
+    <a href="https://secure.donus.org/withaction0909/pay/step1" target="_blank" rel="noopener">후원으로 함께하기 →</a>
   </div></div></section>
 
   <!-- ───────── 푸터 ───────── -->
@@ -2688,14 +2707,16 @@ html { scroll-behavior: smooth; }
         </div>
       </div>
 
-      <!-- ⚠️ 좋은기업센터는 화면에 적힌 주소(csr.action.or.kr)와 실제 연결되는 주소
-           (csrcenter.cafe24.com)가 다릅니다. 현재 홈에 걸린 링크를 그대로 가져온 것이라
-           어느 쪽이 맞는지 확인이 필요합니다. -->
+      <!-- 좋은기업센터 — 2026-09-03 사용자 결정으로 단체 도메인(csr.action.or.kr)으로
+           바꿨습니다. 예전에는 지금 홈에 걸린 그대로 csrcenter.cafe24.com 이었습니다.
+           ⚠️ https 는 안 됩니다(TLS 에서 끊깁니다). http 로 두세요 —
+              옆의 좋은예산센터·정보인권센터도 같은 이유로 http 입니다.
+              시민행동 웹 담당이 인증서를 달면 그때 셋을 함께 https 로 올리세요. -->
       <div class="ft-col">
         <h3>관련 페이지</h3>
         <div class="ft-btns">
           <a href="http://www.goodbudget.kr" target="_blank" rel="noopener"><img class="ft-logo" src="https://cdn.imweb.me/thumbnail/20230216/c6bdf8489c62b.jpeg" alt="좋은예산센터" loading="lazy" decoding="async"> <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V7A1.5 1.5 0 0 1 6 5.5h5.5"/><path d="M15 3.5h5.5V9"/><path d="M11.2 12.8 20.2 3.8"/></svg></span></a>
-          <a href="http://csrcenter.cafe24.com" target="_blank" rel="noopener"><img class="ft-logo" src="https://cdn.imweb.me/thumbnail/20230216/3a2115a51c49e.jpg" alt="좋은기업센터" loading="lazy" decoding="async"> <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V7A1.5 1.5 0 0 1 6 5.5h5.5"/><path d="M15 3.5h5.5V9"/><path d="M11.2 12.8 20.2 3.8"/></svg></span></a>
+          <a href="http://csr.action.or.kr" target="_blank" rel="noopener"><img class="ft-logo" src="https://cdn.imweb.me/thumbnail/20230216/3a2115a51c49e.jpg" alt="좋은기업센터" loading="lazy" decoding="async"> <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V7A1.5 1.5 0 0 1 6 5.5h5.5"/><path d="M15 3.5h5.5V9"/><path d="M11.2 12.8 20.2 3.8"/></svg></span></a>
           <a href="http://www.privacy.or.kr" target="_blank" rel="noopener"><img class="ft-logo" src="https://cdn.imweb.me/thumbnail/20230216/d3611c220acbd.png" alt="정보인권센터" loading="lazy" decoding="async"> <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V7A1.5 1.5 0 0 1 6 5.5h5.5"/><path d="M15 3.5h5.5V9"/><path d="M11.2 12.8 20.2 3.8"/></svg></span></a>
           <a href="https://donate.action.or.kr/" target="_blank" rel="noopener">후원 안내 <span class="mark" aria-hidden="true"><svg viewBox="0 0 24 24" focusable="false" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M19.5 13.5V19a1.5 1.5 0 0 1-1.5 1.5H6A1.5 1.5 0 0 1 4.5 19V7A1.5 1.5 0 0 1 6 5.5h5.5"/><path d="M15 3.5h5.5V9"/><path d="M11.2 12.8 20.2 3.8"/></svg></span></a>
         </div>
