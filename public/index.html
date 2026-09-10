@@ -1226,9 +1226,56 @@ html { scroll-behavior: smooth; }
   cursor: pointer; text-decoration: none;
 }
 #dok .dok-story-more:hover { text-decoration: underline; }
+/* ── 글 팝업 ──
+   2026-09-10 부터 본문은 창으로 폅니다(사용자 지시. 상담소도 같은 이유로 바꿨습니다).
+   카드 안에서 펼치면 글이 쌓일수록 목록이 한없이 길어집니다.
+   <dialog> 라서 Esc 닫기와 배경 비활성화는 브라우저가 해 줍니다 — 사업 팝업과 같습니다. */
+#dok .dok-story-modal {
+  /* #dok * 의 margin:0 초기화가 <dialog> 의 기본 가운데 정렬을 지웁니다. 되돌립니다. */
+  margin: auto;
+  width: min(760px, calc(100vw - 32px));
+  max-height: min(92vh, 940px);
+  padding: 0; border: 0; border-radius: 18px;
+  background: var(--bg); color: var(--ink);
+  overflow: hidden;
+}
+#dok .dok-story-modal::backdrop { background: rgba(13,28,38,.55); }
+#dok .dok-story-modal-inner { display: flex; flex-direction: column; max-height: inherit; }
+#dok .dok-story-modal-head {
+  padding: 20px 28px 16px; border-bottom: 1px solid var(--line);
+  position: relative; flex-shrink: 0;
+}
+#dok .dok-story-modal-head h3 { font-size: 23px; line-height: 1.4; word-break: keep-all; }
+#dok .dok-story-modal-head .dok-story-modal-meta {
+  font-size: 13.5px; color: var(--ink-soft); margin-bottom: 9px; word-break: keep-all;
+}
+#dok .dok-story-modal-close {
+  position: absolute; top: 16px; right: 18px;
+  width: 36px; height: 36px; border: 0; border-radius: 50%;
+  background: #eef3f6; color: var(--ink); font-size: 17px; cursor: pointer;
+}
+#dok .dok-story-modal-close:hover { background: var(--line); }
+/* 다 읽고 나서 누르는 자리라 글 맨 밑에도 하나 둡니다(상담소와 같은 이유). */
+#dok .dok-story-modal-foot {
+  padding: 14px 28px 20px; border-top: 1px solid var(--line); flex-shrink: 0;
+}
+#dok .dok-story-modal-back {
+  padding: 8px 15px; border: 1.5px solid var(--line); border-radius: 999px;
+  background: var(--bg); font: inherit; font-size: 13.5px; font-weight: 700;
+  color: var(--brand-deep); cursor: pointer;
+}
+#dok .dok-story-modal-back:hover { border-color: var(--brand); background: var(--brand-tint); }
+
+/* 본문. 팝업 안에서는 남는 높이를 다 가져가고 혼자 구릅니다.
+   min-height:0 이 없으면 flex 아이템이 안 줄어 팝업이 삐져나갑니다. */
 #dok .dok-story-body {
-  margin-top: 8px; padding-top: 16px; border-top: 1px solid var(--line);
-  font-size: 15px; line-height: 1.8; color: var(--ink); word-break: keep-all;
+  padding: 24px 28px 28px; overflow-y: auto; flex: 1 1 auto; min-height: 0;
+  font-size: 15.5px; line-height: 1.85; color: var(--ink); word-break: keep-all;
+}
+/* <dialog> 를 모르는 옛 브라우저에서만 쓰는 자리 — 카드 안에서 펼칩니다. */
+#dok .dok-story-body.dok-story-inline {
+  padding: 16px 0 0; margin-top: 8px; border-top: 1px solid var(--line);
+  overflow: visible; font-size: 15px; line-height: 1.8;
 }
 #dok .dok-story-body > * + * { margin-top: 12px; }
 #dok .dok-story-body a { color: var(--brand-deep); }
@@ -2348,6 +2395,24 @@ html { scroll-behavior: smooth; }
        <p>둘째 문단.</p>
      </article>
 -->
+<!-- 글 한 편을 펴는 창. 목록은 그대로 두고 그 위에 덮습니다(2026-09-10).
+     제목·글쓴이·본문은 스크립트가 채웁니다 — 시트에서 온 글이면 구글 문서에서,
+     대비책 글이면 바로 아래 dok-story-bodies 에서 가져옵니다.
+     ⚠️ <dialog> 라서 Esc 닫기와 배경 비활성화는 브라우저가 합니다. 직접 만들지 마세요. -->
+<dialog class="dok-story-modal" id="dok-story-modal" aria-labelledby="dok-story-modal-title">
+  <div class="dok-story-modal-inner">
+    <div class="dok-story-modal-head">
+      <div class="dok-story-modal-meta" id="dok-story-modal-meta"></div>
+      <h3 id="dok-story-modal-title"></h3>
+      <button type="button" class="dok-story-modal-close" data-close-story aria-label="닫기">✕</button>
+    </div>
+    <div class="dok-story-body" id="dok-story-modal-body"></div>
+    <div class="dok-story-modal-foot">
+      <button type="button" class="dok-story-modal-back" data-close-story>← 목록으로</button>
+    </div>
+  </div>
+</dialog>
+
 <div id="dok-story-bodies" hidden>
   <article data-story="2026-08-hamkke">
     <p>안녕하세요. 저는 함께하는 시민행동에서 가장 오랜 시간 활동하고 있는 채연하입니다.
@@ -4400,6 +4465,12 @@ toggleBtn.addEventListener('click', () => {
 // 왜 시트인가 — 글을 올릴 때마다 이 파일을 고치고 배포하지 않으려는 것입니다.
 // 활동가는 구글 문서에 쓰고, 담당자는 시트에 한 줄 적고 `공개`로 바꾸면 끝입니다.
 //
+// ★ 2026-09-10 — 본문은 **팝업으로 폅니다**(사용자 지시. 상담소도 같은 이유로 바꿨습니다).
+//   전에는 카드 안에서 펼쳤는데, 글이 여러 편 쌓이면 목록이 한없이 길어집니다.
+//   목록은 그대로 두고 그 위에 창을 덮으므로, 닫으면 보던 자리에 그대로 남습니다.
+//   주소에 #story-<id> 를 남깁니다 — 뒤로가기로 닫히고, 뉴스레터에서 글 하나로 링크할 수
+//   있습니다. <dialog> 를 모르는 옛 브라우저에서는 예전처럼 카드 안에서 펼칩니다.
+//
 // ⚠️ 아래 인라인 목록(dok-story-data)과 본문(dok-story-bodies)은 **지우지 마세요.**
 //    시트가 답하지 않을 때(배포 전·오류·오프라인) 화면에 남는 대비책입니다.
 //    시트에서 한 편이라도 오면 **시트 것으로 통째로 바뀝니다**(섞지 않습니다 —
@@ -4409,6 +4480,13 @@ toggleBtn.addEventListener('click', () => {
   const grid = document.getElementById('dok-story-grid');
   const src  = document.getElementById('dok-story-data');
   if (!wrap || !grid || !src) return;
+
+  const modal = document.getElementById('dok-story-modal');
+  const mTitle = document.getElementById('dok-story-modal-title');
+  const mMeta  = document.getElementById('dok-story-modal-meta');
+  const mBody  = document.getElementById('dok-story-modal-body');
+  // <dialog> 를 모르는 브라우저에서는 카드 안에서 펼칩니다(옛 방식).
+  const canModal = !!(modal && modal.showModal && mTitle && mMeta && mBody);
 
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -4423,25 +4501,28 @@ toggleBtn.addEventListener('click', () => {
   }
   if (!Array.isArray(stories)) stories = [];
 
-  // 지금 화면에 그려진 목록. 아래 단추들이 이것을 본다.
-  let shown = [];
+  let shown = [];          // 지금 화면에 그려진 목록
+  let remote = false;      // 시트에서 온 목록인가 (본문을 받아 와야 한다)
+  let openId = '';         // 지금 창에 떠 있는 글
 
-  // remote 인 목록은 본문이 아직 없다 — 처음 펼칠 때 구글 문서에서 받아 온다.
-  function draw(list, remote) {
+  const inlineBody = (id) => document.querySelector(`#dok-story-bodies [data-story="${id}"]`);
+  const metaOf = (s) => [s.author, s.role, s.date].filter(Boolean).map(esc).join(' · ');
+
+  function draw(list, fromSheet) {
     shown = list;
+    remote = fromSheet;
     grid.innerHTML = list.map((s, i) => {
-      const body = remote ? null : document.querySelector(`#dok-story-bodies [data-story="${s.id}"]`);
-      const meta = [s.author, s.role, s.date].filter(Boolean).map(esc).join(' · ');
+      const has = fromSheet || inlineBody(s.id);
       let tail = '';
-      if (body || remote) {
-        tail = `<button type="button" class="dok-story-more" data-i="${i}"
-                  aria-expanded="false" aria-controls="dok-story-body-${i}">이어서 읽기 ▾</button>
-                <div class="dok-story-body" id="dok-story-body-${i}" hidden
-                     ${remote ? `data-doc="${esc(s.id)}"` : ''}>${body ? body.innerHTML : ''}</div>`;
+      if (has) {
+        tail = `<button type="button" class="dok-story-more" data-i="${i}">글 읽기 →</button>`
+             + (canModal ? '' : `<div class="dok-story-body dok-story-inline"
+                                      id="dok-story-body-${i}" hidden></div>`);
       } else if (s.link) {
         tail = `<a class="dok-story-more" href="${esc(s.link)}"
                   target="_blank" rel="noopener">원문 보기 →</a>`;
       }
+      const meta = metaOf(s);
       return `<article class="dok-story-card">
         ${meta ? `<div class="dok-story-meta">${meta}</div>` : ''}
         <h4>${esc(s.title)}</h4>
@@ -4451,42 +4532,101 @@ toggleBtn.addEventListener('click', () => {
     }).join('');
 
     grid.querySelectorAll('.dok-story-more[data-i]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const box = document.getElementById('dok-story-body-' + btn.dataset.i);
-        const open = box.hidden;
-        box.hidden = !open;
-        btn.setAttribute('aria-expanded', String(open));
-        btn.textContent = open ? '접기 ▴' : '이어서 읽기 ▾';
-        if (!open) return;
-        track('open_story', { id: String((shown[btn.dataset.i] || {}).id || '') });
-        if (box.dataset.doc && !box.dataset.loaded) loadBody(box, box.dataset.doc);
-      });
+      btn.addEventListener('click', () => openStory(Number(btn.dataset.i), btn));
     });
 
     // 글이 없으면 빈 칸을 내보내지 않는다
     wrap.hidden = !list.length;
   }
 
-  // 본문은 눌렀을 때 받아 온다. 열 편을 미리 받으면 사진까지 딸려 와 무거워진다.
-  function loadBody(box, id) {
-    box.dataset.loaded = '1';
+  // 본문은 고른 뒤에 받아 온다. 열 편을 미리 받으면 사진까지 딸려 와 무겁다.
+  function fillBody(box, s) {
+    if (!remote) {                       // 페이지에 박아 둔 대비책 글
+      const el = inlineBody(s.id);
+      box.innerHTML = el ? el.innerHTML : '<p class="dok-story-wait">본문이 없습니다.</p>';
+      return;
+    }
     box.innerHTML = '<p class="dok-story-wait">글을 불러오는 중입니다…</p>';
-    fetch(DOK_SHEET_ENDPOINT + '?action=story&id=' + encodeURIComponent(id))
+    fetch(DOK_SHEET_ENDPOINT + '?action=story&id=' + encodeURIComponent(s.id))
       .then((r) => r.json())
       .then((d) => {
         if (!d || !d.ok || !d.html) throw new Error((d && d.why) || '본문이 비어 있습니다');
         // 이 HTML 은 우리 Apps Script 가 만든 것이다. 문서의 글자는 거기서 escape 하고
         // 정해 둔 태그(문단·목록·표·사진·굵게·링크)만 나온다 — Code.gs 의 storyHtml.
         box.innerHTML = d.html;
+        // 링크 주소만은 문서에 적힌 것이 그대로 온다. javascript: 는 걷어낸다.
+        box.querySelectorAll('a').forEach((a) => {
+          if (/^\s*javascript:/i.test(a.getAttribute('href') || '')) a.removeAttribute('href');
+        });
+        box.scrollTop = 0;
       })
       .catch((e) => {
-        box.dataset.loaded = '';        // 다시 누르면 또 시도한다
         box.innerHTML = '<p class="dok-story-wait">글을 불러오지 못했습니다. 잠시 후 다시 눌러 주세요.</p>';
         console.error('활동가의 글 본문을 못 받았습니다', e);
       });
   }
 
+  function openStory(i, btn) {
+    const s = shown[i];
+    if (!s) return;
+    track('open_story', { id: String(s.id || '') });
+
+    if (!canModal) {                     // 옛 브라우저 — 카드 안에서 펼친다
+      const box = document.getElementById('dok-story-body-' + i);
+      if (!box) return;
+      const open = box.hidden;
+      box.hidden = !open;
+      if (btn) btn.textContent = open ? '접기 ▴' : '글 읽기 →';
+      if (open && !box.dataset.loaded) { box.dataset.loaded = '1'; fillBody(box, s); }
+      return;
+    }
+
+    openId = String(s.id || '');
+    mTitle.textContent = s.title || '';
+    mMeta.textContent = [s.author, s.role, s.date].filter(Boolean).join(' · ');
+    fillBody(mBody, s);
+    mBody.scrollTop = 0;
+    if (!modal.open) modal.showModal();
+    // 주소에 남긴다 — 뒤로가기로 닫히고, 글 하나로 링크를 걸 수 있다.
+    if (location.hash !== '#story-' + openId) {
+      try { history.pushState(null, '', '#story-' + openId); } catch (e) {}
+    }
+  }
+
+  // ⚠️ 닫을 때 location.hash = '' 를 쓰면 브라우저가 화면을 맨 위로 올려 버린다.
+  //    주소만 조용히 지운다(상담소에서 겪은 것과 같은 문제).
+  function clearHash() {
+    if (!location.hash.startsWith('#story-')) return;
+    try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+  }
+
+  if (canModal) {
+    // Esc 로 닫든 단추로 닫든 여기로 온다
+    modal.addEventListener('close', () => { openId = ''; mBody.innerHTML = ''; clearHash(); });
+    // 배경(백드롭)을 누르면 닫는다 — 사업 팝업과 같은 방식
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.close(); });
+    const closeBtns = modal.querySelectorAll('[data-close-story]');
+    closeBtns.forEach((b) => b.addEventListener('click', () => modal.close()));
+
+    // 뒤로가기 / 앞으로가기
+    window.addEventListener('popstate', () => {
+      const m = (location.hash || '').match(/^#story-([\w-]+)$/);
+      if (!m) { if (modal.open) modal.close(); return; }
+      const i = shown.findIndex((s) => String(s.id) === m[1]);
+      if (i >= 0) openStory(i);
+    });
+  }
+
+  // 주소로 바로 들어온 경우(#story-…) 그 글을 연다. 목록이 바뀔 때마다 한 번 본다.
+  function openFromHash() {
+    const m = (location.hash || '').match(/^#story-([\w-]+)$/);
+    if (!m || openId === m[1]) return;
+    const i = shown.findIndex((s) => String(s.id) === m[1]);
+    if (i >= 0) openStory(i);
+  }
+
   draw(stories, false);
+  openFromHash();
 
   // 시트에서 목록을 받아 온다. 못 받으면 위에 그려 둔 것이 그대로 남는다.
   if (typeof DOK_SHEET_ENDPOINT === 'string' && DOK_SHEET_ENDPOINT) {
@@ -4495,6 +4635,7 @@ toggleBtn.addEventListener('click', () => {
       .then((d) => {
         if (!d || !d.ok || !Array.isArray(d.items) || !d.items.length) return;
         draw(d.items, true);
+        openFromHash();
       })
       .catch((e) => console.error('활동가의 글 목록을 못 받았습니다', e));
   }
