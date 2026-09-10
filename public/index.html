@@ -3759,7 +3759,29 @@ items.forEach(item => {
     modal.showModal();
     document.body.style.overflow = 'hidden';
     document.getElementById('dok-camp-modal-close').focus();
+    /* 주소에 남깁니다(2026-09-10) — 시민행동 홈의 캠페인 칸에서 감시사업 하나를
+       누르면 여기로 바로 들어옵니다. 뒤로가기로 닫히고, 링크로도 걸 수 있습니다.
+       ⚠️ 요약 팝업이 쓰는 `#dok-40` 과 겹치지 않게 `#camp-` 로 시작합니다. */
+    if (c.id && location.hash !== '#camp-' + c.id) {
+      try { history.pushState(null, '', '#camp-' + c.id); } catch (e) {}
+    }
     track('campaign_open', { id: c.id || '', status: c.status });
+  }
+
+  /* 주소로 들어온 경우(#camp-…) 그 사업을 엽니다. 목록이 바뀔 때마다 한 번 봅니다.
+     ⚠️ 사업 목록은 바깥 파일에서 늦게 옵니다. 그래서 setCampaigns 뒤에도 부릅니다. */
+  function openCampFromHash() {
+    const m = (location.hash || '').match(/^#camp-([\w-]+)$/);
+    if (!m || (modal && modal.open)) return;
+    const c = campaigns.find((x) => String(x.id) === m[1]);
+    if (!c) return;
+    /* 종료된 사업이면 탭도 그쪽으로 옮겨 둡니다 — 닫았을 때 빈 목록이 보이면
+       "글이 사라졌다"고 읽힙니다. */
+    if (c.status && c.status !== 'ongoing') {
+      const tab = tabs.find((t) => t.dataset.status === c.status);
+      if (tab) tab.click();
+    }
+    openDetail(c);
   }
 
   if (modal) {
@@ -3770,6 +3792,15 @@ items.forEach(item => {
     modal.addEventListener('close', () => {
       document.body.style.overflow = '';
       if (lastFocused) lastFocused.focus();
+      // 주소를 비웁니다. ⚠️ location.hash = '' 를 쓰면 화면이 맨 위로 튑니다.
+      if (location.hash.startsWith('#camp-')) {
+        try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      }
+    });
+    // 뒤로가기 / 앞으로가기
+    window.addEventListener('popstate', () => {
+      if (location.hash.startsWith('#camp-')) openCampFromHash();
+      else if (modal.open) modal.close();
     });
   }
 
@@ -4046,6 +4077,7 @@ items.forEach(item => {
   }
 
   render('ongoing');
+  openCampFromHash();            // 씨앗 목록에 있는 사업이면 바로 엽니다
 
   /* ── 사업 목록을 바깥 파일에서 읽어 옵니다 (2026-09-03) ──
      DOK_CAMPAIGN_URL 의 JSON 이 있으면 그것으로 갈아 끼웁니다.
@@ -4058,6 +4090,7 @@ items.forEach(item => {
     // 쓰는 칸이고, render() 끝의 paintCounts() 가 매번 다시 씁니다.
     const on = tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0];
     render(on.dataset.status);
+    openCampFromHash();          // 주소로 들어온 사업이 이제야 목록에 있을 수 있습니다
   }
 
   if (typeof DOK_CAMPAIGN_URL === 'string' && DOK_CAMPAIGN_URL) {
