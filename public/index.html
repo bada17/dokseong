@@ -2929,6 +2929,12 @@ const DOK_SHOW_VOICES = false;
      (doGet 은 지역별 '건수'만 내주고 제보 내용은 내주지 않습니다). */
 const DOK_SHEET_ENDPOINT = 'https://script.google.com/macros/s/AKfycbxI7UMptIhxwMR7mPtqP72EDQ1z871zJNhBcJeaVBeP5KdIcDhCT4_3CpGSnxPMYgE8hg/exec';
 
+/* 서명 눈금을 우리 접수처에도 남길지. **접수처를 배포한 뒤에 true 로 바꿉니다.**
+   도너스는 "몇 명이 서명했나" 를 숫자로 안 주고 명단으로만 줍니다. 그 명단에는
+   이름·전화번호가 들어 있어서 받지 않기로 했고, 대신 여기서 눈금만 셉니다.
+   ⚠️ 보내는 것은 사업 id 와 시각뿐입니다. (2026-09-18) */
+const DOK_SIGN_TICK = false;
+
 /* 예산감시 사업 목록을 어디에서 읽을지.
 
    ★ 2026-09-07 사용자 결정 — **담당자가 구글 설문지를 채우면 사이트에 올라옵니다.**
@@ -4028,6 +4034,41 @@ items.forEach(item => {
 
   function closeJoin() { if (joinModal) joinModal.close(); }
 
+  /* 서명이 끝났다는 눈금을 우리 접수처에 하나 남기고, 지금까지의 서명 수를
+     돌려받습니다.
+
+     ★ 왜 도너스에 안 묻나 — 도너스는 "몇 명이 서명했나" 를 숫자로 주지 않습니다.
+       명단을 통째로 받아야만 셀 수 있고, 그러면 이름·전화번호가 서버를(그것도
+       국외를) 지나게 됩니다. 그래서 숫자는 우리가 셉니다.
+
+     ⚠️ **보내는 것은 사업 id 와 시각뿐입니다.** 이름·이메일·전화번호는 한 글자도
+        보내지 않습니다. 여기에 칸을 더하지 마세요.
+     ⚠️ content-type 은 text/plain 이어야 합니다 — 제보와 같은 이유입니다
+        (application/json 이면 브라우저가 OPTIONS 를 먼저 던지는데 Apps Script 가
+        답하지 않아 막힙니다).
+     ⚠️ 이 값은 **서명 건수이지 사람 수가 아닙니다.** 같은 사람이 두 번 누르면 2 입니다. */
+  async function dokTickSign(id) {
+    /* ⚠️ **접수처를 먼저 배포한 뒤에 켜세요.** 아직 sign 갈래가 없는 접수처에
+       이걸 보내면 제보로 처리되어 시트에 빈 줄이 쌓입니다. 순서 —
+         ① action-daily 의 `apps_script/dok_counts.gs` 를 Code.gs 에 붙이고
+            「새 버전」으로 배포  ② 여기를 true 로 바꾸고 푸시 */
+    if (!DOK_SIGN_TICK) return null;
+
+    const url = (typeof DOK_SHEET_ENDPOINT === 'string') ? DOK_SHEET_ENDPOINT : '';
+    if (!url) return null;
+    try {
+      const res = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'sign', campaign: id }),
+      });
+      const got = await res.json().catch(() => ({}));
+      return (got && typeof got.total === 'number') ? got.total : null;
+    } catch {
+      return null;        // 눈금이 안 남아도 서명 자체는 이미 끝났습니다
+    }
+  }
+
   /* 참여를 마쳤을 때의 화면. total 은 지금까지의 참여자 수입니다.
      ⚠️ 도너스는 이 숫자를 돌려주지 않습니다(활동기록 번호만 옵니다). 그래서
         null 이 들어오고, 그때는 숫자 줄을 비웁니다 — 0 명처럼 보이면 안 됩니다. */
@@ -4163,7 +4204,12 @@ items.forEach(item => {
 
         if (ok) {
           track('join_submit', { id: joinTarget.id || '' });
-          showJoinDone(typeof out.total === 'number' ? out.total : null);
+          /* 우리 접수처에 눈금 하나. 도너스가 참여자 수를 안 주기 때문입니다 —
+             자세한 까닭은 dokTickSign 위에 적어 두었습니다. 실패해도 서명은
+             이미 끝났으므로 화면에는 아무 말도 하지 않습니다. */
+          const ticked = await dokTickSign(joinTarget.id || '');
+          showJoinDone(typeof ticked === 'number' ? ticked
+                       : (typeof out.total === 'number' ? out.total : null));
         } else {
           joinError.textContent = out.error || '참여하지 못했습니다. 잠시 후 다시 시도해주세요.';
           joinError.style.display = 'block';
