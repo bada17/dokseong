@@ -2,16 +2,17 @@
   "_주석": [
     "이 파일은 손으로 고치는 원본이 아니라 **접수 시트의 사본**입니다.",
     "사업을 올리고 내리는 곳은 담당자가 쓰는 구글 설문지·시트입니다.",
+    "다시 굽는 법: python tools/bake.py",
     "",
-    "왜 사본을 두는가 — Apps Script 왕복이 1~4초라 첫 방문자가 그동안 빈 칸을",
-    "봅니다. 화면은 이 파일을 먼저 그리고, 시트 것이 오면 조용히 갈아 끼웁니다.",
-    "",
-    "⚠️ 사본이 낡으면 첫 방문자가 옛 목록을 1~4초 동안 봅니다.",
-    "   다시 굽는 법: python tools/bake-campaigns.py",
+    "\"사진사본\" 은 드라이브 주소 → 이 저장소 파일의 표입니다. 시트에서 온",
+    "목록에도 이 표를 씌워, 사본과 시트가 같은 사진을 보게 합니다.",
     "",
     "status 가 ongoing·closed 가 아닌 줄은 굽는 스크립트가 지우지 않고 남깁니다."
   ],
-  "구운때": "2026-09-18 09:27",
+  "구운때": "2026-09-18 10:07",
+  "사진사본": {
+    "https://drive.google.com/thumbnail?id=1g5NGTS7HgHGObK5WaTHAVSzOfcgVQRgF&sz=w1600": "img/camp-3.png"
+  },
   "campaigns": [
     {
       "id": "camp-3",
@@ -21,7 +22,7 @@
       "period": "2026. 8 ~",
       "outcome": "",
       "link": "https://action.or.kr/27/?idx=172690687&bmode=view",
-      "image": "https://drive.google.com/thumbnail?id=1g5NGTS7HgHGObK5WaTHAVSzOfcgVQRgF&sz=w1600",
+      "image": "img/camp-3.png",
       "image_alt": "기획예산처 미래대응기금",
       "body": [
         [

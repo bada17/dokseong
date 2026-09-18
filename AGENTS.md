@@ -35,6 +35,8 @@ Claude Code 는 `CLAUDE.md`, Codex 는 `AGENTS.md` 를 폴더를 열 때 자동�
 ## 이 저장소 — `dokseong`
 
 - **살아 있는 폴더** — `OneDrive\문서\ChatGPT\밑빠진독상 페이지\dokseong` — 클론은 하나뿐이다.
-- **브랜치** — `codex/sites-share-link`. 깃허브 기본 브랜치는 `main` — 합치기 전까지 상대가 못 본다.
+- **브랜치** — `main`. 깃허브 기본 브랜치도 `main`, 깃허브 페이지도 `main` 을 낸다.
+  2026-09-18 에 `codex/sites-share-link` 에서 옮겼다 — 그 가지에만 푸시하는 바람에
+  9/10 작업(활동가의 글·`#camp-` 주소) 여섯 커밋이 여드레 동안 사는 화면에 없었다.
 - 하단(footer)은 `action-home-renewal` 의 것을 읽어 온다. 하단이 바뀌면 `python tools/port-footer.py` 로 다시 굽는다.
 - 캠페이너스 이식본은 GPT 가 로그인해 관리한다. Claude 는 그 화면을 직접 못 본다.
