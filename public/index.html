@@ -14,6 +14,14 @@
 
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" rel="stylesheet">
+
+<!-- 사업 목록·제보 건수·활동가 글을 받아 오는 구글 Apps Script (2026-09-18).
+     /exec 은 반드시 script.googleusercontent.com 으로 한 번 넘겨집니다 —
+     미리 손잡아 두지 않으면 그 자리에서 TLS 악수를 새로 합니다.
+     2026-09-18 실측: 사업 목록 한 번에 1.2~4.2초(리다이렉트에만 1.8~2.3초).
+     손잡기가 그 시간을 줄이지는 못하고, 앞에 붙는 연결 비용만 미리 치릅니다. -->
+<link rel="preconnect" href="https://script.google.com" crossorigin>
+<link rel="preconnect" href="https://script.googleusercontent.com" crossorigin>
 <style>
 @font-face {
   font-family: 'GmarketSans';
@@ -148,6 +156,42 @@ html { scroll-behavior: smooth; }
   color: var(--ink-soft); font-size: 15px;
   /* 좁은 화면에서 '정해지면' 이 '정해 / 지면' 으로 잘렸습니다. */
   word-break: keep-all;
+}
+
+/* 목록을 받는 동안 세워 두는 뼈대 (2026-09-18).
+   ★ 왜 넣었나 — 예전에는 그 사이 '다음 분기 감시 사업을 준비하고 있습니다' 가
+     나왔습니다. 그러면 **사업이 없다고 읽고 그냥 지나칩니다.** 1~4초 뒤에
+     카드가 튀어나와도 이미 늦습니다. 뼈대는 '곧 온다'만 말하고 자리를 잡아
+     둡니다 — 카드가 들어앉을 때 글이 밀리지도 않습니다.
+   ⚠️ 뼈대는 **못 받았을 때가 아니라 받는 중일 때만** 나옵니다. 실패하거나
+     정말로 한 건도 없으면 위의 안내 문구로 돌아갑니다. */
+/* ⚠️ 뼈대에는 `dok-camp-card` 를 주지 않습니다 — render() 가 그 클래스를 찾아
+   클릭을 달기 때문에, 같이 달리면 눌렀을 때 없는 사업을 열려다 죽습니다.
+   그래서 카드의 생김새(테두리·여백)를 여기에 한 벌 더 적습니다. */
+#dok .dok-camp-skel {
+  display: flex; flex-direction: column;
+  border: 1px solid var(--line); border-radius: 14px;
+  padding: 26px 24px 24px; background: #fff;
+  overflow: hidden; pointer-events: none;
+}
+#dok .dok-camp-skel .sk {
+  display: block; background: #eef3f6; border-radius: 6px;
+}
+#dok .dok-camp-skel .sk-badge { width: 64px; height: 22px; border-radius: 999px; margin-bottom: 14px; }
+#dok .dok-camp-skel .sk-title { width: 85%; height: 18px; margin-bottom: 14px; }
+#dok .dok-camp-skel .sk-line  { width: 100%; height: 13px; margin-bottom: 8px; }
+#dok .dok-camp-skel .sk-line.is-short { width: 55%; }
+@media (prefers-reduced-motion: no-preference) {
+  #dok .dok-camp-skel .sk,
+  #dok .dok-camp-skel .dok-camp-thumb {
+    background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,.75) 50%, transparent 100%);
+    background-size: 220px 100%; background-repeat: no-repeat;
+    animation: dokSkel 1.1s ease-in-out infinite;
+  }
+}
+@keyframes dokSkel {
+  from { background-position: -220px 0; }
+  to   { background-position: calc(100% + 220px) 0; }
 }
 @media (max-width: 900px) {
   #dok .dok-camp-grid { grid-template-columns: repeat(2, 1fr); }
@@ -3559,13 +3603,27 @@ items.forEach(item => {
     ? Promise.resolve({ sido: {} })
     : fetch(DOK_INTAKE.regions.url).then((r) => r.json()).catch(() => ({ sido: {} }));
 
+  /* ★ 2026-09-18 — 제보 건수를 **기다리지 않습니다.**
+     예전에는 아래 Promise.all 에 regionsReq 가 함께 들어 있어서, 지도가
+     Apps Script 응답(실측 2.1~2.8초)을 다 기다린 뒤에야 그려졌습니다.
+     지도는 수상 내역만으로도 볼 수 있어야 한다는 것이 원래 원칙이었는데
+     기다림이 그것을 거스르고 있었습니다.
+     이제 지도를 먼저 그리고, 건수가 도착하면 색만 다시 칠합니다. */
+  let mapDrawn = false;
+  regionsReq.then((reg) => {
+    reportCounts = (reg && reg.sido) || {};
+    if (!mapDrawn) return;        // 아직 안 그렸으면 아래 그릴 때 이 값이 쓰입니다
+    paint();
+    renderSide();
+    renderOffmap();
+  });
+
   Promise.all([
     fetch('data/map-sido.json').then((r) => r.json()),
     fetch('data/awards.json').then((r) => r.json()),
-    regionsReq,
-  ]).then(([map, aw, reg]) => {
+  ]).then(([map, aw]) => {
     awards = aw.awards || [];
-    reportCounts = reg.sido || {};
+    mapDrawn = true;
     drawMap(map);
     drawChips();
     paint();
@@ -3630,6 +3688,49 @@ items.forEach(item => {
   } catch (err) {
     console.error('사업 데이터를 읽지 못했습니다', err);
   }
+
+  /* ── 지난번에 받아 둔 목록을 먼저 그립니다 (2026-09-18) ──────────────────
+     Apps Script 왕복이 실측 1.2~4.2초입니다(그중 1.8초 이상이 리다이렉트라
+     서버에서 줄일 수가 없습니다). 그동안 이 칸이 비어 있었습니다.
+     그래서 **받은 목록을 브라우저에 재워 두고, 다음 방문에는 그것을 먼저
+     그린 뒤 시트 것이 오면 조용히 갈아 끼웁니다.** 두 번째 방문부터는
+     사업이 곧바로 뜹니다.
+
+     ★ 담아 두는 것은 화면에 이미 공개된 사업 목록뿐입니다 — 제보도,
+       이름도, 어떤 개인정보도 담기지 않습니다.
+     ★ 시트에서 사업을 내리면 다음 방문에 옛 카드가 한 번 스쳤다가 사라집니다.
+       숨기기가 급한 내용이면 캐시 이름(v1)을 올려 통째로 버리게 하세요.
+     ⚠️ 사생활 보호 모드에서는 localStorage 를 읽는 것만으로도 예외가 납니다.
+        그래서 읽기·쓰기·지우기를 모두 try 로 감쌉니다. */
+  const CAMP_CACHE = 'dok-camps-v1';
+  const CAMP_CACHE_MAX = 7 * 24 * 60 * 60 * 1000;   // 이보다 오래된 것은 안 씁니다
+
+  function cacheRead() {
+    try {
+      const raw = localStorage.getItem(CAMP_CACHE);
+      if (!raw) return null;
+      const got = JSON.parse(raw);
+      if (!got || !Array.isArray(got.items) || !got.items.length) return null;
+      if (!got.at || Date.now() - got.at > CAMP_CACHE_MAX) return null;
+      return got.items;
+    } catch (e) { return null; }
+  }
+  function cacheWrite(list) {
+    try { localStorage.setItem(CAMP_CACHE, JSON.stringify({ at: Date.now(), items: list })); }
+    catch (e) {}      // 용량이 찼거나 막혀 있으면 그냥 안 재웁니다
+  }
+  function cacheDrop() {
+    try { localStorage.removeItem(CAMP_CACHE); } catch (e) {}
+  }
+
+  if (!campaigns.length) {
+    const kept = cacheRead();
+    if (kept) campaigns = kept;
+  }
+
+  /* 시트 것을 기다리는 중인가. 기다리는 동안에만 뼈대를 세웁니다 —
+     '준비 중' 안내는 **다 받고 나서도 빈** 때에만 나와야 합니다. */
+  let loading = typeof DOK_CAMPAIGN_URL === 'string' && !!DOK_CAMPAIGN_URL;
 
   const esc = (v) => String(v == null ? '' : v).replace(/[&<>"']/g,
     (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -3804,15 +3905,29 @@ items.forEach(item => {
     });
   }
 
+  /* 아직 받는 중일 때 세우는 뼈대. 두 장인 것은 3칸 격자에서 한 장은 허전하고
+     세 장은 없는 사업을 약속하는 것처럼 보여서입니다. */
+  function skeleton() {
+    return `<div class="dok-camp-skel" aria-hidden="true">
+      <div class="dok-camp-thumb"></div>
+      <span class="sk sk-badge"></span>
+      <span class="sk sk-title"></span>
+      <span class="sk sk-line"></span>
+      <span class="sk sk-line is-short"></span>
+    </div>`.repeat(2);
+  }
+
   function render(status) {
     const list = campaigns.filter((c) => c.status === status);
+    grid.setAttribute('aria-busy', String(!list.length && loading));
     grid.innerHTML = list.length
       ? list.map((c, i) => card(c, i)).join('')
+      : (loading ? skeleton()
       : `<p class="dok-camp-empty">${status === 'ongoing'
           /* 2026-09-07 — 목록을 비운 채로 런칭하므로 이 문장이 실제로 화면에 나옵니다.
          "정리하고 있습니다" 는 곧 올라온다는 뜻이라, 언제 무엇이 오는지 덧붙였습니다. */
       ? '다음 분기 감시 사업을 준비하고 있습니다. 정해지면 이 자리에 올립니다.'
-          : '종료된 사업을 정리하고 있습니다.'}</p>`;
+          : '종료된 사업을 정리하고 있습니다.'}</p>`);
 
     grid.querySelectorAll('.dok-camp-card').forEach((el) => {
       const c = list[Number(el.dataset.i)];
@@ -4083,21 +4198,62 @@ items.forEach(item => {
      DOK_CAMPAIGN_URL 의 JSON 이 있으면 그것으로 갈아 끼웁니다.
      파일이 없거나 문법이 틀리면 아무 일도 일어나지 않습니다 —
      쉼표 하나 때문에 페이지가 죽지 않게 하려는 것입니다. */
+  // 보고 있는 탭을 그대로 다시 그립니다.
+  function repaint() {
+    const on = tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0];
+    render(on.dataset.status);
+  }
+
   function setCampaigns(list) {
     if (!Array.isArray(list) || !list.length) return;
     campaigns = list;
     // 탭 옆 숫자는 건드리지 않습니다 — 그 자리는 '몇 명이 함께하고 있습니다'가
     // 쓰는 칸이고, render() 끝의 paintCounts() 가 매번 다시 씁니다.
-    const on = tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0];
-    render(on.dataset.status);
+    repaint();
     openCampFromHash();          // 주소로 들어온 사업이 이제야 목록에 있을 수 있습니다
+  }
+
+  /* 시트에서 답이 왔을 때. setCampaigns 와 따로 둔 까닭 —
+     **한 건도 없다는 것도 답입니다.** 그때는 재워 둔 옛 목록을 버리고
+     '준비 중' 안내로 돌아가야 합니다. 못 받은 것(아래 catch)과는 다릅니다. */
+  function onCampaigns(list) {
+    loading = false;
+    if (Array.isArray(list) && list.length) { cacheWrite(list); setCampaigns(list); return; }
+    cacheDrop();
+    campaigns = [];
+    repaint();
+  }
+
+  /* ── 첫 방문도 곧바로 채웁니다 (2026-09-18) ────────────────────────────
+     재워 둔 것이 없는 사람 — 즉 **처음 온 사람** — 은 위 캐시가 없습니다.
+     그래서 같은 도메인에 굽어 둔 사본을 먼저 읽습니다(50ms 면 옵니다).
+     그 사본은 tools/bake-campaigns.py 가 시트에서 구워 두는 것입니다.
+     ⚠️ 낡은 것으로 새것을 덮지 않습니다 — 시트 것이 먼저 왔으면 버립니다.
+     ⚠️ 사본이 없거나 깨져 있어도 아무 일도 없습니다. 뼈대가 그대로 섭니다. */
+  const CAMP_SNAPSHOT = 'data/campaigns.json';
+  if (!campaigns.length && DOK_CAMPAIGN_URL !== CAMP_SNAPSHOT) {
+    fetch(CAMP_SNAPSHOT)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (!loading || campaigns.length) return;   // 시트 것이 이미 왔습니다
+        const list = Array.isArray(d) ? d : ((d && d.campaigns) || []);
+        setCampaigns(list.filter((c) => c.status === 'ongoing' || c.status === 'closed'));
+      })
+      .catch(() => {});
   }
 
   if (typeof DOK_CAMPAIGN_URL === 'string' && DOK_CAMPAIGN_URL) {
     fetch(DOK_CAMPAIGN_URL)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => setCampaigns(Array.isArray(d) ? d : (d && d.campaigns)))
-      .catch((e) => console.error('사업 목록을 읽지 못했습니다 (' + DOK_CAMPAIGN_URL + ')', e));
+      // ⚠️ 200 이 아니면 던집니다 — '못 받았다'와 '한 건도 없다'를 섞지 않기
+      //    위해서입니다. 섞으면 잠깐 끊긴 사람의 재워 둔 목록까지 지워집니다.
+      .then((r) => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then((d) => onCampaigns(Array.isArray(d) ? d : ((d && d.campaigns) || [])))
+      .catch((e) => {
+        // 재워 둔 목록은 그대로 둡니다. 뼈대만 걷습니다.
+        loading = false;
+        repaint();
+        console.error('사업 목록을 읽지 못했습니다 (' + DOK_CAMPAIGN_URL + ')', e);
+      });
   }
 })();
 
