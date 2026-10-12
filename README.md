@@ -321,7 +321,7 @@ npx wrangler d1 execute dokseong --remote \
 | 제보 사진 | 구글 드라이브 `밑빠진 독상 제보 사진 / 제NN회` — **비공개. 링크 공개 금지** |
 | 받는 코드 | [`intake/Code.gs`](intake/Code.gs) · 순서는 [`intake/README.md`](intake/README.md) |
 | 화면에 넣는 주소 | `public/index.html` 의 `DOK_SHEET_ENDPOINT` 한 줄 |
-| Cloudflare 계정 | `action@action.or.kr` — 2026-09-08 부터 **아무 일도 안 합니다**. 2026-10-12 에 걷기로 했습니다(아래) |
+| Cloudflare 계정 | `action@action.or.kr` — 2026-09-08 부터 **아무 일도 안 합니다**. 2026-10-12 에 Pages 프로젝트를 지웠습니다(아래) |
 | 사이트 | <https://dok.action.or.kr> (깃허브 페이지) |
 
 ⚠️ **`DOK_SHEET_ENDPOINT` 가 비어 있으면 제보 폼이 잠깁니다.** 갈 곳 없는 주소로
@@ -336,9 +336,8 @@ npx wrangler d1 execute dokseong --remote \
 ⚠️ **R2 구독은 해지하지 마세요.** 같은 계정의 R2 를 지방재정 감시 사이트(`local-finance`,
    버킷 `local-finance-raw`)가 씁니다 — 10-05 에 카드를 지웠다가 그쪽 수집이 멈췄습니다.
    이 저장소 몫인 `dokseong-photos` 버킷은 배포 계정에 없었습니다(2026-09-07 확인).
-   Pages 프로젝트(`dokseong`)는 **2026-10-12 에 지우기로 했습니다** — 깃허브 페이지가
-   한 달 넘게 잘 돌았고, 옛 화면이 `dokseong.pages.dev` 에 두 번째 주소로 떠 있을 뿐입니다.
-   Claude 는 이 계정에 로그인이 없어 지우지 못합니다. 대시보드에서 사람이 지웁니다.
+   Pages 프로젝트(`dokseong`)는 **2026-10-12 에 지웠습니다** — 깃허브 페이지가 한 달 넘게
+   잘 돌았고, 옛 화면이 `dokseong.pages.dev` 에 두 번째 주소로 떠 있을 뿐이었습니다.
 
 ### 배포 — `main` 에 푸시하면 끝입니다
 
