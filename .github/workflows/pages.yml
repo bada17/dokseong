@@ -49,6 +49,8 @@ jobs:
       # 굽기가 깨져도 화면 배포는 막지 않는다.
       - run: python3 tools/bake.py
         continue-on-error: true
+        env:
+          TZ: Asia/Seoul    # '구운때' 를 한국 시각으로
 
       # public/ 안의 것만 올라갑니다. functions/ · intake/ · tools/ 는 안 나갑니다.
       - uses: actions/upload-pages-artifact@v3
