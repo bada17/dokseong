@@ -8,7 +8,11 @@
 #
 # 그 전에는 Cloudflare Pages 에 `npx wrangler pages deploy` 로 손수 올렸습니다.
 # 2026-09-08 에 깃허브 한 곳으로 모으기로 하면서 이쪽으로 옮겼습니다.
-# ⚠️ Cloudflare 쪽(`dokseong.pages.dev`)은 아직 살아 있습니다 — 되돌릴 자리입니다.
+#
+# 2026-10-12 — 내보내기 전에 tools/bake.py 로 시트를 새로 굽고, 하루 네 번 저절로 돈다.
+#   손으로 굽는 걸 잊으면 data/campaigns.json(홈도 읽는다)이 9/18 것 그대로 남아 있었다.
+#   구운 것은 저장소에 커밋하지 않는다 — 봇 커밋이 쌓이면 GPT 와 pull 이 엇갈린다.
+#   그래서 저장소의 public/data 는 사는 화면보다 늦을 수 있다. 진짜는 사는 화면이다.
 
 name: 사이트 배포 (GitHub Pages)
 
@@ -16,6 +20,8 @@ on:
   push:
     branches: [main]
   workflow_dispatch:      # 손으로도 돌릴 수 있게 (Actions 탭 › Run workflow)
+  schedule:
+    - cron: '0 21,3,9,15 * * *'   # 한국 시각 06·12·18·24시
 
 # 페이지를 배포하는 데 필요한 최소 권한입니다.
 permissions:
@@ -38,6 +44,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - uses: actions/configure-pages@v5
+
+      # 시트에서 사업·글·사진을 새로 굽는다. 못 받으면 있던 사본을 그대로 둔다.
+      # 굽기가 깨져도 화면 배포는 막지 않는다.
+      - run: python3 tools/bake.py
+        continue-on-error: true
 
       # public/ 안의 것만 올라갑니다. functions/ · intake/ · tools/ 는 안 나갑니다.
       - uses: actions/upload-pages-artifact@v3

@@ -112,14 +112,18 @@ dokseong/
 > 사이트에 올라옵니다 — 코드도 배포도 깃허브도 거치지 않습니다.
 >
 > ⚠️ **`public/data/campaigns.json` 은 손으로 고치는 파일이 아닙니다**(2026-09-18부터).
-> 그 시트를 굽어 둔 **사본**이고, `python tools/bake-campaigns.py` 가 덮어씁니다.
+> 그 시트를 굽어 둔 **사본**이고, `python tools/bake.py` 가 덮어씁니다.
 > 화면은 사본을 먼저 그리고(같은 도메인이라 즉시), 시트 것이 도착하면 갈아 끼웁니다.
 > **왜 사본을 두는가** — Apps Script 왕복이 실측 1.2~4.2초라, 그동안 첫 방문자는
 > '다음 분기 감시 사업을 준비하고 있습니다' 를 봅니다. 사업이 없다고 읽고 지나갈
 > 시간입니다. 받은 목록은 브라우저(localStorage)에도 재워 둡니다 — 두 번째 방문은
 > 사본조차 안 기다립니다.
-> **사본이 낡으면** 첫 방문자가 옛 목록을 1~4초 동안 봅니다. 시트에서 사업을
-> 급히 내렸다면 `tools/bake-campaigns.py` 를 한 번 돌리세요.
+> **2026-10-12 부터 배포할 때마다, 그리고 하루 네 번(06·12·18·24시) 저절로 굽습니다**
+> ([`pages.yml`](.github/workflows/pages.yml)). 손으로 굽는 걸 잊어 사본이 9/18 것 그대로
+> 3주 넘게 남아 있었습니다. 구운 것은 **저장소에 커밋하지 않고** 사는 화면에만 올립니다 —
+> 봇 커밋이 쌓이면 GPT 와 pull 이 엇갈립니다. 그래서 저장소의 `public/data` 는 사는
+> 화면보다 늦을 수 있습니다. 시트에서 사업을 급히 내렸다면 Actions › 「사이트 배포」 ›
+> Run workflow 를 누르세요.
 
 분기마다 손대는 곳은 **두 군데**입니다. **코드는 건드리지 않습니다.**
 
@@ -317,7 +321,7 @@ npx wrangler d1 execute dokseong --remote \
 | 제보 사진 | 구글 드라이브 `밑빠진 독상 제보 사진 / 제NN회` — **비공개. 링크 공개 금지** |
 | 받는 코드 | [`intake/Code.gs`](intake/Code.gs) · 순서는 [`intake/README.md`](intake/README.md) |
 | 화면에 넣는 주소 | `public/index.html` 의 `DOK_SHEET_ENDPOINT` 한 줄 |
-| Cloudflare 계정 | `action@action.or.kr` — 2026-09-08 부터 **아무 일도 안 합니다**. 되돌릴 자리로만 남겨 둡니다 |
+| Cloudflare 계정 | `action@action.or.kr` — 2026-09-08 부터 **아무 일도 안 합니다**. 2026-10-12 에 걷기로 했습니다(아래) |
 | 사이트 | <https://dok.action.or.kr> (깃허브 페이지) |
 
 ⚠️ **`DOK_SHEET_ENDPOINT` 가 비어 있으면 제보 폼이 잠깁니다.** 갈 곳 없는 주소로
@@ -331,8 +335,9 @@ npx wrangler d1 execute dokseong --remote \
 
 ⚠️ **R2 는 유료 구독이라 카드가 걸려 있습니다.** 사진을 드라이브로 옮겼으므로
    버킷을 지우고 구독을 해지해도 됩니다. D1 과 Pages 는 무료 한도라 카드가 필요 없습니다.
-   ⚠️ Pages 프로젝트(`dokseong`)도 이제 사이트를 서비스하지 않지만, **아직 지우지 마세요** —
-   깃허브 페이지가 잘 도는 것을 확인할 때까지 되돌릴 자리로 남겨 둡니다.
+   Pages 프로젝트(`dokseong`)는 **2026-10-12 에 지우기로 했습니다** — 깃허브 페이지가
+   한 달 넘게 잘 돌았고, 옛 화면이 `dokseong.pages.dev` 에 두 번째 주소로 떠 있을 뿐입니다.
+   Claude 는 이 계정에 로그인이 없어 지우지 못합니다. 대시보드에서 사람이 지웁니다.
 
 ### 배포 — `main` 에 푸시하면 끝입니다
 
@@ -349,22 +354,6 @@ git push origin HEAD:main
 
 ⚠️ `public/CNAME` 을 지우지 마세요 — 주소가 `dok.action.or.kr` 이 아니라
    `bada17.github.io/dokseong/` 으로 돌아갑니다.
-
-#### 예전 방식 (Cloudflare) — 되돌릴 때만
-
-2026-09-08 까지는 Cloudflare Pages 에 손으로 올렸습니다. 관리하는 곳을 깃허브
-하나로 모으려고 옮겼습니다. Cloudflare Pages 프로젝트(`dokseong`)는 아직 지우지
-않았으므로, 문제가 생기면 **호스트코코아 DNS 에서 `dok.action.or.kr` 의 값을
-`bada17.github.io` → `dokseong.pages.dev` 로 되돌리면** 복구됩니다.
-
-```bash
-npx wrangler pages deploy public --project-name dokseong --branch main --commit-dirty=true
-```
-
-⚠️ 출력에 **`Using redirected Wrangler configuration`** 이 나오면 멈추세요.
-   `wrangler.toml` 이 무시되고 D1·R2 가 가짜 이름으로 붙습니다.
-   원인은 `.wrangler/deploy/config.json` 이라는 찌꺼기입니다 — 지우고 다시 배포하세요.
-   (GPT 가 chatgpt.site 로 배포하면서 남긴 것입니다. 2026-09-04 에 한 번 겪었습니다.)
 
 ## 제보 검토하기 — 시트에서
 
