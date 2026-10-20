@@ -3876,10 +3876,17 @@ items.forEach(item => {
   /* 주소로 들어온 경우(#camp-…) 그 사업을 엽니다. 목록이 바뀔 때마다 한 번 봅니다.
      ⚠️ 사업 목록은 바깥 파일에서 늦게 옵니다. 그래서 setCampaigns 뒤에도 부릅니다. */
   function openCampFromHash() {
-    const m = (location.hash || '').match(/^#camp-([\w-]+)$/);
+    const m = (location.hash || '').match(/^#(camp|join)-([\w-]+)$/);
     if (!m || (modal && modal.open)) return;
-    const c = campaigns.find((x) => String(x.id) === m[1]);
+    const c = campaigns.find((x) => String(x.id) === m[2]);
     if (!c) return;
+    /* #join-… 은 서명 칸을 바로 엽니다(2026-10-20) — 시민의 숲 마을의 독상 판
+       「이 감시에 참여하기」 가 여기로 옵니다. 팝업을 거쳐 한 번 더 누르게 하지 않습니다.
+       진행 중인 사업만. 주소는 바로 비웁니다(닫은 뒤 새로 고침에 또 열리지 않게). */
+    if (m[1] === 'join') {
+      try { history.replaceState(null, '', location.pathname + location.search); } catch (e) {}
+      if (c.status === 'ongoing') { openJoin(c); return; }
+    }
     /* 종료된 사업이면 탭도 그쪽으로 옮겨 둡니다 — 닫았을 때 빈 목록이 보이면
        "글이 사라졌다"고 읽힙니다. */
     if (c.status && c.status !== 'ongoing') {
