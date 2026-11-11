@@ -230,16 +230,16 @@ Apps Script 의 Forms 서비스에는 **파일 올리는 물음을 만드는 길
 감시 참여 팝업의 서명을 받습니다. 제보 검토자에게 서명자 연락처가 안 보이게 **다른 파일**에 쌓습니다
 (까닭·도너스로 손으로 옮기는 법은 저장소 `README.md` 「서명 — 구글 시트」).
 
-### 한 번만 하면 되는 것 — **이 차례대로** (화면을 먼저 켜면 서명이 「모르는 폼」으로 튕깁니다)
+### 올리는 법 — Claude 가 clasp 로 (2026-11-11 처음 함)
 
-0. 붙여넣기 전에 편집기에 지금 있는 `Code.gs` 에 **저장소에 없는 것**이 있는지 봅니다
-   (예: `sign` 이라는 말). 붙여넣으면 배포본이 저장소 판으로 덮입니다.
-1. `Code.gs` 를 새 코드로 바꾸고 **`setUpSignSheet` 를 한 번 실행** → 내 드라이브에
-   `밑빠진 독상 서명` 파일이 생기고 실행 로그에 주소가 찍힙니다. 새 권한을 물으면 허용.
-   다시 눌러도 새로 안 만듭니다(스크립트 속성 `signSheetId`).
-2. **배포 › 배포 관리 › ✏️ › 버전 「새 버전」 › 배포.** ('새 배포' 를 누르면 주소가 바뀝니다.)
-3. `?action=check` 를 열어 `signSheet.ok` 가 `true` 인지 → Claude 가 시험 서명 1건 → 시트에서 그 줄 지우기.
-4. 그다음에 화면(`index.html` 의 `join.mode: 'sheet'`)을 올립니다.
+- 스크립트 ID `1LVUM9trI5rnkBGj_fBINLeQdF2leYgoqeMtR2G9UybbvXRHE96IYtw_J`, 주인 **action@action.or.kr**(bada17@ 로는 권한 없음).
+  배포 ID 는 화면의 `DOK_SHEET_ENDPOINT` 그대로. `clasp login --user dok`(action@ 으로) → `clasp -u dok clone <ID>` →
+  **배포본과 저장소 판 비교**(11-11 에 배포본에만 있던 아침 보고 `?action=counts` 를 찾아 합침) →
+  `Code.gs` 를 `Code.js` 로 복사 → `clasp -u dok push -f` → `clasp -u dok redeploy <배포 ID>`.
+- action@ 계정의 script.google.com/home/usersettings 「Apps Script API」 를 켜야 push 가 됩니다.
+  **끝나면 끄고 `clasp logout --user dok`** — 이 PC 에 단체 계정 열쇠가 남지 않게(사용자 결정).
+- 서명 파일은 첫 서명이나 `?action=check` 때 저절로 생깁니다(`setUpSignSheet`, 스크립트 속성 `signSheetId`).
+- 차례: 접수처 먼저, 화면(`join.mode: 'sheet'`) 나중 — 반대로 하면 서명이 「모르는 폼」으로 튕깁니다.
 
 ⚠️ 서명 파일은 "링크가 있는 모든 사용자" 로 열지 마세요. 도너스로 옮길 사람에게만 사람 단위로 공유합니다.
 

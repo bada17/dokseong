@@ -286,6 +286,12 @@ function doGet(e) {
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
+  /* 아침 보고 숫자 — 아래 countsJson. */
+  if (action === 'counts') {
+    return ContentService.createTextOutput(JSON.stringify(countsJson()))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   /* 사업별 서명 수 — `?action=signs`. **수만** 나갑니다(이름·연락처는 안 나감).
      페이지를 열 때마다 부르므로 1분 재워 둡니다. */
   if (action === 'signs') {
@@ -543,6 +549,78 @@ function trim(v) { return (typeof v === 'string') ? v.trim() : ''; }
 function cut(v) { var s = trim(v); return s.length > MAX_LEN ? s.slice(0, MAX_LEN) + '…' : s; }
 
 
+/* ── 아침 보고(action-daily)가 부르는 숫자 끝점 — `?action=counts` (2026-09-18) ──
+   ⚠️ 예전엔 action-daily 의 apps_script/dok_counts.gs 를 배포본에만 붙여 넣어 **저장소에 없었습니다.**
+      그래서 저장소 판을 붙이면 이 끝점이 조용히 사라질 뻔했습니다(2026-11-11 발견). 이제 원본은 여기 하나입니다.
+   ⚠️ 나가는 것은 건수뿐입니다. 탭 이름 '제보'·'감시사업 등록'·'서명' 은 아침 보고가 그대로 읽습니다. */
+
+function countsJson() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var today = countDay(new Date());
+  var yest  = countDay(new Date(new Date().getTime() - 24 * 60 * 60 * 1000));
+
+  return {
+    ok: true,
+    site: '밑빠진 독상',
+    asof: today,
+    round: roundLabel(),
+    items: [
+      /* 제보 — '접수' 는 아직 아무도 안 열어 본 것입니다. */
+      countTab(ss.getSheetByName(SHEET.name), '제보',
+               '접수시각', ['접수'], today, yest),
+      /* 감시사업은 구글 설문지가 채우므로 날짜 칸 이름이 '타임스탬프' 입니다.
+         상태를 담당자가 고르기 전(빈칸)만 밀린 것으로 봅니다. */
+      countTab(ss.getSheetByName(CAMP.sheetName), '감시사업 등록',
+               '타임스탬프', [], today, yest),
+      /* 서명은 사람이 처리할 것이 없으므로 '밀림' 이 늘 0 입니다. */
+      /* 서명은 2026-11-11 부터 다른 파일(아래 「서명」). 그 전 눈금 탭(제보 시트의 '서명', 1건)은 안 셉니다. */
+      countTab(signSheetOrNull(), '서명',
+               '접수시각', [], today, yest)
+    ]
+  };
+}
+
+
+/* 탭 하나를 셉니다.
+   ⚠️ 열을 번호가 아니라 **머리글 이름으로** 찾습니다(`storyCols`). 사람이 칸을
+      옮기거나 사이에 끼워 넣어도 안 깨집니다. */
+function countTab(sh, label, timeCol, openStates, today, yest) {
+  var out = { '이름': label, '어제': 0, '오늘': 0, '누적': 0, '밀림': 0, '있음': false };
+  if (!sh || sh.getLastRow() < 2) return out;
+  out['있음'] = true;
+
+  var rows = sh.getRange(1, 1, sh.getLastRow(), sh.getLastColumn()).getValues();
+  var at = storyCols(rows[0]);
+  var tc = at[timeCol], sc = at['상태'];
+
+  for (var i = 1; i < rows.length; i++) {
+    var when = (tc == null) ? '' : rows[i][tc];
+    /* 날짜 칸이 빈 줄은 시트 아래쪽 빈 줄입니다 — 세지 않습니다. */
+    if (!(when instanceof Date) && !trim(when)) continue;
+    out['누적']++;
+
+    var day = countDay(when);
+    if (day === today) out['오늘']++;
+    else if (day === yest) out['어제']++;
+
+    if (sc != null) {
+      var st = trim(rows[i][sc]);
+      if (!st || openStates.indexOf(st) >= 0) out['밀림']++;
+    }
+  }
+  return out;
+}
+
+
+/* ⚠️ 한국 시간으로 고정합니다 — 스크립트 표준시가 무엇이든 같은 답이 나오게. */
+function countDay(v) {
+  if (v instanceof Date) return Utilities.formatDate(v, 'Asia/Seoul', 'yyyy-MM-dd');
+  var s = trim(v);
+  return s ? s.slice(0, 10) : '';
+}
+
+
+
 /* ══════════════════════════════════════════════════════════════════
    서명 (2026-11-11) — 감시 참여 팝업이 보낸 것을 **다른 스프레드시트 파일**에 쌓습니다.
 
@@ -553,7 +631,7 @@ function cut(v) { var s = trim(v); return s.length > MAX_LEN ? s.slice(0, MAX_LE
      도너스에는 사람이 손으로 옮깁니다(이메일·문자 수신만 켜고, 이미 있는 사람은
      새로 만들지 않음 — README 「서명」). 옮기는 코드는 만들지 않습니다.
 
-   ★ 붙여넣고 한 번 — 편집기에서 `setUpSignSheet` 를 골라 ▶ 실행.
+   ★ 파일은 첫 서명 때 저절로 생깁니다(편집기에서 `setUpSignSheet` 를 눌러도 됨).
      파일을 만들고 그 id 를 스크립트 속성 `signSheetId` 에 적은 뒤 주소를 로그에 찍습니다.
      다시 눌러도 새로 만들지 않습니다(있는 파일을 씁니다).
    ══════════════════════════════════════════════════════════════════ */
@@ -588,10 +666,15 @@ function setUpSignSheet() {
   return ss.getUrl();
 }
 
+/* 없으면 첫 서명 때 setUpSignSheet 가 만듭니다 — 편집기에서 손으로 안 눌러도 됩니다(2026-11-11). */
 function signSheet() {
   var id = PropertiesService.getScriptProperties().getProperty('signSheetId');
-  if (!id) throw new Error('서명 시트가 없습니다 — setUpSignSheet 를 먼저 실행하세요.');
+  if (!id) { setUpSignSheet(); id = PropertiesService.getScriptProperties().getProperty('signSheetId'); }
   return SpreadsheetApp.openById(id).getSheetByName(SIGN.name);
+}
+
+function signSheetOrNull() {
+  try { return signSheet(); } catch (err) { console.error(err); return null; }
 }
 
 function takeSign(d) {
