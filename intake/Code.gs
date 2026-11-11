@@ -282,7 +282,7 @@ function doGet(e) {
       round: roundLabel(),
       campaigns: typeof campaignsJson === 'function',  // 감시사업 부분이 들어갔는지
       campaignSheet: campaignCheck(),                  // 감시사업 탭의 머리글
-      signSheet: signCheck()                           // 서명 시트(다른 파일)의 머리글·줄 수
+      signSheet: signCheck()                           // 서명 탭의 머리글·줄 수
     })).setMimeType(ContentService.MimeType.JSON);
   }
 
@@ -573,8 +573,8 @@ function countsJson() {
       countTab(ss.getSheetByName(CAMP.sheetName), '감시사업 등록',
                '타임스탬프', [], today, yest),
       /* 서명은 사람이 처리할 것이 없으므로 '밀림' 이 늘 0 입니다. */
-      /* 서명은 2026-11-11 부터 다른 파일(아래 「서명」). 그 전 눈금 탭(제보 시트의 '서명', 1건)은 안 셉니다. */
-      countTab(signSheetOrNull(), '서명',
+      /* 서명 — 아래 「서명」 절. 11-11 전의 눈금 탭은 '서명 눈금(옛)' 으로 이름을 바꿔 안 셉니다. */
+      countTab(ss.getSheetByName(SIGN.name), '서명',
                '접수시각', [], today, yest)
     ]
   };
@@ -622,59 +622,44 @@ function countDay(v) {
 
 
 /* ══════════════════════════════════════════════════════════════════
-   서명 (2026-11-11) — 감시 참여 팝업이 보낸 것을 **다른 스프레드시트 파일**에 쌓습니다.
+   서명 (2026-11-11) — 감시 참여 팝업이 보낸 것을 이 시트의 `서명` 탭에 쌓습니다.
 
-   ★ 왜 다른 파일인가 — 제보 시트는 검토자 여럿에게 나눠 줍니다. 같은 파일에 두면
-     그 사람들 모두에게 서명한 사람의 이름·이메일·전화번호가 보입니다.
-     서명 파일은 이 스크립트 주인(action@)만 갖고, 필요한 사람에게만 따로 공유합니다.
+   ★ 2026-11-11 사용자 결정: 제보 시트는 **사무처 사람들만** 보므로 같은 파일에 둡니다
+     (처음엔 연락처를 가리려고 다른 파일로 만들었다가 되돌림 — 「제보시트는 사무처 사람들만 보는거니까」).
+     ⚠️ 그래서 이 파일을 사무처 밖 사람에게 공유하면 서명자 이름·이메일·전화번호도 같이 보입니다.
    ★ 2026-11-06 사용자 결정: 도너스 API 를 쓰지 않습니다. 몇 명 안 돼서
      도너스에는 사람이 손으로 옮깁니다(이메일·문자 수신만 켜고, 이미 있는 사람은
      새로 만들지 않음 — README 「서명」). 옮기는 코드는 만들지 않습니다.
-
-   ★ 파일은 첫 서명 때 저절로 생깁니다(편집기에서 `setUpSignSheet` 를 눌러도 됨).
-     파일을 만들고 그 id 를 스크립트 속성 `signSheetId` 에 적은 뒤 주소를 로그에 찍습니다.
-     다시 눌러도 새로 만들지 않습니다(있는 파일을 씁니다).
+   ★ 탭은 첫 서명이나 `?action=check` 때 저절로 생깁니다(`setUpSignSheet`).
+     11-11 전 눈금 탭(`서명`, 칸 둘: 접수시각·사업)이 있으면 `서명 눈금(옛)` 으로 이름만 바꿉니다.
    ══════════════════════════════════════════════════════════════════ */
 var SIGN = {
-  file: '밑빠진 독상 서명',
   name: '서명',
   head: ['접수시각', '사업 id', '사업 이름', '이름', '이메일', '휴대전화',
          '개인정보 동의', '소식 수신 동의', '동의 문구 판', '유입 경로']
 };
 
 function setUpSignSheet() {
-  var props = PropertiesService.getScriptProperties();
-  var ss = null, id = props.getProperty('signSheetId');
-  if (id) { try { ss = SpreadsheetApp.openById(id); } catch (err) { ss = null; } }
-  if (!ss) {
-    ss = SpreadsheetApp.create(SIGN.file);
-    props.setProperty('signSheetId', ss.getId());
-  }
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sh = ss.getSheetByName(SIGN.name);
-  if (!sh) {
-    sh = ss.getSheets()[0];
-    sh.setName(SIGN.name);
+  if (sh && sh.getLastColumn() <= 2 && trim(sh.getRange(1, 2).getValue()) === '사업') {
+    sh.setName('서명 눈금(옛)');           // 11-11 전 눈금 탭 — 지우지 않고 비켜 둡니다
+    sh = null;
   }
+  if (!sh) sh = ss.insertSheet(SIGN.name);
   if (sh.getLastRow() === 0) {
     sh.appendRow(SIGN.head);
     sh.getRange(1, 1, 1, SIGN.head.length).setFontWeight('bold').setBackground('#e2f5fd');
     sh.setFrozenRows(1);
     sh.getRange(2, 1, sh.getMaxRows() - 1, 1).setNumberFormat('yyyy-MM-dd HH:mm');
   }
-  console.log('서명 시트 — ' + ss.getUrl() +
-              '\n⚠️ "링크가 있는 모든 사용자" 로 열지 마세요. 이름·이메일·전화번호가 들어 있습니다.');
-  return ss.getUrl();
+  return sh;
 }
 
-/* 없으면 첫 서명 때 setUpSignSheet 가 만듭니다 — 편집기에서 손으로 안 눌러도 됩니다(2026-11-11). */
 function signSheet() {
-  var id = PropertiesService.getScriptProperties().getProperty('signSheetId');
-  if (!id) { setUpSignSheet(); id = PropertiesService.getScriptProperties().getProperty('signSheetId'); }
-  return SpreadsheetApp.openById(id).getSheetByName(SIGN.name);
-}
-
-function signSheetOrNull() {
-  try { return signSheet(); } catch (err) { console.error(err); return null; }
+  var sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(SIGN.name);
+  if (!sh || trim(sh.getRange(1, 3).getValue()) !== SIGN.head[2]) sh = setUpSignSheet();
+  return sh;
 }
 
 function takeSign(d) {
