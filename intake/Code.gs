@@ -158,6 +158,7 @@ function doPost(e) {
     if (!e || !e.postData || !e.postData.contents) return reply(false, '빈 요청');
 
     var d = JSON.parse(e.postData.contents);
+    if (d.form === 'dok-sign') return takeSign(d);     // 서명 — 아래 「서명」 절
     if (d.form !== 'dok-report') return reply(false, '모르는 폼');
 
     /* 허니팟 — 사람에게는 안 보이는 칸입니다. 채워져 있으면 자동 프로그램입니다.
@@ -280,8 +281,24 @@ function doGet(e) {
       rows: rowCount,
       round: roundLabel(),
       campaigns: typeof campaignsJson === 'function',  // 감시사업 부분이 들어갔는지
-      campaignSheet: campaignCheck()                   // 감시사업 탭의 머리글
+      campaignSheet: campaignCheck(),                  // 감시사업 탭의 머리글
+      signSheet: signCheck()                           // 서명 시트(다른 파일)의 머리글·줄 수
     })).setMimeType(ContentService.MimeType.JSON);
+  }
+
+  /* 사업별 서명 수 — `?action=signs`. **수만** 나갑니다(이름·연락처는 안 나감).
+     페이지를 열 때마다 부르므로 1분 재워 둡니다. */
+  if (action === 'signs') {
+    var gCache = CacheService.getScriptCache();
+    var gHit = gCache.get('signs');
+    if (!gHit) {
+      var counts = {}, gOk = true;
+      try { counts = signCounts(); } catch (err) { console.error(err); gOk = false; }
+      gHit = JSON.stringify({ ok: gOk, counts: counts });
+      if (gOk) gCache.put('signs', gHit, 60);
+    }
+    return ContentService.createTextOutput(gHit)
+      .setMimeType(ContentService.MimeType.JSON);
   }
 
   if (action !== 'regions') {
@@ -524,6 +541,118 @@ function reply(ok, why) {
 
 function trim(v) { return (typeof v === 'string') ? v.trim() : ''; }
 function cut(v) { var s = trim(v); return s.length > MAX_LEN ? s.slice(0, MAX_LEN) + '…' : s; }
+
+
+/* ══════════════════════════════════════════════════════════════════
+   서명 (2026-11-11) — 감시 참여 팝업이 보낸 것을 **다른 스프레드시트 파일**에 쌓습니다.
+
+   ★ 왜 다른 파일인가 — 제보 시트는 검토자 여럿에게 나눠 줍니다. 같은 파일에 두면
+     그 사람들 모두에게 서명한 사람의 이름·이메일·전화번호가 보입니다.
+     서명 파일은 이 스크립트 주인(action@)만 갖고, 필요한 사람에게만 따로 공유합니다.
+   ★ 2026-11-06 사용자 결정: 도너스 API 를 쓰지 않습니다. 몇 명 안 돼서
+     도너스에는 사람이 손으로 옮깁니다(이메일·문자 수신만 켜고, 이미 있는 사람은
+     새로 만들지 않음 — README 「서명」). 옮기는 코드는 만들지 않습니다.
+
+   ★ 붙여넣고 한 번 — 편집기에서 `setUpSignSheet` 를 골라 ▶ 실행.
+     파일을 만들고 그 id 를 스크립트 속성 `signSheetId` 에 적은 뒤 주소를 로그에 찍습니다.
+     다시 눌러도 새로 만들지 않습니다(있는 파일을 씁니다).
+   ══════════════════════════════════════════════════════════════════ */
+var SIGN = {
+  file: '밑빠진 독상 서명',
+  name: '서명',
+  head: ['접수시각', '사업 id', '사업 이름', '이름', '이메일', '휴대전화',
+         '개인정보 동의', '소식 수신 동의', '동의 문구 판', '유입 경로']
+};
+
+function setUpSignSheet() {
+  var props = PropertiesService.getScriptProperties();
+  var ss = null, id = props.getProperty('signSheetId');
+  if (id) { try { ss = SpreadsheetApp.openById(id); } catch (err) { ss = null; } }
+  if (!ss) {
+    ss = SpreadsheetApp.create(SIGN.file);
+    props.setProperty('signSheetId', ss.getId());
+  }
+  var sh = ss.getSheetByName(SIGN.name);
+  if (!sh) {
+    sh = ss.getSheets()[0];
+    sh.setName(SIGN.name);
+  }
+  if (sh.getLastRow() === 0) {
+    sh.appendRow(SIGN.head);
+    sh.getRange(1, 1, 1, SIGN.head.length).setFontWeight('bold').setBackground('#e2f5fd');
+    sh.setFrozenRows(1);
+    sh.getRange(2, 1, sh.getMaxRows() - 1, 1).setNumberFormat('yyyy-MM-dd HH:mm');
+  }
+  console.log('서명 시트 — ' + ss.getUrl() +
+              '\n⚠️ "링크가 있는 모든 사용자" 로 열지 마세요. 이름·이메일·전화번호가 들어 있습니다.');
+  return ss.getUrl();
+}
+
+function signSheet() {
+  var id = PropertiesService.getScriptProperties().getProperty('signSheetId');
+  if (!id) throw new Error('서명 시트가 없습니다 — setUpSignSheet 를 먼저 실행하세요.');
+  return SpreadsheetApp.openById(id).getSheetByName(SIGN.name);
+}
+
+function takeSign(d) {
+  /* 허니팟 — 제보와 같습니다. 조용히 성공으로 답합니다. */
+  if (trim(d.website)) return signReply(true, '', null);
+
+  var name = cut(d.name).slice(0, 100);
+  var email = cut(d.email).slice(0, 200);
+  var phone = cut(d.phone).slice(0, 30);
+  var campaign = cut(d.campaign_id).slice(0, 100);
+  if (!name) return signReply(false, '이름을 적어주세요.', null);
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return signReply(false, '이메일 주소를 다시 확인해주세요.', null);
+  if (!/^0\d{8,10}$/.test(phone.replace(/\D/g, ''))) return signReply(false, '휴대전화번호를 다시 확인해주세요.', null);
+  if (d.consent_privacy !== true) return signReply(false, '개인정보 수집·이용에 동의해주세요.', null);
+  if (!campaign) return signReply(false, '어느 사업인지 알 수 없습니다. 페이지를 새로 고쳐 주세요.', null);
+
+  var lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    var sh = signSheet();
+    /* 전화번호 앞의 ' 는 시트가 01012345678 을 숫자로 읽어 0 을 떼는 것을 막습니다. */
+    sh.appendRow([new Date(), campaign, cut(d.campaign_name).slice(0, 200), name, email, "'" + phone,
+                  'Y', d.consent_news === true ? 'Y' : 'N', cut(d.consent_version).slice(0, 20),
+                  utmText(d.utm)]);
+    var total = signCounts(sh)[campaign] || 0;
+    CacheService.getScriptCache().remove('signs');
+    return signReply(true, '', total);
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+/* 사업 id 칸만 읽어 셉니다. **서명 건수이지 사람 수가 아닙니다** — 같은 사람이 두 번 내면 2. */
+function signCounts(sh) {
+  sh = sh || signSheet();
+  var out = {}, n = sh.getLastRow() - 1;
+  if (n > 0) {
+    sh.getRange(2, 2, n, 1).getValues().forEach(function (r) {
+      var k = String(r[0]).trim();
+      if (k) out[k] = (out[k] || 0) + 1;
+    });
+  }
+  return out;
+}
+
+/* `?action=check` 에 붙는 것 — 머리글과 줄 수만. */
+function signCheck() {
+  try {
+    var sh = signSheet();
+    var got = sh.getRange(1, 1, 1, SIGN.head.length).getValues()[0].map(function (v) { return trim(v); });
+    return { ok: got.join('|') === SIGN.head.join('|'), actual: got, rows: Math.max(0, sh.getLastRow() - 1) };
+  } catch (err) {
+    return { ok: false, error: String(err.message || err) };
+  }
+}
+
+function signReply(ok, why, total) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ ok: ok, error: why, total: total }))
+    .setMimeType(ContentService.MimeType.JSON);
+}
 
 /* ══════════════════════════════════════════════════════════════════
    여기서부터 감시사업 등록입니다 — 제보와는 아무 상관이 없습니다.
