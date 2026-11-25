@@ -57,5 +57,8 @@ jobs:
         with:
           path: public
 
+      # 올린 묶음이 깃허브 목록에 뜨기 전에 찾으면 「Found 0 artifact(s)」 로 실패한다(2026-11-24·25).
+      - run: sleep 15
+
       - id: deployment
         uses: actions/deploy-pages@v4
