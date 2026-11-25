@@ -9,6 +9,7 @@
 굽는 것 —
   public/data/campaigns.json   사업 목록 + 사진 사본 표
   public/data/stories.json     활동가의 글 목록 + 본문
+  public/data/timeline.json    추적기 — 홈페이지 예산 감시 글(#태그). 홈페이지도 읽어 간다
   public/img/camp-*·story-*    본문·카드에 박힌 사진
 
 사진을 파일로 꺼내는 까닭 —
@@ -24,12 +25,14 @@
 """
 import base64
 import datetime
+import html
 import json
 import mimetypes
 import os
 import re
 import sys
 import time
+import urllib.parse
 import urllib.request
 
 # 윈도우 콘솔은 cp949 라 '—' 한 글자에 죽는다. 찍는 자리마다 신경 쓰지 않도록 여기서 한 번.
@@ -252,6 +255,79 @@ def bake_stories(ep):
         print('         %d편은 본문을 못 받았다 — 누를 때 받는다' % failed)
 
 
+# ── 추적기 ────────────────────────────────────────────────────────
+# 시민행동 홈 「예산 감시」(/27) 글 가운데 **글 끝에 #태그 를 단 것**만 모은다.
+# 새 글은 글 끝에 태그만 달면 다음 굽기 때 저절로 들어온다(낱말 검색은 엉뚱한 글이 섞여 안 씀).
+# 새 사안은 ISSUES 에 한 덩이를 더한다. camp 는 감시사업 id.
+# more — 게시판 글이 아닌 줄과, 태그를 아직 안 단 옛 글. 태그를 달면 주소로 겹침을 걸러 한 번만 나온다.
+# ponytail: 검색 첫 쪽(12편)만 읽는다. 한 사안이 12편을 넘으면 &page= 를 더 돌 것.
+HOME = 'https://action.or.kr'
+
+
+def post(idx):
+    return '%s/27/?idx=%s&bmode=view' % (HOME, idx)
+
+
+ISSUES = [
+    dict(camp='camp-3', tag='미래대응기금', title='미래대응기금 추적기', more=[
+        dict(date='2026-07-27', kind='논평', title='미래대응기금, 빠른 추진보다 충분한 사전논의가 먼저다.', url=post(172690687)),
+        dict(date='2026-08-11', kind='캠페인', title='더 걷힐 세금, 어디에 쓸래? 추가세수 시민의견 수렴 캠페인(~8.31.)', url=post(173013295)),
+        dict(date='2026-08-25', kind='논평', title='미래대응기금, 대규모 재정운용체계 변화에 걸맞은 촘촘한 설계가 필요하다', url=post(173415033)),
+        dict(date='2026-09-22', kind='공개질의', title='국회 3개 상임위원회 의원들에게 공개질의서를 보냈습니다', url=''),
+        dict(date='2026-10-01', kind='글', title='미래대응기금, 국회의원은 공개질의에 답해야 한다.', url=post(174920697)),
+        dict(date='2026-10-14', kind='글', title='미래대응기금에 관한 국회의 책임있는 논의과 입장이 필요하다', url=post(175095536)),
+        dict(date='2026-11-19', kind='영상', title='미래대응기금 전체 영상(16분)', url='https://youtu.be/-vbBNulWrPo'),
+    ]),
+]
+
+
+def read_board(page):
+    """캠페이너스 카드형 게시판 한 쪽 → [{date, kind, title, url}]"""
+    out = {}
+    for a in re.findall(r'<a class="post_link_wrap.*?</a>', page, re.S):
+        idx = re.search(r'[?&;]idx=(\d+)', a)
+        box = re.search(r'title-block">(.*?)</div>', a, re.S)
+        day = re.search(r'class="date" title="(\d{4}-\d\d-\d\d)', a)
+        if not (idx and box and day):
+            continue
+        ems = [e.strip() for e in re.findall(r'<em[^>]*>(.*?)</em>', box.group(1), re.S)]
+        t = re.sub(r'<!--.*?-->|<em.*?</em>|<[^>]+>', '', box.group(1), flags=re.S)
+        t = re.sub(r'\s+', ' ', html.unescape(t)).strip()
+        m = re.match(r'\[(.{2,6}?)\]\s*', t)
+        out[idx.group(1)] = dict(
+            date=day.group(1),
+            kind=m.group(1) if m else '글' if not ems or ems[-1] == '일반' else ems[-1],
+            title=t[m.end():] if m else t,
+            url=post(idx.group(1)))
+    return list(out.values())
+
+
+def merge(found, more):
+    urls = set(p['url'] for p in found)
+    return sorted(found + [p for p in more if not p['url'] or p['url'] not in urls], key=lambda p: p['date'])
+
+
+def bake_timeline():
+    res = []
+    for s in ISSUES:
+        try:
+            raw, _ = get('%s/27/?keyword=%s' % (HOME, urllib.parse.quote('#' + s['tag'])))
+            found = read_board(raw.decode('utf-8', 'replace'))
+        except Exception as err:
+            print('  추적기 못 받았다(%s) — 사본을 그대로 둔다' % err)
+            return
+        if not found:                   # 막혔거나 게시판 꼴이 바뀐 것이다
+            print('  추적기 #%s 글을 하나도 못 읽었다 — 사본을 그대로 둔다' % s['tag'])
+            return
+        res.append(dict(camp=s['camp'], title=s['title'], items=merge(found, s['more'])))
+    write(os.path.join(DATA, 'timeline.json'), {
+        '_주석': ['굽는 파일입니다 — 고치는 곳은 tools/bake.py 의 ISSUES 와 홈페이지 글 끝의 #태그.'],
+        '구운때': now(),
+        'issues': res,
+    })
+    print('  추적기 %s' % ' · '.join('%s %d줄' % (s['title'], len(s['items'])) for s in res))
+
+
 def now():
     return datetime.datetime.now().strftime('%Y-%m-%d %H:%M')
 
@@ -265,6 +341,7 @@ def main():
     ep = endpoint()
     bake_campaigns(ep)
     bake_stories(ep)
+    bake_timeline()
     if made:
         print('  사진   %d장을 img/ 로 꺼냈다 — %s'
               % (len(made), ', '.join('%s %.0fKB' % (n, s / 1024.0) for n, s in made)))
